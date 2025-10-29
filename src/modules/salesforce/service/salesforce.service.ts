@@ -1,10 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { handleQuery } from 'src/config/utils';
+import { first } from 'rxjs';
+import { handleInsertQuery } from 'src/config/utils';
 @Injectable()
 export class SalesforceService {
     constructor(private configService: ConfigService) { }
+    async getAccountBulk() {
 
+    }
     async getAccount() {
         const result = await fetch(process.env.ISTANCEURL + '/services/data/v65.0/query?q=SELECT+Id,+Name+FROM+Account+LIMIT+10', {
             method: 'GET',
@@ -34,8 +37,11 @@ export class SalesforceService {
     }
     async createAccount2() {
         const accountData = {
-            Name: "New Account from API"
+            phone: "1234567890",
+            email: "am@gm.fr",
+            firstname: "Amine",
+            lastname: "Mokhtari"
         };
-        return await handleQuery('/services/data/v65.0/sobjects/Account/', accountData);
+        return await handleInsertQuery('/services/data/v65.0/sobjects/', 'Contact/', accountData);
     }
 }

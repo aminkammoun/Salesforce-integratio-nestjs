@@ -1,8 +1,4 @@
 import { PartialType } from '@nestjs/mapped-types';
-class ChildDto {
-    firstName: string;
-    lastName: string;
-    nationality: string;
-    status: 'Available' | 'Sponsored' | 'Archived';
-}
-export class UpdateContactDto extends PartialType(ChildDto) { }
+import { CreateChildDto } from './create-child.dto';
+
+export class UpdateContactDto extends PartialType(CreateChildDto) { }

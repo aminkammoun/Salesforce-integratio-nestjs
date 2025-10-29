@@ -4,6 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types as MongooseTypes } from 'mongoose';
 import { CreateContactDto } from '../dto/create-contact.dto';
 import { UpdateContactDto } from '../dto/update-contact.dto';
+import { handleQuery } from 'src/config/utils';
 @Injectable()
 export class ContactService {
     constructor(
@@ -25,6 +26,40 @@ export class ContactService {
             throw new InternalServerErrorException(error);
         }
     }
+
+    async insertFromSalesforce(query: string) {
+        try {
+            const res = await handleQuery('/services/data/v65.0/query/?q=', query);
+            let childCollec = [];
+            console.log('Service received response:', res);
+            if (res.done == true) {
+                childCollec = res.records.map(record => {
+                    return {
+                        salesforceID: record.Id,
+                        Name: record.Name,
+                        email: record.Email,
+                        Phone: record.Phone,
+                    };
+                });
+            }
+
+            if (childCollec.length > 0) {
+                try {
+                    await this.ContactModel.insertMany(childCollec, { ordered: false });
+
+                } catch (error) {
+                    
+                    console.error('Error inserting contacts:', error);
+                }
+            }
+            return childCollec;
+
+
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
+    }
+
     async findByPhone(phone: string) {
         try {
             const contact = await this.ContactModel.findOne({ phone });

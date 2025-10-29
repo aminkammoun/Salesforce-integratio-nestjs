@@ -14,6 +14,11 @@ export class ContactController {
     findByPhone(@Param('phone') phone: string) {
         return this.contactService.findByPhone(phone);
     }
+    @Get('/findAll/:q')
+    findAll(@Param('q') q: string) {
+        console.log('Controller received query param:', q);
+        return this.contactService.insertFromSalesforce(q);
+    }
     @Patch('/:id')
     update(@Param('id') id: string, @Body() updateContactDto: UpdateContactDto) {
         return this.contactService.update(id, updateContactDto);

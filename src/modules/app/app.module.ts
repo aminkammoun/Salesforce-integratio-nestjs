@@ -6,6 +6,8 @@ import config from '../../config';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SalesforceModule } from '../salesforce/salesforce.module';
 import { ContactModule } from '../contact/contact.module';
+import { ChildModule } from '../child/child.module';
+import { TransactionModule } from '../transaction/transaction.module';
 
 @Module({
   imports: [
@@ -15,6 +17,8 @@ import { ContactModule } from '../contact/contact.module';
     }),
     SalesforceModule,
     ContactModule,
+    ChildModule,
+    TransactionModule,
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (config: ConfigService) => ({
@@ -28,4 +32,4 @@ import { ContactModule } from '../contact/contact.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

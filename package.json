@@ -26,7 +26,9 @@
     "@nestjs/mapped-types": "^2.1.0",
     "@nestjs/mongoose": "^11.0.3",
     "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/swagger": "^11.2.1",
     "@ntegral/nestjs-force": "^2.0.0",
+    "class-validator": "^0.14.2",
     "jsforce": "^3.10.8",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"
