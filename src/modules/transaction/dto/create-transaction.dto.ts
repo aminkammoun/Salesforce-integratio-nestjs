@@ -149,4 +149,8 @@ export class CreateTransactionDto {
     @IsOptional()
     @IsString()
     Stripe_Customer_ID__c: string;
+    @ApiPropertyOptional({ description: 'Customer ID from strip', example: '  ' })
+    @IsOptional()
+    @IsString()
+    salesforceDonation: string;
 }

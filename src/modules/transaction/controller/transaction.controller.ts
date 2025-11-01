@@ -22,8 +22,8 @@ export class TransactionController {
         // This method would typically call a service to retrieve a specific transaction by ID
         return this.transactionService.findOne(id);
     }
-    @Post('/:id')
-    update(@Param('id')  id: string, @Body() updateTransactionDto: UpdateTransactiontDto) {
+    @Post('/update/:id')
+    update(@Param('id') id: string, @Body() updateTransactionDto: UpdateTransactiontDto) {
         // This method would typically call a service to update a specific transaction by ID
         return this.transactionService.update(id, updateTransactionDto);
     }
@@ -31,5 +31,9 @@ export class TransactionController {
     delete(@Param('id') id: string) {
         // This method would typically call a service to delete a specific transaction by ID
         return this.transactionService.delete(id);
+    }
+    @Post('/sync-salesforce-donations')
+    async syncSalesforceDonations() {
+        return this.transactionService.updateTransactionsWithSalesforceDonation();
     }
 }

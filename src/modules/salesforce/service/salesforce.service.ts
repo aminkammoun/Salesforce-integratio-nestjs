@@ -44,4 +44,11 @@ export class SalesforceService {
         };
         return await handleInsertQuery('/services/data/v65.0/sobjects/', 'Contact/', accountData);
     }
+
+    async stripWebhook(req : any) {
+        const payload = req.body;
+        console.log('Received webhook payload:', payload);
+        // Here you would process the webhook data as needed
+        return { message: 'Webhook received successfully' };
+    }
 }

@@ -1,4 +1,4 @@
-import { Controller, Get, Post } from '@nestjs/common';
+import { Controller, Get, Post, Request } from '@nestjs/common';
 import { SalesforceService } from '../service/salesforce.service';
 @Controller('salesforce')
 export class SalesforceController {
@@ -23,5 +23,11 @@ export class SalesforceController {
     @Post('/createAccount2')
     createAccount2() {
         return this.salesforceService.createAccount2();
+    }
+    @Post('/wh')
+    stripWebhook(@Request() req: any) {
+        console.log('Received webhook data:',);
+        return this.salesforceService.stripWebhook(req);
+
     }
 }

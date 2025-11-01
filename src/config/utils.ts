@@ -2,6 +2,7 @@ export async function handleInsertQuery(query: string,
     object: string,
     body: any
 ) {
+    console.log(process.env.ISTANCEURL + query + object)
     const res = await fetch(process.env.ISTANCEURL + query + object, {
         method: "POST",
         headers: {
@@ -14,7 +15,10 @@ export async function handleInsertQuery(query: string,
 
     try {
         const json = await res.json();
-        console.log('handleQuery Result:', json);
+        console.log('Salesforce Insert Response:', json);
+        if (object.includes('Opportunity') && json.success) {
+            return { message: 'Donation created successfully in Salesforce', salesforceId: json.id };
+        }
         return json.data;
     } catch (err) {
         console.error(err);
@@ -37,7 +41,7 @@ export async function handleQuery(version: string, query: string) {
         throw new Error(`HTTP error! status: ${res.status}`);
     }
     return await res.json();
-    
+
 
 }
 

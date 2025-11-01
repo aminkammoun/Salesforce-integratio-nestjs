@@ -56,7 +56,8 @@ export class Transaction extends Document {
     donation: MongooseSchema.Types.ObjectId;
     @Prop({ required: false })
     note: string;
-
+    @Prop({ required: false })
+    salesforceDonation : string;
 }
 
 export const TransactionSchema = SchemaFactory.createForClass(Transaction);

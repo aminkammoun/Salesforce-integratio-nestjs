@@ -8,6 +8,9 @@ import { SalesforceModule } from '../salesforce/salesforce.module';
 import { ContactModule } from '../contact/contact.module';
 import { ChildModule } from '../child/child.module';
 import { TransactionModule } from '../transaction/transaction.module';
+import { DonationModule } from '../donation/donation.module';
+import { UserModule } from '../user/user.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
@@ -19,6 +22,10 @@ import { TransactionModule } from '../transaction/transaction.module';
     ContactModule,
     ChildModule,
     TransactionModule,
+    DonationModule,
+    UserModule,
+    AuthModule,
+
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (config: ConfigService) => ({
