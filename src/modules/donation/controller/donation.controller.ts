@@ -20,11 +20,18 @@ export class DonationController {
     update(@Param('id') id: string, @Body() updateDonationDto: UpdateDonationDto) {
         return this.donationService.update(id, updateDonationDto);
     }
+
+    @Get('/findBySalesforceID/:contact')
+    findBySalesforceID(@Param('contact') contact: string) {
+        console.log('Controle contact:', contact);
+        return this.donationService.findDonationBySalesforceID(contact);
+    }
+
     @Get('/:id')
     findOne(@Param('id') id: string) {
-        return this.donationService.findOne(id);
+        return this.donationService.findOneId(id);
     }
-    @Post('/insert')
+    @Post('/insertToSalesforce')
     insert(@Body() createDonationDto: any) {
         console.log('Received request to create donation in Salesforce:', createDonationDto);
         // Pass the actual DTO instance to the service (not a string literal)

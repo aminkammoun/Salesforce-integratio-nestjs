@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsString, IsNotEmpty, IsOptional, IsNumber, IsISO8601, IsEnum } from 'class-validator';
+import { ChildToreserve } from 'src/config/types';
 
 export enum DonationStageName {
     PENDING = 'pending',
@@ -23,6 +24,12 @@ export enum AcknowledgmentStatus {
     EMAILACKNOWLEDGEDNOW = 'Email Acknowledged Now',
     EMAILACKNOWLEDGEDNOTSENT = 'Email Acknowledged Not Sent',
 }
+export enum Frequency {
+    ONETIME = 'One time',
+    MONTHLY = 'Monthly',
+    YEARLY = 'Yearly',
+
+}
 /**
  * DTO used to create a Donation record.
  * Mirrors the Donation entity fields and includes Swagger metadata + validation.
@@ -32,7 +39,12 @@ export class CreateDonationDto {
     @IsString()
     @IsNotEmpty()
     donationID: string;
-
+    @ApiPropertyOptional({
+        description: 'ID of the donor (user) initiating the transaction in the sub database',
+        example: '0031t00000XyZzAAB',
+    })
+    @IsNotEmpty()
+    contact?: string;
     @ApiProperty({ description: 'Donation name', example: 'General Fund Donation' })
     @IsString()
     @IsNotEmpty()
@@ -77,7 +89,7 @@ export class CreateDonationDto {
     @ApiPropertyOptional({ description: 'Associated Event (optional)', example: 'Charity Gala 2025' })
     @IsOptional()
     @IsString()
-    Event__c?: string;
+    category?: string;
 
     @ApiPropertyOptional({ description: 'Acknowledgment status (optional)', example: 'Pending' })
     @IsString()
@@ -85,8 +97,23 @@ export class CreateDonationDto {
     npsp__Acknowledgment_Status__c?: AcknowledgmentStatus;
 
     @ApiPropertyOptional({ description: 'Id of the donation after insert into salesforce(optional)', example: '0121t000000XyZ' })
+    @IsOptional()
     @IsString()
     salesforceID?: string;
+    @ApiPropertyOptional({ description: 'Is the donation recurring?', example: false })
+    @IsOptional()
+    isRecurring?: boolean;
+    @ApiPropertyOptional({ description: 'If associated with a Recurring plan, pass the Recurring document _id here', example: '64b8f9c2a2...' })
+    @IsOptional()
+    @IsString()
+    Recurring?: string;
+    @ApiPropertyOptional({ description: 'If recurring, frequency in months (e.g. 1=monthly, 3=Yearly)', example: 1 })
+    @IsOptional()
+    @IsEnum(Frequency)
+    frequency?: Frequency;
+    @ApiPropertyOptional({ description: 'If recurring, frequency in months (e.g. 1=monthly, 3=Yearly)', example: 1 })
+    @IsOptional()
+    donation_details?: ChildToreserve[];
 }
 
 export default CreateDonationDto;

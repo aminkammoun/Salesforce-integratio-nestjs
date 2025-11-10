@@ -1,31 +1,45 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema } from 'mongoose';
+import { ChildToreserve } from 'src/config/types';
+import { Contact } from 'src/modules/contact/entities/contact.entity';
 
 @Schema()
 export class Donation extends Document {
-    @Prop({ required: true, unique: true })
+    @Prop({ required: false, unique: true })
     donationID: string;
+    @Prop({
+        type: String,
+        required: false,
+        ref: Contact.name
+    })
+    contact: string;
     @Prop({ required: true })
-    Name : string
+    Name: string
     @Prop({ default: Date.now })
-    CloseDate : Date
+    CloseDate: Date
     @Prop({ required: true })
-    StageName : string
+    StageName: string
     @Prop({ required: false })
-    Amount : number
+    Amount: number
     @Prop({ required: false })
-    npsp__Primary_Contact__c : string
+    npsp__Primary_Contact__c: string
     @Prop({ required: false })
-    Donation_Source__c : string
+    Donation_Source__c: string
     @Prop({ required: false })
-    RecordTypeId : string
+    RecordTypeId: string
     @Prop({ required: false })
-    Payment_Method__c : string
+    Payment_Method__c: string
     @Prop({ required: false })
-    Event__c : string    
+    Category: string
     @Prop({ required: false })
-    npsp__Acknowledgment_Status__c : string
+    npsp__Acknowledgment_Status__c: string
     @Prop({ required: false })
-    salesforceID : string
+    salesforceID: string
+    @Prop({ required: false, default: false })
+    isRecurring: boolean
+    @Prop({ required: false })
+    frequency?: string
+    @Prop({required: false })
+    donation_details: ChildToreserve[];
 }
 export const DonationSchema = SchemaFactory.createForClass(Donation);
