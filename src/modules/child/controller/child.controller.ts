@@ -13,14 +13,17 @@ export class ChildController {
         return this.childService.findAll(q);
     }
 
-    @Post('/create')
+    @Post('/createSponsorship')
     create() {
         return "Create child endpoint";
     }
-
+    @Post('/reserve')
+    update(@Body() childToreserve: ChildToreserve[]) {       
+        return this.childService.reserveChildren(childToreserve);
+    }
     // Use POST because we expect a request body with requested counts
-    @Post('/by-nationality')
+    @Post('/available')
     async getChildrenByNationality(@Body() childToreserve: ChildToreserve[]) {
-        return this.childService.getChildrenByNationality(childToreserve);
+        return this.childService.getAvailableChildrenByNationality(childToreserve);
     }
 }

@@ -2,18 +2,20 @@ import { Injectable } from '@nestjs/common';
 import { handleQuery } from 'src/config/utils';
 import { Child } from '../entities/child.entity';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types as MongooseTypes } from 'mongoose';
+import { ClientSession, Model, Types as MongooseTypes } from 'mongoose';
 import { CreateChildDto } from '../dto/create-child.dto';
 import type { ChildToreserve } from 'src/config/types';
+import { Sponsorship } from 'src/modules/sponsorship/entities/sponsorship.entity';
 
 @Injectable()
 export class ChildService {
     constructor(
         @InjectModel(Child.name) private readonly ChildModel: Model<Child>,
+        @InjectModel(Sponsorship.name) private sponsorshipModel: Model<Sponsorship>,
     ) { }
     async findAll(query: string) {
         const res = await handleQuery('/services/data/v65.0/query/?q=', query);
-        let childCollec = [];
+        let childCollec: CreateChildDto[] = [];
         console.log('Service received response:', res);
         if (res.done == true) {
             childCollec = res.records.map(record => {
@@ -30,7 +32,13 @@ export class ChildService {
 
         if (childCollec.length > 0) {
             try {
-                await this.ChildModel.insertMany(childCollec, { ordered: false });
+                // Filter out records that already exist by SalesforceID
+                const existing = await this.ChildModel.find({ SalesforceID: { $in: childCollec.map(c => c.SalesforceID) } }, { SalesforceID: 1 }).lean();
+                const existingIds = new Set(existing.map(e => e.SalesforceID));
+                const toInsert = childCollec.filter(c => !existingIds.has(c.SalesforceID));
+                if (toInsert.length > 0) {
+                    await this.ChildModel.insertMany(toInsert, { ordered: false });
+                }
                 console.log('Children to be inserted into DB:', childCollec);
 
             } catch (error) {
@@ -49,7 +57,7 @@ export class ChildService {
         }
     }
 
-    async getChildrenByNationality(childToreserve: ChildToreserve[]) {
+    async getAvailableChildrenByNationality(childToreserve: ChildToreserve[]) {
         try {
             const nationalityCounts = await this.ChildModel.aggregate([
                 // First get all unique nationalities
@@ -109,7 +117,7 @@ export class ChildService {
                     }
                 }
             ]);
-            
+
             console.log(nationalityCounts)
             console.log(childToreserve);
 
@@ -152,5 +160,85 @@ export class ChildService {
             throw error;
         }
     }
+    async reserveChildren(childToreserve: ChildToreserve[]) {
+        try {
+            const reservationResults: { message: string; nationality: string; reservedCount: number; }[] = [];
+            for (const req of childToreserve) {
+                const nat = req.nationality;
+                const count = Number((req as any).Requestedcount) || 0;
+                const availableChildren = await this.ChildModel.find({ NationalityList__c: nat, Status__c: 'Available' }).limit(count);
+                const reservedIds = availableChildren.map(child => child._id);
+                await this.ChildModel.updateMany(
+                    { _id: { $in: reservedIds } },
+                    { $set: { Status__c: 'Sponsored' } }
+                );
+                if (reservedIds.length == 0) {
+                    reservationResults.push({ message: 'No available children to be sponsored for nationality ' + nat, nationality: nat, reservedCount: reservedIds.length });
 
+                } else {
+                    reservationResults.push({ message: reservedIds.length + ' ' + nat + ' children has been sponsored', nationality: nat, reservedCount: reservedIds.length });
+                }
+
+            }
+            return reservationResults;
+        } catch (error) {
+            console.error('Error reserving children:', error);
+            throw error;
+        }
+    }
+
+    async sponsorChildren(donorId: string, numberOfChildren: number) {
+        const session: ClientSession = await this.ChildModel.db.startSession();
+        session.startTransaction();
+
+        try {
+            // Step 1: Find available children
+            const availableChildren = await this.ChildModel
+                .find({ Status__c: 'Available' })
+                .limit(numberOfChildren)
+                .session(session);
+
+            if (availableChildren.length < numberOfChildren) {
+                throw new Error('Not enough available children for sponsorship');
+            }
+
+            // Step 2: Create Sponsorship record
+            const sponsorship = await this.sponsorshipModel.create(
+                [
+                    {
+                        donor: donorId,
+                        children: availableChildren.map((child) => child._id),
+                        status: 'pending',
+                    },
+                ],
+                { session },
+            );
+
+            // Step 3: Atomically mark selected children as "Sponsored"
+            const childIds = availableChildren.map((child) => child._id);
+
+            await this.ChildModel.updateMany(
+                {
+                    _id: { $in: childIds },
+                    Status__c: 'Available', // ensures we don’t overwrite children already taken
+                },
+                {
+                    $set: {
+                        Status__c: 'Sponsored',
+                        sponsorship: sponsorship[0]._id,
+                    },
+                },
+                { session },
+            );
+
+            await session.commitTransaction();
+            session.endSession();
+
+            return sponsorship[0];
+        } catch (err) {
+            await session.abortTransaction();
+            session.endSession();
+            throw err;
+        }
+    }
 }
