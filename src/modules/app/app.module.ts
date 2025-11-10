@@ -11,6 +11,8 @@ import { TransactionModule } from '../transaction/transaction.module';
 import { DonationModule } from '../donation/donation.module';
 import { UserModule } from '../user/user.module';
 import { AuthModule } from '../auth/auth.module';
+import { SponsorshipModule } from '../sponsorship/sponsorship.module';
+import { RecurringModule } from '../recurring/recurring.module';
 
 @Module({
   imports: [
@@ -25,7 +27,8 @@ import { AuthModule } from '../auth/auth.module';
     DonationModule,
     UserModule,
     AuthModule,
-
+    SponsorshipModule,
+    RecurringModule,
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (config: ConfigService) => ({
