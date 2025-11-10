@@ -12,17 +12,27 @@ export class ContactService {
     ) { }
     async create(createArticleDto: CreateContactDto) {
         try {
-            let contact = await this.ContactModel.findOne({ Phone: createArticleDto.Phone });
-
-            if (contact) {
-                throw new ConflictException('user with this Phone number alredy exists');
-            }
-            contact = new this.ContactModel({
+            // Clean the phone number
+            const cleanedData: any = {
                 ...createArticleDto,
-            });
+                Phone: createArticleDto.Phone?.replace(/[^0-9]/g, '') || createArticleDto.Phone,
+                // Set sync status based on whether this is from Salesforce
+                syncedWithSalesforce: !!createArticleDto.salesforceID
+            };
+            console.log('Creating contact with data:', createArticleDto.salesforceID);
+            // If salesforceID is empty string, remove it to avoid unique index conflicts
+            if (cleanedData.salesforceID == undefined || cleanedData.salesforceID === '') {
+                delete cleanedData.salesforceID;
+            }
+            
+            
+            const contact = new this.ContactModel(cleanedData);
             const response = await contact.save();
             return response;
         } catch (error) {
+            if (error.code === 11000) { // MongoDB duplicate key error
+                throw new ConflictException('Contact with this Salesforce ID already exists');
+            }
             throw new InternalServerErrorException(error);
         }
     }
@@ -34,12 +44,16 @@ export class ContactService {
             console.log('Service received response:', res);
             if (res.done == true) {
                 childCollec = res.records.map(record => {
-                    return {
-                        salesforceID: record.Id,
+                    const obj: any = {
                         Name: record.Name,
                         email: record.Email,
-                        Phone: record.Phone,
+                        Phone: record.Phone?.replace(/[^0-9]/g, '') || record.Phone,
                     };
+                    if (record.Id) {
+                        // Only include salesforceID when it's present and non-empty
+                        obj.salesforceID = record.Id;
+                    }
+                    return obj;
                 });
             }
 
@@ -48,7 +62,7 @@ export class ContactService {
                     await this.ContactModel.insertMany(childCollec, { ordered: false });
 
                 } catch (error) {
-                    
+
                     console.error('Error inserting contacts:', error);
                 }
             }
@@ -62,7 +76,26 @@ export class ContactService {
 
     async findByPhone(phone: string) {
         try {
-            const contact = await this.ContactModel.findOne({ phone });
+            if (!phone) {
+                throw new Error('Phone number is required');
+            }
+
+            console.log('Searching for exact phone number:', phone);
+            
+            // Do an exact match search first
+            const contacts = await this.ContactModel.find({ Phone: phone });
+            console.log('Found contacts:', contacts);
+           
+            return contacts;
+        } catch (error) {
+            console.error('Error finding contacts by phone:', error);
+            throw new InternalServerErrorException(error);
+        }
+    }
+    
+    async findByEmail(email: string) {
+        try {
+            const contact = await this.ContactModel.findOne({ email });
             return contact;
         } catch (error) {
             throw new InternalServerErrorException(error);

@@ -14,6 +14,10 @@ export class ContactController {
     findByPhone(@Param('phone') phone: string) {
         return this.contactService.findByPhone(phone);
     }
+    @Get('/email/:email')
+    findByEmail(@Param('email') email: string) {
+        return this.contactService.findByEmail(email);
+    }
     @Get('/findAll/:q')
     findAll(@Param('q') q: string) {
         console.log('Controller received query param:', q);
