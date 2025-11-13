@@ -25,15 +25,16 @@ export class CreateSponsorshipDto {
         example: '0031t00000XyZzAAB',
     })
     @IsNotEmpty()
-    child: string;
+    child: string[];
     @ApiProperty({ description: 'Unique donation ID (Salesforce or internal)', example: 'don_123456' })
     @IsString()
     @IsNotEmpty()
     Status: string;
+    
     @ApiProperty({ description: 'Unique donation ID (Salesforce or internal)', example: 'don_123456' })
     @IsString()
     @IsOptional()
-    Recurring: string;
+    Recurring?: string;
     @ApiPropertyOptional({ description: 'Start_Date__c (ISO 8601). If omitted, server may set default.', example: '2025-10-30T00:00:00.000Z' })
     @IsOptional()
     @IsISO8601()

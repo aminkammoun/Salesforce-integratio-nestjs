@@ -1,4 +1,8 @@
 export interface ChildToreserve {
     nationality: string;
-    Requestedcount : number; 
+    Requestedcount: number;
+}
+export interface SponsorshipChilds {
+    donorId: string;
+    childToreserve: ChildToreserve[];
 }

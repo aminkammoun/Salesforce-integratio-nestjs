@@ -11,19 +11,21 @@ export class Child extends Document {
     NationalityList__c: string;
     @Prop({ required: false })
     Age__c: number;
-    @Prop({ required: true, enum: ['Available', 'Sponsored', 'Archived'] })
+    @Prop({ required: true, enum: ['Available', 'Sponsored', 'Reserved', 'Archived'] })
     Status__c: string;
     @Prop({ required: true })
     url: string;
     @Prop({
         type: MongooseSchema.Types.ObjectId,
         ref: 'Sponsorship',
-        unique: true, // Ensures child can only be in one sponsorship
+        unique: false, // Ensures child can only be in one sponsorship
         sparse: true  // Allows null values (unsponsored children)
     })
     sponsorship: MongooseSchema.Types.ObjectId;
     @Prop({ default: Date.now })
     createdAt: Date;
+    @Prop({ default: null, required: true })
+    reservedAt: Date;
 }
 
 export const ChildSchema = SchemaFactory.createForClass(Child);

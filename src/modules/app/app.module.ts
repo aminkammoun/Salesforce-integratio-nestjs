@@ -13,6 +13,7 @@ import { UserModule } from '../user/user.module';
 import { AuthModule } from '../auth/auth.module';
 import { SponsorshipModule } from '../sponsorship/sponsorship.module';
 import { RecurringModule } from '../recurring/recurring.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { RecurringModule } from '../recurring/recurring.module';
       load: config,
       isGlobal: true,
     }),
+    ScheduleModule.forRoot(), // 🔥 this is required
     SalesforceModule,
     ContactModule,
     ChildModule,

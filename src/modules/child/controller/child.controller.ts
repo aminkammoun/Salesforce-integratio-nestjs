@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { ChildService } from '../service/child.service';
-import type { ChildToreserve } from 'src/config/types';
+import type { ChildToreserve, SponsorshipChilds } from 'src/config/types';
+import { UpdateChildDto } from '../dto/update-child.dto';
 
 
 
@@ -17,9 +18,14 @@ export class ChildController {
     create() {
         return "Create child endpoint";
     }
+    @Post('update/:id')
+    updateChild(@Param('id') id: string, @Body() updateChildDto: UpdateChildDto) {
+        return this.childService.updateChild(id, updateChildDto);
+    }
     @Post('/reserve')
-    update(@Body() childToreserve: ChildToreserve[]) {       
-        return this.childService.reserveChildren(childToreserve);
+    update(@Body() childToreserve: SponsorshipChilds) {
+        console.log('childToreserve:', childToreserve.childToreserve, childToreserve.donorId);
+        return this.childService.reserveChildren(childToreserve.childToreserve, childToreserve.donorId);
     }
     // Use POST because we expect a request body with requested counts
     @Post('/available')

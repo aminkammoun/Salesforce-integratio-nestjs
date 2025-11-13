@@ -7,7 +7,7 @@ import { Recurring } from 'src/modules/recurring/entities/recurring.entity';
 
 @Schema()
 export class Sponsorship extends Document {
-    @Prop({type: String})
+    @Prop({ type: String })
     name: string
 
     @Prop({
@@ -19,12 +19,11 @@ export class Sponsorship extends Document {
     sponsorshipID: string;
 
     @Prop({
-        type: MongooseSchema.Types.ObjectId,
+        type: [{ type: MongooseSchema.Types.ObjectId, ref: Child.name }],
         required: true,
-        ref: Child.name,
-        unique: true  // Ensures one-to-one relationship with Child
+        default: []
     })
-    child: MongooseSchema.Types.ObjectId;
+    child: MongooseSchema.Types.ObjectId[];
     @Prop({
         type: MongooseSchema.Types.ObjectId,
         required: true,
@@ -32,11 +31,11 @@ export class Sponsorship extends Document {
     })
     donor: MongooseSchema.Types.ObjectId;
     @Prop({
-        type: String,
+        type: MongooseSchema.Types.ObjectId,
         required: true,
         ref: Donation.name
     })
-    donation: string;
+    donation: MongooseSchema.Types.ObjectId;
     @Prop({ required: true })
     Status: string;
     @Prop({

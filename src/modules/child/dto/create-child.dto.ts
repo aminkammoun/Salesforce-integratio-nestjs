@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsOptional } from 'class-validator';
 
 export class CreateChildDto {
     @ApiProperty({ description: "Salesforce's unique ID for the child" })
@@ -13,9 +14,12 @@ export class CreateChildDto {
     @ApiPropertyOptional({ description: 'Calculated age (optional)', example: 10 })
     Age__c?: number;
 
-    @ApiProperty({ description: 'Status of the child', enum: ['Available', 'Sponsored', 'Archived'], example: 'Available' })
+    @ApiProperty({ description: 'Status of the child', enum: ['Available', 'Sponsored', 'Archived', 'Reserved'], example: 'Available' })
     Status__c: 'Available' | 'Sponsored' | 'Archived';
 
     @ApiPropertyOptional({ description: 'URL to child resource (optional)', example: '/services/data/..' })
-    url? : string;
+    url?: string;
+    @ApiPropertyOptional({ description: 'URL to child resource (optional)', example: '/services/data/..' })
+    @IsOptional()
+    reservedAt?: Date;
 }
