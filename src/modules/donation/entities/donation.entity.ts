@@ -5,14 +5,7 @@ import { Contact } from 'src/modules/contact/entities/contact.entity';
 
 @Schema()
 export class Donation extends Document {
-    @Prop({ required: false, unique: true })
-    donationID: string;
-    @Prop({
-        type: String,
-        required: false,
-        ref: Contact.name
-    })
-    contact: string;
+
     @Prop({ required: true })
     Name: string
     @Prop({ default: Date.now })
@@ -32,14 +25,27 @@ export class Donation extends Document {
     @Prop({ required: false })
     Category: string
     @Prop({ required: false })
-    npsp__Acknowledgment_Status__c: string
+    Acknowledgment_Status__c: string
+    @Prop({ required: false })
+    frequency?: string
+    
+    @Prop({ required: false })
+    donation_details: ChildToreserve[];
+    // Flag to track sync status with Salesforce
+    @Prop({ required: false, default: false })
+    syncedWithSalesforce: boolean;
     @Prop({ required: false })
     salesforceID: string
     @Prop({ required: false, default: false })
     isRecurring: boolean
-    @Prop({ required: false })
-    frequency?: string
-    @Prop({required: false })
-    donation_details: ChildToreserve[];
+    @Prop({ required: false, unique: true })
+    donationID: string;
+    @Prop({
+        type: String,
+        required: false,
+        ref: Contact.name
+    })
+    contact: string;
+
 }
 export const DonationSchema = SchemaFactory.createForClass(Donation);

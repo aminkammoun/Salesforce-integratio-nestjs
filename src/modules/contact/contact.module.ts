@@ -4,12 +4,16 @@ import { Contact } from './entities/contact.entity';
 import { ContactSchema } from './entities/contact.entity';
 import { ContactController } from './controller/contact.controller';
 import { ContactService } from './service/contact.service';
+import { DonationModule } from '../donation/donation.module';
+import { SponsorshipModule } from '../sponsorship/sponsorship.module';
 @Module({
-    imports: [
+  imports: [
+    DonationModule,
+    SponsorshipModule,
     MongooseModule.forFeature([{ name: Contact.name, schema: ContactSchema }]),
   ],
-    controllers: [ContactController],
-    providers: [ContactService],
-    exports: [ContactService],
+  controllers: [ContactController],
+  providers: [ContactService],
+  exports: [ContactService],
 })
-export class ContactModule {}
+export class ContactModule { }

@@ -45,6 +45,8 @@ export class Sponsorship extends Document {
     Recurring: string;
     @Prop({ default: Date.now })
     Start_Date__c: Date
+    @Prop({required: false})
+    Donor__c: string;
 
 }
 

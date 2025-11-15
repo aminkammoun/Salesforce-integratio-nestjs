@@ -8,6 +8,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { ContactService } from 'src/modules/contact/service/contact.service';
 import { DonationService } from 'src/modules/donation/service/donation.service';
 import { TransactionService } from 'src/modules/transaction/service/transaction.service';
+import { SponsorshipService } from 'src/modules/sponsorship/service/sponsorship.service';
 @Injectable()
 export class SalesforceService {
     private stripe: Stripe;
@@ -19,6 +20,7 @@ export class SalesforceService {
         @Inject() private readonly contactService: ContactService,
         @Inject() private readonly transactionService: TransactionService,
         @Inject() private readonly donationService: DonationService,
+        @Inject() private readonly sponsorshipService: SponsorshipService,
         @Inject('STRIPE_API_KEY') private readonly apiKey: string) {
         this.stripe = new Stripe(this.apiKey, {
             apiVersion: "2025-10-29.clover", // Use whatever API latest version
@@ -93,12 +95,17 @@ export class SalesforceService {
         }
         const logger = new Logger('StripeWebhook');
         logger.log(`metadata: ${object.metadata.donationID}`);
-        console.log('object.billing_details?.Phone', object.billing_details);
-        const contacts = await this.contactService.findByPhone(object.billing_details?.Phone);
+        logger.log(`metadata: ${object.metadata.sponsorshipId}`);
+        console.log('object.billing_details?.Phone', object.billing_details?.phone);
+        const contacts = await this.contactService.findByPhone(object.billing_details?.phone);
         const contact = Array.isArray(contacts) ? contacts[0] : contacts;
         if (!contact) {
             return res.status(200).json({ message: "Event ignored" });
         } else {
+            const sponsorshipId = event.data.object.metadata.sponsorshipId;
+            await this.sponsorshipService.updateToActive(sponsorshipId);
+
+
             const donation = await this.donationService.findOneId(object.metadata.donationID)
             if (donation) {
                 donation.StageName = 'Closed Won';
@@ -130,7 +137,7 @@ export class SalesforceService {
 
                 //const donationObj = donation.toObject();
                 await this.transactionService.create(transactionData);
-                
+
                 this.logger.log(`Donation ${donation._id} updated to Closed Won and transaction created.`);
                 return res.status(200).json({ message: "Donation and transaction updated" });
             }

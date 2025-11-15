@@ -2,7 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsString, IsNotEmpty, IsOptional, IsNumber, IsISO8601, IsEnum } from 'class-validator';
 
 export class CreateSponsorshipDto {
-    @ApiPropertyOptional({ 
+    @ApiPropertyOptional({
         description: 'Unique sponsorship ID. If not provided, one will be generated.',
         example: 'SP1234567890123'
     })
@@ -30,7 +30,7 @@ export class CreateSponsorshipDto {
     @IsString()
     @IsNotEmpty()
     Status: string;
-    
+
     @ApiProperty({ description: 'Unique donation ID (Salesforce or internal)', example: 'don_123456' })
     @IsString()
     @IsOptional()
@@ -39,5 +39,12 @@ export class CreateSponsorshipDto {
     @IsOptional()
     @IsISO8601()
     Start_Date__c?: string;
+    @ApiPropertyOptional({
+        description: 'ID of the donor (user) initiating the transaction in the sub database',
+        example: '0031t00000XyZzAAB',
+    })
+    @IsOptional()
+    @IsString()
+    Donor__c?: string;
 }
 

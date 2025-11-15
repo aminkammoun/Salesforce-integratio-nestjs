@@ -3,6 +3,7 @@ export interface ChildToreserve {
     Requestedcount: number;
 }
 export interface SponsorshipChilds {
+    donationId: string;
     donorId: string;
     childToreserve: ChildToreserve[];
 }

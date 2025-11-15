@@ -162,7 +162,7 @@ export class ChildService {
         }
     }
 
-    async reserveChildren(childToreserve: ChildToreserve[], donorId: string) {
+    async reserveChildren(childToreserve: ChildToreserve[], donorId: string,donationId:string) {
         const session: ClientSession = await this.ChildModel.db.startSession();
         session.startTransaction();
         try {
@@ -191,7 +191,7 @@ export class ChildService {
                 // Step 2: Create Sponsorship record
 
                 const sp = await this.sponsorshipService.create({
-                    donation: "690343f2d441305855664416",
+                    donation: donationId,
                     donor: donorId,
                     child: reservedIDs,
                     Status: 'pending',

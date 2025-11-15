@@ -21,7 +21,7 @@ import { ScheduleModule } from '@nestjs/schedule';
       load: config,
       isGlobal: true,
     }),
-    ScheduleModule.forRoot(), // 🔥 this is required
+    ScheduleModule.forRoot(), //this is required
     SalesforceModule,
     ContactModule,
     ChildModule,

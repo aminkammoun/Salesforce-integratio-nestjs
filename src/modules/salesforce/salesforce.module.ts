@@ -7,12 +7,14 @@ import config from '../../config';
 import { ContactModule } from '../contact/contact.module';
 import { DonationModule } from '../donation/donation.module';
 import { TransactionModule } from '../transaction/transaction.module';
+import { SponsorshipModule } from '../sponsorship/sponsorship.module';
 
 @Module({
     imports: [
         ContactModule,
         DonationModule,
         TransactionModule,
+        SponsorshipModule ,
         ConfigModule.forRoot({
             load: config,
             isGlobal: true,

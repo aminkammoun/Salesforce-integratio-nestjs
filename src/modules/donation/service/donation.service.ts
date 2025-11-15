@@ -48,12 +48,31 @@ export class DonationService {
     async findDonationBySalesforceID(contactId: string) {
         try {
             console.log('Searching for donation with contact ID:', contactId);
-            const donation = await this.DonationModel.findOne({ contact: contactId , StageName: 'Pendding'});
+            const donation = await this.DonationModel.findOne({ contact: contactId, StageName: 'Pendding' });
             console.log('Found donation for contact:', donation);
             return donation;
         } catch (error) {
             throw new InternalServerErrorException(error);
         }
+    }
+
+    async updateDonationByContactSalesforceId(contactId: string, ContactSalesforceID: string) {
+        try {
+            console.log('Searching for donation with contact ID:', contactId);
+            const donation = await this.DonationModel.find({ contact: contactId, syncedWithSalesforce: false });
+            if (!donation) {
+                throw new NotFoundException('Donation not found for the given contact ID');
+            }
+            donation.forEach(async (donationItem) => {
+                donationItem.npsp__Primary_Contact__c = ContactSalesforceID;
+                await donationItem.save();
+                console.log('Updated donation for contact:', donationItem);
+            });
+            return donation;
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
+
     }
     findOneId(id: string) {
         try {
@@ -100,21 +119,53 @@ export class DonationService {
     async createDonationSalesforce(createDonationDto: CreateDonationDto) {
         console.log('createDonationDto in service:', createDonationDto);
         try {
-            const { donationID: id, _id: _id,isRecurring : isRecurring,contact: contact, ...sfPayload } = createDonationDto as any;
+            const { donationID: id, _id: _id, isRecurring: isRecurring, contact: contact, ...sfPayload } = createDonationDto as any;
             console.log('Prepared Salesforce payload:', sfPayload);
             console.log('id', id);
             // Adjust the object path and body to match your Salesforce object and fields.
             const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Opportunity/', sfPayload);
-            let donation = await this.DonationModel.findOne({ donationID: createDonationDto.donationID });
+            let donation = await this.findOneId(id);
             if (donation) {
                 donation.salesforceID = result.salesforceId; // Simulated Salesforce ID assignment
             } else {
                 throw new NotFoundException('Donation not found');
             }
-            const updateDonation = await this.DonationModel.updateOne({ donationID: createDonationDto.donationID }, donation);
+            const updateDonation = await this.update(id, { salesforceID: result.salesforceId });
             console.log('donation', donation);
             console.log('updateDonation ', updateDonation);
             return donation;
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
+    }
+    async uploadDonationsToSalesforce() {
+        try {
+            const donations = await this.DonationModel.find({ syncedWithSalesforce: false });
+            if (donations.length === 0) {
+                console.log('No donations to upload to Salesforce');
+                return [];
+            }
+            const salesforcePayloads = donations.map(async donation => {
+                let payload: any
+                payload = {
+                    Name : donation.Name,
+                    Amount: donation.Amount,
+                    CloseDate: donation.CloseDate,
+                    StageName: donation.StageName,
+                    npsp__Primary_Contact__c: donation.npsp__Primary_Contact__c,
+                    npsp__Acknowledgment_Status__c: donation.Acknowledgment_Status__c,
+                    Donation_Source__c: donation.Donation_Source__c,
+                    //RecordTypeId: donation.RecordTypeId,
+                };
+                const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Opportunity/', payload);
+                // If you want to upload immediately, perform it outside map with Promise.all.
+                console.log('Salesforce upload result:', result);
+                donation.salesforceID = result.salesforceId;
+                donation.syncedWithSalesforce = true;
+                donation.save()
+                return donation;
+            })
+            return salesforcePayloads;
         } catch (error) {
             throw new InternalServerErrorException(error);
         }

@@ -35,16 +35,15 @@ export enum Frequency {
  * Mirrors the Donation entity fields and includes Swagger metadata + validation.
  */
 export class CreateDonationDto {
-    @ApiProperty({ description: 'Unique donation ID (Salesforce or internal)', example: 'don_123456' })
-    @IsString()
+
     @IsNotEmpty()
-    donationID: string;
+    contact?: string;
     @ApiPropertyOptional({
         description: 'ID of the donor (user) initiating the transaction in the sub database',
         example: '0031t00000XyZzAAB',
     })
-    @IsNotEmpty()
-    contact?: string;
+    @IsOptional()
+    contactSalesforceID?: string;
     @ApiProperty({ description: 'Donation name', example: 'General Fund Donation' })
     @IsString()
     @IsNotEmpty()
@@ -94,7 +93,7 @@ export class CreateDonationDto {
     @ApiPropertyOptional({ description: 'Acknowledgment status (optional)', example: 'Pending' })
     @IsString()
     @IsEnum(AcknowledgmentStatus)
-    npsp__Acknowledgment_Status__c?: AcknowledgmentStatus;
+    Acknowledgment_Status__c?: AcknowledgmentStatus;
 
     @ApiPropertyOptional({ description: 'Id of the donation after insert into salesforce(optional)', example: '0121t000000XyZ' })
     @IsOptional()
@@ -114,6 +113,9 @@ export class CreateDonationDto {
     @ApiPropertyOptional({ description: 'If recurring, frequency in months (e.g. 1=monthly, 3=Yearly)', example: 1 })
     @IsOptional()
     donation_details?: ChildToreserve[];
+    @ApiPropertyOptional({ description: 'If recurring, frequency in months (e.g. 1=monthly, 3=Yearly)', example: 1 })
+    @IsOptional()
+    syncedWithSalesforce?: boolean;
 }
 
 export default CreateDonationDto;

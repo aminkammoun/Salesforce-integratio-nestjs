@@ -31,4 +31,9 @@ export class ContactController {
     delete(@Param('id') id: string) {
         return this.contactService.delete(id);
     }
+    @Post('/uploadSalesforce')
+    async uploadToSalesforce() {
+        const contacts = await this.contactService.updloadContactsToSalesforce();
+        return contacts;
+    }
 }

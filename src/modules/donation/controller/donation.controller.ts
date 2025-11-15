@@ -32,9 +32,8 @@ export class DonationController {
         return this.donationService.findOneId(id);
     }
     @Post('/insertToSalesforce')
-    insert(@Body() createDonationDto: any) {
-        console.log('Received request to create donation in Salesforce:', createDonationDto);
+    insert() {
         // Pass the actual DTO instance to the service (not a string literal)
-        return this.donationService.createDonationSalesforce(createDonationDto);
+        return this.donationService.uploadDonationsToSalesforce();
     }
 }

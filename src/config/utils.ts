@@ -19,6 +19,9 @@ export async function handleInsertQuery(query: string,
         if (object.includes('Opportunity') && json.success) {
             return { message: 'Donation created successfully in Salesforce', salesforceId: json.id };
         }
+        if (object.includes('Contact') && json.success) {
+            return { message: 'Contact created successfully in Salesforce', salesforceId: json.id };
+        }
         return json.data;
     } catch (err) {
         console.error(err);

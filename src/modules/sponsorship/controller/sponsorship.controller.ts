@@ -13,6 +13,10 @@ export class SponsorshipController {
     findAll() {
         return this.sponsorshipService.findAll();
     }
+    @Post('/updateToActive/:sponsorshipId')
+    updateToActive(@Param('sponsorshipId') sponsorshipId: string) {
+        return this.sponsorshipService.updateToActive(sponsorshipId);
+    }
     @Post('/insertToSalesforce')
     delete(@Param('id') id: string) {
         return this.sponsorshipService.delete(id);
