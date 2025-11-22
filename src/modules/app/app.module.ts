@@ -14,6 +14,7 @@ import { AuthModule } from '../auth/auth.module';
 import { SponsorshipModule } from '../sponsorship/sponsorship.module';
 import { RecurringModule } from '../recurring/recurring.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { ScheduleModule } from '@nestjs/schedule';
       load: config,
       isGlobal: true,
     }),
+    EventEmitterModule.forRoot(),
     ScheduleModule.forRoot(), //this is required
     SalesforceModule,
     ContactModule,

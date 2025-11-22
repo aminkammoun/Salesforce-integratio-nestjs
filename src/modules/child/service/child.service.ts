@@ -198,7 +198,8 @@ export class ChildService {
                 })
                 await session.commitTransaction();
                 session.endSession();
-                return sp[0];
+                console.log('Created Sponsorship:', sp);
+                return sp;
             }
 
             return reservationResults;

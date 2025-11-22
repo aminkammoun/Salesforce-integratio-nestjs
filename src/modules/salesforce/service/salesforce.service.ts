@@ -2,13 +2,14 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Stripe from 'stripe';
 import { handleInsertQuery } from 'src/config/utils';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { Contact } from 'src/modules/contact/entities/contact.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { ContactService } from 'src/modules/contact/service/contact.service';
 import { DonationService } from 'src/modules/donation/service/donation.service';
 import { TransactionService } from 'src/modules/transaction/service/transaction.service';
 import { SponsorshipService } from 'src/modules/sponsorship/service/sponsorship.service';
+import { RecurringService } from 'src/modules/recurring/service/recurring.service';
 @Injectable()
 export class SalesforceService {
     private stripe: Stripe;
@@ -21,6 +22,7 @@ export class SalesforceService {
         @Inject() private readonly transactionService: TransactionService,
         @Inject() private readonly donationService: DonationService,
         @Inject() private readonly sponsorshipService: SponsorshipService,
+        @Inject() private readonly recurringService: RecurringService,
         @Inject('STRIPE_API_KEY') private readonly apiKey: string) {
         this.stripe = new Stripe(this.apiKey, {
             apiVersion: "2025-10-29.clover", // Use whatever API latest version
@@ -103,13 +105,31 @@ export class SalesforceService {
             return res.status(200).json({ message: "Event ignored" });
         } else {
             const sponsorshipId = event.data.object.metadata.sponsorshipId;
-            await this.sponsorshipService.updateToActive(sponsorshipId);
+            //await this.sponsorshipService.updateToActive(sponsorshipId);
 
 
             const donation = await this.donationService.findOneId(object.metadata.donationID)
-            if (donation) {
-                donation.StageName = 'Closed Won';
 
+            if (donation) {
+                const sponsorship = await this.sponsorshipService.findById(sponsorshipId);
+
+                let recurringDonation = {
+                    donorType: "Contact",
+                    frequency: donation?.frequency || "Monthly",
+                    amount: donation?.Amount || 0,
+                    DayOfMonth: new Date().getDate(),
+                    donations: donation?._id ? (new mongoose.Types.ObjectId(donation._id as string) as unknown as any) : '',
+                    sponsorships: event.id ? (new mongoose.Types.ObjectId(sponsorshipId) as unknown as any) : '',
+                    donor : contact._id ? (new mongoose.Types.ObjectId(contact._id as string) as unknown as any) : '',
+                    status: "Active",
+                };
+                donation.StageName = 'Closed Won';
+                sponsorship.Status = 'Active';
+                const recurring = await this.recurringService.createRecurring(recurringDonation);
+                donation.Recurring = recurring._id ? (new mongoose.Types.ObjectId(recurring._id as string) as unknown as any) : '';
+                sponsorship.Recurring = recurring._id ? (new mongoose.Types.ObjectId(recurring._id as string) as unknown as any) : '';
+                //donation.npe03__Recurring_Donation__c = 
+                sponsorship.save();
                 let transactionData = {
                     IATSPayment__Amount__c: object.amount / 100,
                     IATSPayment__Amount_currency__c: object.currency,
@@ -132,8 +152,8 @@ export class SalesforceService {
                     note: `Transaction created from Stripe webhook for payment intent ${object.payment_intent || object.id}`,
                     salesforceDonation: donation.salesforceID,
                 };
-
                 await donation.save();
+
 
                 //const donationObj = donation.toObject();
                 await this.transactionService.create(transactionData);
@@ -154,6 +174,8 @@ export class SalesforceService {
             const paymentIntent = await this.stripe.paymentIntents.create({
                 amount: req.amount,
                 currency: req.currency,
+                payment_method_types: ['card_present'],
+                capture_method: 'manual',
                 //customer: customerId,
                 //payment_method_types: ['card'],
                 metadata: req.metadata || {},
@@ -167,6 +189,11 @@ export class SalesforceService {
             this.logger.error('Error creating payment intent:', error);
             throw error;
         }
+
+    }
+    async createTerminalReader(res: any) {
+        let connectionToken = await this.stripe.terminal.connectionTokens.create();
+        res.json({ secret: connectionToken.secret });
 
     }
 }

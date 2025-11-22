@@ -12,4 +12,9 @@ export class RecurringController {
         // Logic to create a recurring payment
         return this.recurringService.createRecurring(body);;
     }
+    @Post('/insertToSalesforce')
+    insert() {
+        // Pass the actual DTO instance to the service (not a string literal)
+        return this.recurringService.uploadRecurringsToSalesforce();
+    }
 }

@@ -17,8 +17,13 @@ export class SponsorshipController {
     updateToActive(@Param('sponsorshipId') sponsorshipId: string) {
         return this.sponsorshipService.updateToActive(sponsorshipId);
     }
-    @Post('/insertToSalesforce')
+    @Post('/delete/:id')
     delete(@Param('id') id: string) {
         return this.sponsorshipService.delete(id);
+    }
+    @Post('/uploadSalesforce')
+    async uploadToSalesforce() {
+        const sponsorships = await this.sponsorshipService.uploadSponsorshipsToSalesforce();
+        return sponsorships;
     }
 }

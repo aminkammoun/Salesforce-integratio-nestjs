@@ -12,7 +12,7 @@ export class Donation extends Document {
     CloseDate: Date
     @Prop({ required: true })
     StageName: string
-    @Prop({ required: false })
+    @Prop({ required: true })
     Amount: number
     @Prop({ required: false })
     npsp__Primary_Contact__c: string
@@ -26,9 +26,9 @@ export class Donation extends Document {
     Category: string
     @Prop({ required: false })
     Acknowledgment_Status__c: string
-    @Prop({ required: false })
-    frequency?: string
-    
+    @Prop({ required: true })
+    frequency: string
+
     @Prop({ required: false })
     donation_details: ChildToreserve[];
     // Flag to track sync status with Salesforce
@@ -46,6 +46,12 @@ export class Donation extends Document {
         ref: Contact.name
     })
     contact: string;
+
+    @Prop({ type: MongooseSchema.Types.ObjectId, required: false })
+    Recurring: string;
+    
+    @Prop({ required: false })
+    npe03__Recurring_Donation__c: string;
 
 }
 export const DonationSchema = SchemaFactory.createForClass(Donation);

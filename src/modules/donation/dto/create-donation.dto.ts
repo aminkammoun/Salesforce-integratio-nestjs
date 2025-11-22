@@ -60,9 +60,9 @@ export class CreateDonationDto {
     StageName: string;
 
     @ApiPropertyOptional({ description: 'Monetary amount of the donation', example: 250.5 })
-    @IsOptional()
+    @IsNotEmpty()
     @IsNumber()
-    Amount?: number;
+    Amount: number;
 
     @ApiPropertyOptional({ description: "Primary contact's Salesforce ID (optional)", example: '0031t00000XyZzAAB' })
     @IsOptional()
@@ -107,9 +107,9 @@ export class CreateDonationDto {
     @IsString()
     Recurring?: string;
     @ApiPropertyOptional({ description: 'If recurring, frequency in months (e.g. 1=monthly, 3=Yearly)', example: 1 })
-    @IsOptional()
+    @IsNotEmpty()
     @IsEnum(Frequency)
-    frequency?: Frequency;
+    frequency: Frequency;
     @ApiPropertyOptional({ description: 'If recurring, frequency in months (e.g. 1=monthly, 3=Yearly)', example: 1 })
     @IsOptional()
     donation_details?: ChildToreserve[];

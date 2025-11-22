@@ -8,6 +8,7 @@ import { ContactModule } from '../contact/contact.module';
 import { DonationModule } from '../donation/donation.module';
 import { TransactionModule } from '../transaction/transaction.module';
 import { SponsorshipModule } from '../sponsorship/sponsorship.module';
+import { RecurringModule } from '../recurring/recurring.module';
 
 @Module({
     imports: [
@@ -15,6 +16,7 @@ import { SponsorshipModule } from '../sponsorship/sponsorship.module';
         DonationModule,
         TransactionModule,
         SponsorshipModule ,
+        RecurringModule ,
         ConfigModule.forRoot({
             load: config,
             isGlobal: true,

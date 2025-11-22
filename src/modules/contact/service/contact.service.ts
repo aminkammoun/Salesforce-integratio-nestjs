@@ -8,12 +8,14 @@ import { handleInsertQuery, handleQuery } from 'src/config/utils';
 import { first, last } from 'rxjs';
 import { DonationService } from 'src/modules/donation/service/donation.service';
 import { SponsorshipService } from 'src/modules/sponsorship/service/sponsorship.service';
+import { RecurringService } from 'src/modules/recurring/service/recurring.service';
 @Injectable()
 export class ContactService {
     constructor(
         @InjectModel(Contact.name) private readonly ContactModel: Model<Contact>,
         @Inject() private readonly donationService: DonationService,
-        @Inject() private readonly sponsorshipService: SponsorshipService
+        @Inject() private readonly sponsorshipService: SponsorshipService,
+        @Inject() private readonly recurringService: RecurringService
     ) { }
 
     async create(createArticleDto: CreateContactDto) {
@@ -76,49 +78,6 @@ export class ContactService {
 
 
         } catch (error) {
-            throw new InternalServerErrorException(error);
-        }
-    }
-
-    async updloadContactsToSalesforce() {
-        try {
-            const contacts = await this.ContactModel.find({ syncedWithSalesforce: false });
-            if (contacts.length === 0) {
-                console.log('No contacts to upload to Salesforce');
-                return [];
-            }
-            const salesforcePayloads = contacts.map(async contact => {
-                let payload: any
-
-                payload = {
-
-                    FirstName: contact.first_name,
-                    lastName: contact.last_name,
-                    Email: contact.email,
-                    Phone: contact.Phone?.replace(/[^0-9]/g, '') || contact.Phone,
-                };
-
-                const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Contact/', payload);
-                // If you want to upload immediately, perform it outside map with Promise.all.
-                console.log('Salesforce upload result:', result);
-                contact.salesforceID = result.salesforceId;
-                contact.syncedWithSalesforce = true;
-                contact.save()
-                this.donationService.updateDonationByContactSalesforceId(contact._id as string, result.salesforceId).then(async (donation) => {
-                    console.log('Donation found for contact during upload:', donation);
-                });
-                this.sponsorshipService.updateSponsorshipByContactSalesforceId(contact._id as string, result.salesforceId).then(async (sponsorship) => {
-                    console.log('Sponsorship found for contact during upload:', sponsorship);
-                });
-                return contact;
-            })
-
-
-
-
-            return salesforcePayloads;
-        } catch (error) {
-            console.error('Error uploading contacts to Salesforce:', error);
             throw new InternalServerErrorException(error);
         }
     }
@@ -189,4 +148,44 @@ export class ContactService {
             throw new InternalServerErrorException(error);
         }
     }
+
+    async updloadContactsToSalesforce() {
+        try {
+            const contacts = await this.ContactModel.find({ syncedWithSalesforce: false });
+            if (contacts.length === 0) {
+                console.log('No contacts to upload to Salesforce');
+                return [];
+            }
+            const salesforcePayloads = contacts.map(async contact => {
+                let payload: any
+                payload = {
+                    FirstName: contact.first_name,
+                    lastName: contact.last_name,
+                    Email: contact.email,
+                    Phone: contact.Phone?.replace(/[^0-9]/g, '') || contact.Phone,
+                };
+
+                const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Contact/', payload);
+                // If you want to upload immediately, perform it outside map with Promise.all.
+                console.log('Salesforce upload result:', result);
+                contact.salesforceID = result.salesforceId;
+                contact.syncedWithSalesforce = true;
+                contact.save()
+                this.donationService.updateDonationByContactSalesforceId(contact._id as string, result.salesforceId).then(async (donation) => {
+                    console.log('Donation found for contact during upload:', donation);
+                });
+                this.sponsorshipService.updateSponsorshipByContactSalesforceId(contact._id as string, result.salesforceId).then(async (sponsorship) => {
+                    console.log('Sponsorship found for contact during upload:', sponsorship);
+                });
+
+                this.recurringService.updateWithContactSalesforceID(contact._id as string, result.salesforceId)
+                return contact;
+            })
+            return salesforcePayloads;
+        } catch (error) {
+            console.error('Error uploading contacts to Salesforce:', error);
+            throw new InternalServerErrorException(error);
+        }
+    }
+
 }

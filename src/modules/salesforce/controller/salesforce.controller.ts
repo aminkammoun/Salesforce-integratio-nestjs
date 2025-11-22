@@ -30,7 +30,7 @@ export class SalesforceController {
         return this.salesforceService.stripWebhook(req, res);
 
     }
-    
+
     @Get('/customers')
     async getCustomers() {
         return await this.salesforceService.getCustomers();
@@ -38,5 +38,9 @@ export class SalesforceController {
     @Post('/createPaymentIntent')
     async createPaymentIntent(@Request() req: any, @Res() res: any) {
         return await this.salesforceService.createPaymentIntent(req.body, res);
+    }
+    @Post('/getTerminalToken')
+    async getTerminalToken(@Res() res: any) {
+        return await this.salesforceService.createTerminalReader(res);
     }
 }

@@ -46,5 +46,12 @@ export class CreateSponsorshipDto {
     @IsOptional()
     @IsString()
     Donor__c?: string;
+
+    @IsOptional()
+    @IsString()
+    Current_Recurring_Donation__c?: string;
+    @ApiPropertyOptional({ description: 'If recurring, frequency in months (e.g. 1=monthly, 3=Yearly)', example: 1 })
+    @IsOptional()
+    syncedWithSalesforce?: boolean;
 }
 

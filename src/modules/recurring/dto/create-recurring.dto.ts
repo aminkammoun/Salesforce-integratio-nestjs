@@ -2,7 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsString, IsNotEmpty, IsOptional, IsNumber, IsISO8601, IsEnum } from 'class-validator';
 
 export class CreateRecurringDto {
-    @ApiPropertyOptional({ 
+    @ApiPropertyOptional({
         description: 'Unique sponsorship ID. If not provided, one will be generated.',
         example: 'SP1234567890123'
     })
@@ -15,13 +15,13 @@ export class CreateRecurringDto {
     frequency: string
     @ApiPropertyOptional({ description: 'ID of the donor (user) initiating the transaction in the sub database', example: '0031t00000XyZzAAB', })
     @IsNotEmpty()
-    amount?: number;    
+    amount?: number;
     @ApiPropertyOptional({ description: 'Close date (ISO 8601). If omitted, server may set default.', example: '2025-10-30T00:00:00.000Z' })
-    @IsOptional()
+    @IsNotEmpty()
     @IsISO8601()
     dateEstablished?: string;
     @ApiPropertyOptional({ description: 'Close date (ISO 8601). If omitted, server may set default.', example: '2025-10-30T00:00:00.000Z' })
-    @IsOptional()
+    @IsNotEmpty()
     @IsISO8601()
     effectiveDate?: string;
     @ApiPropertyOptional({ description: '25', example: '25' })
@@ -33,8 +33,16 @@ export class CreateRecurringDto {
     @IsString({ each: true })
     donations?: string[];
     @ApiPropertyOptional({ description: 'Associated Sponsorships (optional)', example: ['SP1234567890123', 'SP9876543210987'] })
-    @IsOptional()
+    @IsNotEmpty()
     @IsString({ each: true })
     sponsorships?: string[];
-    
+    @ApiPropertyOptional({ description: 'Associated Sponsorships (optional)', example: ['SP1234567890123', 'SP9876543210987'] })
+    @IsNotEmpty()
+    @IsString({ each: true })
+    npe03__Contact__c?: string[];
+
+    @ApiPropertyOptional({ description: 'ID of the donor (user) initiating the transaction in the sub database', example: '0031t00000XyZzAAB', })
+    @IsOptional()
+    salesforceID?: string
+
 }

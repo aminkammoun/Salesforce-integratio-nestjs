@@ -19,11 +19,11 @@ export class Sponsorship extends Document {
     sponsorshipID: string;
 
     @Prop({
-        type: [{ type: MongooseSchema.Types.ObjectId, ref: Child.name }],
+        type: [{ type: String }],
         required: true,
         default: []
     })
-    child: MongooseSchema.Types.ObjectId[];
+    child: string[];
     @Prop({
         type: MongooseSchema.Types.ObjectId,
         required: true,
@@ -45,9 +45,14 @@ export class Sponsorship extends Document {
     Recurring: string;
     @Prop({ default: Date.now })
     Start_Date__c: Date
-    @Prop({required: false})
+    @Prop({ required: false })
     Donor__c: string;
-
+    @Prop({ required: false })
+    Current_Recurring_Donation__c: string;
+    @Prop({ required: false, default: false })
+    syncedWithSalesforce: boolean;
+    @Prop({ required: false })
+    salesforceID: string
 }
 
 export const SponsorshipSchema = SchemaFactory.createForClass(Sponsorship);

@@ -22,6 +22,12 @@ export async function handleInsertQuery(query: string,
         if (object.includes('Contact') && json.success) {
             return { message: 'Contact created successfully in Salesforce', salesforceId: json.id };
         }
+        if (object.includes('npe03__Recurring_Donation__c') && json.success) {
+            return { message: 'Recurring created successfully in Salesforce', salesforceId: json.id };
+        }
+        if (object.includes('Sponsorship__c') && json.success) {
+            return { message: 'Sponsorship created successfully in Salesforce', salesforceId: json.id };
+        }
         return json.data;
     } catch (err) {
         console.error(err);

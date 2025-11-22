@@ -7,7 +7,7 @@ import { Sponsorship } from 'src/modules/sponsorship/entities/sponsorship.entity
 export class Recurring extends Document {
     @Prop({ type: String })
     name: string
-    @Prop({ required: true, unique: true })
+    @Prop({ required: true })
     donorType: string;
     @Prop({ required: true })
     frequency: string;
@@ -20,18 +20,34 @@ export class Recurring extends Document {
     @Prop({ required: false })
     DayOfMonth: number;
     @Prop({
-        type: [{ type: MongooseSchema.Types.ObjectId, ref: Donation.name }],
+        type: MongooseSchema.Types.ObjectId,
         required: false,
-        default: []
     })
-    donations: MongooseSchema.Types.ObjectId[];
+    donations: MongooseSchema.Types.ObjectId;
     @Prop({
-        type: [{ type: MongooseSchema.Types.ObjectId, ref: Sponsorship.name }],
+        type: MongooseSchema.Types.ObjectId,
         required: false,
-        default: []
     })
-    sponsorships: MongooseSchema.Types.ObjectId[];
-
+    sponsorships: MongooseSchema.Types.ObjectId;
+    @Prop({
+        type: MongooseSchema.Types.ObjectId,
+        required: false,
+    })
+    donor: MongooseSchema.Types.ObjectId;
+    @Prop({ required: false })
+    salesforceID: string
+    @Prop({ type: String })
+    npe03__Contact__c: string;
+    @Prop({ type: String })
+    donationSf: string;
+    @Prop({ type: String })
+    sponsorshipSf: string;
+    @Prop({ type: String })
+    contactSf: string;
+    @Prop({ type: String })
+    status: string;
+    @Prop({ required: false, default: false })
+    syncedWithSalesforce: boolean;
 }
 
 export const RecurringSchema = SchemaFactory.createForClass(Recurring);

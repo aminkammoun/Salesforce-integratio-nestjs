@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types as MongooseTypes } from 'mongoose';
 import { Donation } from '../entities/donation.entity';
@@ -7,11 +7,17 @@ import { InternalServerErrorException, NotFoundException } from '@nestjs/common'
 import { CreateDonationDto } from '../dto/create-donation.dto';
 import { UpdateDonationDto } from '../dto/update-donation.dto';
 import { handleInsertQuery } from 'src/config/utils';
+import { Sponsorship } from 'src/modules/sponsorship/entities/sponsorship.entity';
+import { RecurringService } from 'src/modules/recurring/service/recurring.service';
 @Injectable()
 export class DonationService {
     constructor(
         @InjectModel(Donation.name) private readonly DonationModel: Model<Donation>,
         @InjectModel(Recurring.name) private readonly RecurringModel: Model<Recurring>,
+        //@Inject() private readonly recurringService: RecurringService,
+        @Inject(forwardRef(() => RecurringService)) private readonly recurringService: RecurringService,
+
+        //@InjectModel(Sponsorship.name) private readonly SponsorshipModel: Model<Sponsorship>,
     ) { }
 
     async create(createDonationDto: CreateDonationDto) {
@@ -64,20 +70,39 @@ export class DonationService {
                 throw new NotFoundException('Donation not found for the given contact ID');
             }
             donation.forEach(async (donationItem) => {
-                donationItem.npsp__Primary_Contact__c = ContactSalesforceID;
-                await donationItem.save();
-                console.log('Updated donation for contact:', donationItem);
+                if (!donationItem.npsp__Primary_Contact__c) {
+
+                    donationItem.npsp__Primary_Contact__c = ContactSalesforceID;
+
+                    await donationItem.save();
+                    console.log('Updated donation for contact:', donationItem);
+                };
             });
+
+
+
             return donation;
         } catch (error) {
             throw new InternalServerErrorException(error);
         }
 
     }
+
+    async updateDonationWithRecurringSalesforceID(id: string, salesforceId: string) {
+        const donation = await this.findOneId(id)
+        if (!donation) {
+            throw new NotFoundException('donation does not exists related to recurring');
+        }
+        donation.npe03__Recurring_Donation__c = salesforceId;
+        console.log('Updated donation with recurring Salesforce ID:', donation);
+        await donation.save();
+
+    }
+
+
     findOneId(id: string) {
         try {
             const donation = this.DonationModel.findById(new MongooseTypes.ObjectId(id));
-            console.log('Retrieved donation:', donation);
             return donation;
         } catch (error) {
             throw new InternalServerErrorException(error);
@@ -116,28 +141,7 @@ export class DonationService {
             throw new InternalServerErrorException(error);
         }
     }
-    async createDonationSalesforce(createDonationDto: CreateDonationDto) {
-        console.log('createDonationDto in service:', createDonationDto);
-        try {
-            const { donationID: id, _id: _id, isRecurring: isRecurring, contact: contact, ...sfPayload } = createDonationDto as any;
-            console.log('Prepared Salesforce payload:', sfPayload);
-            console.log('id', id);
-            // Adjust the object path and body to match your Salesforce object and fields.
-            const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Opportunity/', sfPayload);
-            let donation = await this.findOneId(id);
-            if (donation) {
-                donation.salesforceID = result.salesforceId; // Simulated Salesforce ID assignment
-            } else {
-                throw new NotFoundException('Donation not found');
-            }
-            const updateDonation = await this.update(id, { salesforceID: result.salesforceId });
-            console.log('donation', donation);
-            console.log('updateDonation ', updateDonation);
-            return donation;
-        } catch (error) {
-            throw new InternalServerErrorException(error);
-        }
-    }
+
     async uploadDonationsToSalesforce() {
         try {
             const donations = await this.DonationModel.find({ syncedWithSalesforce: false });
@@ -148,13 +152,14 @@ export class DonationService {
             const salesforcePayloads = donations.map(async donation => {
                 let payload: any
                 payload = {
-                    Name : donation.Name,
+                    Name: donation.Name,
                     Amount: donation.Amount,
                     CloseDate: donation.CloseDate,
                     StageName: donation.StageName,
-                    npsp__Primary_Contact__c: donation.npsp__Primary_Contact__c,
                     npsp__Acknowledgment_Status__c: donation.Acknowledgment_Status__c,
                     Donation_Source__c: donation.Donation_Source__c,
+                    npsp__Primary_Contact__c: donation.npsp__Primary_Contact__c,
+                    npe03__Recurring_Donation__c : donation.npe03__Recurring_Donation__c,
                     //RecordTypeId: donation.RecordTypeId,
                 };
                 const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Opportunity/', payload);
@@ -163,6 +168,7 @@ export class DonationService {
                 donation.salesforceID = result.salesforceId;
                 donation.syncedWithSalesforce = true;
                 donation.save()
+                this.recurringService.updateWithDonationSalesforceID(donation._id as string, result.salesforceId)
                 return donation;
             })
             return salesforcePayloads;

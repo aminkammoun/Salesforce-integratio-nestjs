@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { Donation, DonationSchema } from './entities/donation.entity';
 import { MongooseModule } from '@nestjs/mongoose';
 import { DonationController } from './controller/donation.controller';
@@ -8,7 +8,7 @@ import { RecurringService } from '../recurring/service/recurring.service';
 
 @Module({
     imports: [
-        RecurringModule,
+        forwardRef(() => RecurringModule),
         MongooseModule.forFeature([{ name: Donation.name, schema: DonationSchema }]),
     ],
     controllers: [DonationController],
