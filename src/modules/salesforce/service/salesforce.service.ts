@@ -175,7 +175,7 @@ export class SalesforceService {
                 amount: req.amount,
                 currency: req.currency,
                 payment_method_types: ['card_present'],
-                capture_method: 'manual',
+                capture_method: 'automatic',
                 //customer: customerId,
                 //payment_method_types: ['card'],
                 metadata: req.metadata || {},

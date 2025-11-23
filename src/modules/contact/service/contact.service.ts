@@ -95,6 +95,12 @@ export class ContactService {
 
             // Do an exact match search first
             const contacts = await this.ContactModel.find({ Phone: phone });
+            if (contacts.length === 0) {
+                // If no exact match, try searching after cleaning the phone number
+                
+                console.log('No exact match found. Searching for cleaned phone number:');
+                
+            }
             console.log('Found contacts:', contacts);
 
             return contacts;

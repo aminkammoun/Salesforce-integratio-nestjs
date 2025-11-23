@@ -2,6 +2,7 @@ import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { ChildService } from '../service/child.service';
 import type { ChildToreserve, SponsorshipChilds } from 'src/config/types';
 import { UpdateChildDto } from '../dto/update-child.dto';
+import { CreateChildDto } from '../dto/create-child.dto';
 
 
 
@@ -14,9 +15,9 @@ export class ChildController {
         return this.childService.findAll(q);
     }
 
-    @Post('/createSponsorship')
-    create() {
-        return "Create child endpoint";
+    @Post('/create')
+    create(@Body() CreateChildDto: CreateChildDto[]) {
+        return this.childService.create(CreateChildDto);
     }
     @Post('update/:id')
     updateChild(@Param('id') id: string, @Body() updateChildDto: UpdateChildDto) {

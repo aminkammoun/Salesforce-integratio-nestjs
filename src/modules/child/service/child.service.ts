@@ -18,39 +18,42 @@ export class ChildService {
         const res = await handleQuery('/services/data/v65.0/query/?q=', query);
         let childCollec: CreateChildDto[] = [];
         console.log('Service received response:', res);
-        if (res.done == true) {
-            childCollec = res.records.map(record => {
-                return {
-                    SalesforceID: record.Id,
-                    Child_Name__c: record.Child_Name__c,
-                    NationalityList__c: record.NationalityList__c,
-                    Age__c: record.Age_Calculated__c,
-                    Status__c: record.Status__c,
-                    url: record.attributes.url
-                };
-            });
-        }
+        if (res.done === true && Array.isArray(res.records) && res.records.length) {
+            childCollec = res.records.map(record => ({
+            SalesforceID: record.Id,
+            Child_Name__c: record.Child_Name__c,
+            NationalityList__c: record.NationalityList__c,
+            Age__c: record.Age_Calculated__c,
+            Status__c: record.Status__c,
+            url: record.attributes?.url,
+            }));
+            console.log('Mapped child records:', childCollec);
 
-        if (childCollec.length > 0) {
+            // Avoid inserting duplicates: check which SalesforceIDs already exist
+            const salesforceIds = childCollec.map(c => c.SalesforceID);
+            const existing = await this.ChildModel.find({ SalesforceID: { $in: salesforceIds } }, { SalesforceID: 1 }).lean();
+            const existingIds = new Set(existing.map(e => String(e.SalesforceID)));
+            const toInsert = childCollec.filter(c => !existingIds.has(String(c.SalesforceID)));
+
+            if (toInsert.length === 0) {
+            console.log('No new children to insert; all records already exist.');
+            } else {
             try {
-                // Filter out records that already exist by SalesforceID
-                const existing = await this.ChildModel.find({ SalesforceID: { $in: childCollec.map(c => c.SalesforceID) } }, { SalesforceID: 1 }).lean();
-                const existingIds = new Set(existing.map(e => e.SalesforceID));
-                const toInsert = childCollec.filter(c => !existingIds.has(c.SalesforceID));
-                if (toInsert.length > 0) {
-                    await this.ChildModel.insertMany(toInsert, { ordered: false });
-                }
-                console.log('Children to be inserted into DB:', childCollec);
-
-            } catch (error) {
-                console.error('Error inserting children:', error);
+                const created = await this.create(toInsert);
+                console.log(`Inserted ${Array.isArray(created) ? created.length : 0} new children.`);
+            } catch (err) {
+                console.error('Error inserting children from Salesforce response:', err);
             }
+            }
+        } else {
+            console.log('No records to process from Salesforce response.');
         }
-        return childCollec;
     }
     async create(createChild: CreateChildDto[]) {
         try {
-            const createdChildren = await this.ChildModel.insertMany(createChild, { ordered: false });
+            console.log('Inserting children:', createChild);    
+            const createdChildren = await this.ChildModel.create(createChild, { ordered: false });
+
             return createdChildren;
         } catch (error) {
             console.error('Error inserting children:', error);
@@ -162,7 +165,7 @@ export class ChildService {
         }
     }
 
-    async reserveChildren(childToreserve: ChildToreserve[], donorId: string,donationId:string) {
+    async reserveChildren(childToreserve: ChildToreserve[], donorId: string, donationId: string) {
         const session: ClientSession = await this.ChildModel.db.startSession();
         session.startTransaction();
         try {

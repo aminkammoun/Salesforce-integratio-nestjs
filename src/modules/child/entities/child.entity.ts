@@ -15,16 +15,9 @@ export class Child extends Document {
     Status__c: string;
     @Prop({ required: true })
     url: string;
-    @Prop({
-        type: MongooseSchema.Types.ObjectId,
-        ref: 'Sponsorship',
-        unique: false, // Ensures child can only be in one sponsorship
-        sparse: true  // Allows null values (unsponsored children)
-    })
-    sponsorship: MongooseSchema.Types.ObjectId;
     @Prop({ default: Date.now })
     createdAt: Date;
-    @Prop({ default: null, required: true })
+    @Prop({ default: null, required: false })
     reservedAt: Date;
 }
 

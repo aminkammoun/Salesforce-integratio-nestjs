@@ -1,0 +1,34 @@
+version: '3.9'
+
+services:
+  api:
+    build: .
+    container_name: nest-api
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      - MONGO_URL=mongodb://mongo:27017
+      - MONGO_DATABASE_NAME=fundraisingDB
+      - NODE_ENV=production
+    env_file:
+      - .env
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:6
+    container_name: mongodb
+    restart: unless-stopped
+    ports:
+      - "27018:27017"
+    environment:
+      - MONGO_URI=${MONGO_URL}/${MONGO_DATABASE_NAME}
+      #MONGO_INITDB_ROOT_USERNAME: root
+      #MONGO_INITDB_ROOT_PASSWORD: rootpassword
+      #MONGO_INITDB_DATABASE: fundraisingDB
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  mongo_data:
