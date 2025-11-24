@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Request, Res } from '@nestjs/common';
+import { Body, Controller, Get, Post, Request, Res } from '@nestjs/common';
 import { SalesforceService } from '../service/salesforce.service';
 @Controller('salesforce')
 export class SalesforceController {
@@ -42,5 +42,13 @@ export class SalesforceController {
     @Post('/getTerminalToken')
     async getTerminalToken(@Res() res: any) {
         return await this.salesforceService.createTerminalReader(res);
+    }
+    @Post('/retrievePaymentIntent')
+    async retrievePaymentIntent(@Body() body: any) {
+        return await this.salesforceService.retrievePaymentIntent(body.id);
+    }
+    @Post('/getPaymentMethods')
+    async getPaymentMethods(@Body() req: any) {
+        return await this.salesforceService.collectPaymentMethod(req.readerId,req.paymentIntentId);
     }
 }

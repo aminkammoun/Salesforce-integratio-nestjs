@@ -120,7 +120,7 @@ export class SalesforceService {
                     DayOfMonth: new Date().getDate(),
                     donations: donation?._id ? (new mongoose.Types.ObjectId(donation._id as string) as unknown as any) : '',
                     sponsorships: event.id ? (new mongoose.Types.ObjectId(sponsorshipId) as unknown as any) : '',
-                    donor : contact._id ? (new mongoose.Types.ObjectId(contact._id as string) as unknown as any) : '',
+                    donor: contact._id ? (new mongoose.Types.ObjectId(contact._id as string) as unknown as any) : '',
                     status: "Active",
                 };
                 donation.StageName = 'Closed Won';
@@ -180,8 +180,9 @@ export class SalesforceService {
                 //payment_method_types: ['card'],
                 metadata: req.metadata || {},
             });
-            console.log('Created Payment Intent:', paymentIntent.client_secret);
+            console.log('Created Payment Intent:', paymentIntent.id);
             res.json({
+                id: paymentIntent.id,
                 clientSecret: paymentIntent.client_secret,
             });
             //return paymentIntent;
@@ -195,5 +196,32 @@ export class SalesforceService {
         let connectionToken = await this.stripe.terminal.connectionTokens.create();
         res.json({ secret: connectionToken.secret });
 
+    }
+    async retrievePaymentIntent(id: string) {
+        try {
+            const result = await this.stripe.paymentIntents.retrieve(id);
+            console.log('Retrieved Payment Intent:', result);
+            if (!result) {
+                throw new Error('Payment Intent not found');
+            }
+            return result;
+        }
+
+        catch (error) {
+            this.logger.error('Error retrieving payment intent:', error);
+            throw error;
+        }
+    }
+    async collectPaymentMethod(readerId: string, paymentIntentId: string) {
+        try {
+            console.log('Collecting payment method for reader:', readerId, 'and payment intent:', paymentIntentId);
+            const result = await this.stripe.terminal.readers.collectPaymentMethod(readerId, {
+                payment_intent: paymentIntentId,
+            });
+            return result;
+        } catch (error) {
+            this.logger.error('Error collecting payment method:', error);
+            throw error;
+        }
     }
 }
