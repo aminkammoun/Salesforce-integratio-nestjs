@@ -52,6 +52,10 @@ export class Donation extends Document {
     
     @Prop({ required: false })
     npe03__Recurring_Donation__c: string;
+    @Prop({required : false})
+    macAddress : string
 
+    @Prop({required : false})
+    customerStipe: string
 }
 export const DonationSchema = SchemaFactory.createForClass(Donation);

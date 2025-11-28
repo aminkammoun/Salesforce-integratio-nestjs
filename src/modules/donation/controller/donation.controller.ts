@@ -7,7 +7,7 @@ import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 export class DonationController {
     constructor(private readonly donationService: DonationService) { }
     @Post('/create')
-    create(@Body() createDonationDto: CreateDonationDto) {
+    create(@Body() createDonationDto: CreateDonationDto[]) {
         console.log('CreateDonationDto received in controller:', createDonationDto);
         return this.donationService.create(createDonationDto);
     }

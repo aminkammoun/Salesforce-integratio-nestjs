@@ -116,6 +116,12 @@ export class CreateDonationDto {
     @ApiPropertyOptional({ description: 'If recurring, frequency in months (e.g. 1=monthly, 3=Yearly)', example: 1 })
     @IsOptional()
     syncedWithSalesforce?: boolean;
+    @ApiPropertyOptional({ description: 'address mac of the device', example: 1 })
+    @IsOptional()
+    macAdress?: string;
+    @ApiPropertyOptional({ description: 'Stripe customer id', example: 1 })
+    @IsOptional()
+    customerStipe?: string;
 }
 
 export default CreateDonationDto;

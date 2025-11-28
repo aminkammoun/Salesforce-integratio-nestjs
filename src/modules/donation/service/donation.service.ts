@@ -20,23 +20,13 @@ export class DonationService {
         //@InjectModel(Sponsorship.name) private readonly SponsorshipModel: Model<Sponsorship>,
     ) { }
 
-    async create(createDonationDto: CreateDonationDto) {
+    async create(createDonationDto: CreateDonationDto[]) {
         try {
-            let donation = new this.DonationModel({
-                ...createDonationDto,
-            });
-            const response = await donation.save();
+            const donation = await this.DonationModel.create(createDonationDto, { ordered: false });
+            //const response = await donation.save();
             // If the donation is linked to a Recurring plan, add it to the Recurring.donations array
-            const recurringId = (createDonationDto as any).Recurring || (createDonationDto as any).recurring;
-            if (recurringId) {
-                try {
-                    await this.RecurringModel.findByIdAndUpdate(recurringId, { $addToSet: { donations: response._id } });
-                } catch (err) {
-                    // Non-fatal: log or swallow so donation creation still succeeds
-                    console.error('Failed to link donation to recurring:', err);
-                }
-            }
-            return response;
+
+            return donation;
         } catch (error) {
             throw new InternalServerErrorException(error);
         }
@@ -159,7 +149,7 @@ export class DonationService {
                     npsp__Acknowledgment_Status__c: donation.Acknowledgment_Status__c,
                     Donation_Source__c: donation.Donation_Source__c,
                     npsp__Primary_Contact__c: donation.npsp__Primary_Contact__c,
-                    npe03__Recurring_Donation__c : donation.npe03__Recurring_Donation__c,
+                    npe03__Recurring_Donation__c: donation.npe03__Recurring_Donation__c,
                     //RecordTypeId: donation.RecordTypeId,
                 };
                 const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Opportunity/', payload);
