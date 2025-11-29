@@ -53,5 +53,11 @@ export class CreateSponsorshipDto {
     @ApiPropertyOptional({ description: 'If recurring, frequency in months (e.g. 1=monthly, 3=Yearly)', example: 1 })
     @IsOptional()
     syncedWithSalesforce?: boolean;
+    @ApiPropertyOptional({ description: 'frequency', example: "Monthly" })
+    @IsOptional()
+    frequency?: string;
+    @ApiPropertyOptional({ description: 'Amount', example: 100 })
+    @IsOptional()
+    Amount?: number;
 }
 

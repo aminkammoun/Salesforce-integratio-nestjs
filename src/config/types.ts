@@ -6,4 +6,6 @@ export interface SponsorshipChilds {
     donationId: string;
     donorId: string;
     childToreserve: ChildToreserve[];
+    frequency : string;
+    Amount : number
 }

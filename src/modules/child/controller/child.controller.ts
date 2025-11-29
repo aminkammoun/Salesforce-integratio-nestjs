@@ -24,9 +24,10 @@ export class ChildController {
         return this.childService.updateChild(id, updateChildDto);
     }
     @Post('/reserve')
-    reserve(@Body() childToreserve: SponsorshipChilds) {
-        console.log('childToreserve:', childToreserve.childToreserve, childToreserve.donorId);
-        return this.childService.reserveChildren(childToreserve.childToreserve, childToreserve.donorId, childToreserve.donationId);
+    reserve(@Body() childToreserve: SponsorshipChilds[]) {
+        //console.log('childToreserve:', childToreserve.childToreserve, childToreserve.donorId);
+        return this.childService.reserveChildren(childToreserve);
+        //return this.childService.reserveChildren(childToreserve.childToreserve, childToreserve.donorId, childToreserve.donationId,childToreserve.frequency,childToreserve.Amount);
     }
     // Use POST because we expect a request body with requested counts
     @Post('/available')

@@ -4,7 +4,7 @@ import { Child } from '../entities/child.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { ClientSession, Model, Types as MongooseTypes } from 'mongoose';
 import { CreateChildDto } from '../dto/create-child.dto';
-import type { ChildToreserve } from 'src/config/types';
+import type { ChildToreserve, SponsorshipChilds } from 'src/config/types';
 import { Sponsorship } from 'src/modules/sponsorship/entities/sponsorship.entity';
 import { SponsorshipService } from 'src/modules/sponsorship/service/sponsorship.service';
 
@@ -20,12 +20,12 @@ export class ChildService {
         console.log('Service received response:', res);
         if (res.done === true && Array.isArray(res.records) && res.records.length) {
             childCollec = res.records.map(record => ({
-            SalesforceID: record.Id,
-            Child_Name__c: record.Child_Name__c,
-            NationalityList__c: record.NationalityList__c,
-            Age__c: record.Age_Calculated__c,
-            Status__c: record.Status__c,
-            url: record.attributes?.url,
+                SalesforceID: record.Id,
+                Child_Name__c: record.Child_Name__c,
+                NationalityList__c: record.NationalityList__c,
+                Age__c: record.Age_Calculated__c,
+                Status__c: record.Status__c,
+                url: record.attributes?.url,
             }));
             console.log('Mapped child records:', childCollec);
 
@@ -36,14 +36,14 @@ export class ChildService {
             const toInsert = childCollec.filter(c => !existingIds.has(String(c.SalesforceID)));
 
             if (toInsert.length === 0) {
-            console.log('No new children to insert; all records already exist.');
+                console.log('No new children to insert; all records already exist.');
             } else {
-            try {
-                const created = await this.create(toInsert);
-                console.log(`Inserted ${Array.isArray(created) ? created.length : 0} new children.`);
-            } catch (err) {
-                console.error('Error inserting children from Salesforce response:', err);
-            }
+                try {
+                    const created = await this.create(toInsert);
+                    console.log(`Inserted ${Array.isArray(created) ? created.length : 0} new children.`);
+                } catch (err) {
+                    console.error('Error inserting children from Salesforce response:', err);
+                }
             }
         } else {
             console.log('No records to process from Salesforce response.');
@@ -51,7 +51,7 @@ export class ChildService {
     }
     async create(createChild: CreateChildDto[]) {
         try {
-            console.log('Inserting children:', createChild);    
+            console.log('Inserting children:', createChild);
             const createdChildren = await this.ChildModel.create(createChild, { ordered: false });
 
             return createdChildren;
@@ -165,47 +165,54 @@ export class ChildService {
         }
     }
 
-    async reserveChildren(childToreserve: ChildToreserve[], donorId: string, donationId: string) {
+    //async reserveChildren(childToreserve: ChildToreserve[], donorId: string, donationId: string,frequency:string,amount: number) {
+    async reserveChildren(childToreserve: SponsorshipChilds[]) {
         const session: ClientSession = await this.ChildModel.db.startSession();
         session.startTransaction();
         try {
             const reservationResults: { message: string; nationality: string; reservedCount: number; }[] = [];
-            var reservedIDs: string[] = [];
-            for (const req of childToreserve) {
-                const nat = req.nationality;
-                const count = Number((req as any).Requestedcount) || 0;
-                const availableChildren = await this.ChildModel.find({ NationalityList__c: nat, Status__c: 'Available' }).limit(count)//.session(session);
-                const reservedIds = availableChildren.map(child => String(child._id));
-                reservedIDs.push(...reservedIds);
-                console.log(reservedIDs);
-                await this.ChildModel.updateMany(
-                    { _id: { $in: reservedIds } },
-                    { $set: { Status__c: 'Reserved', reservedAt: new Date() } }
-                );
-                if (reservedIds.length == 0) {
-                    reservationResults.push({ message: 'No available children to be sponsored for nationality ' + nat, nationality: nat, reservedCount: reservedIds.length });
+            for (const childmap of childToreserve) {
 
-                } else {
-                    reservationResults.push({ message: reservedIds.length + ' ' + nat + ' children has been sponsored', nationality: nat, reservedCount: reservedIds.length });
+
+                var reservedIDs: string[] = [];
+                for (const req of childmap.childToreserve) {
+                    const nat = req.nationality;
+                    const count = Number((req as any).Requestedcount) || 0;
+                    const availableChildren = await this.ChildModel.find({ NationalityList__c: nat, Status__c: 'Available' }).limit(count)//.session(session);
+                    const reservedIds = availableChildren.map(child => String(child.SalesforceID));
+                    reservedIDs.push(...reservedIds);
+                    console.log(reservedIDs);
+                    await this.ChildModel.updateMany(
+                        {SalesforceID :{$in : reservedIds}},
+                        { $set: { Status__c: 'Reserved', reservedAt: new Date() } }
+                    );
+                    if (reservedIds.length == 0) {
+                        reservationResults.push({ message: 'No available children to be sponsored for nationality ' + nat, nationality: nat, reservedCount: reservedIds.length });
+
+                    } else {
+                        reservationResults.push({ message: reservedIds.length + ' ' + nat + ' children has been sponsored', nationality: nat, reservedCount: reservedIds.length });
+                    }
+                }
+                if (reservedIDs.length > 0) {
+                    console.log('Reserved Children IDs:', reservedIDs);
+                    // Step 2: Create Sponsorship record
+
+                    const sp = await this.sponsorshipService.create({
+                        donation: childmap.donationId,
+                        donor: childmap.donorId,
+                        child: reservedIDs,
+                        Status: 'pending',
+                        frequency: childmap.frequency,
+                        Amount: childmap.Amount
+                    })
+                    await session.commitTransaction();
+                    session.endSession();
+                    console.log('Created Sponsorship:', sp);
+                    
                 }
             }
-            if (reservedIDs.length > 0) {
-                console.log('Reserved Children IDs:', reservedIDs);
-                // Step 2: Create Sponsorship record
-
-                const sp = await this.sponsorshipService.create({
-                    donation: donationId,
-                    donor: donorId,
-                    child: reservedIDs,
-                    Status: 'pending',
-                })
-                await session.commitTransaction();
-                session.endSession();
-                console.log('Created Sponsorship:', sp);
-                return sp;
-            }
-
             return reservationResults;
+
         } catch (error) {
             console.error('Error reserving children:', error);
             throw error;

@@ -48,6 +48,8 @@ export class Recurring extends Document {
     status: string;
     @Prop({ required: false, default: false })
     syncedWithSalesforce: boolean;
+    @Prop({ required: false })
+    customerStipe: string
 }
 
 export const RecurringSchema = SchemaFactory.createForClass(Recurring);

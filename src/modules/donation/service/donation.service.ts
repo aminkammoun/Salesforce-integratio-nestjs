@@ -1,6 +1,6 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types as MongooseTypes } from 'mongoose';
+import { Model, Types as MongooseTypes, Types } from 'mongoose';
 import { Donation } from '../entities/donation.entity';
 import { Recurring } from 'src/modules/recurring/entities/recurring.entity';
 import { InternalServerErrorException, NotFoundException } from '@nestjs/common';
@@ -98,22 +98,29 @@ export class DonationService {
             throw new InternalServerErrorException(error);
         }
     }
-    async delete(id: string) {
+    async delete(ids: string[]) {
         try {
-            const result = await this.DonationModel.findByIdAndDelete(new MongooseTypes.ObjectId(id));
-            if (result) {
-                // Remove this donation id from any Recurring documents that reference it
-                try {
-                    await this.RecurringModel.updateMany({ donations: result._id }, { $pull: { donations: result._id } });
-                } catch (err) {
-                    console.error('Failed to remove donation from recurring documents:', err);
-                }
-            }
-            return result;
+            const objectIds = ids.map(id => new Types.ObjectId(id));
+
+            // 1. Delete all donations
+            await this.DonationModel.deleteMany({ _id: { $in: objectIds } });
+
+            // 2. Unset donation reference in recurring
+            await this.RecurringModel.updateMany(
+                { donations: { $in: objectIds } },
+                { $unset: { donations: "" } }   // <-- correct for ONE donation
+            );
+
+            return { deleted: ids };
         } catch (error) {
+            console.error(error);
             throw new InternalServerErrorException(error);
         }
     }
+
+
+
+
     async update(id: string, updatedonationDto: UpdateDonationDto) {
         try {
             const donation = await this.DonationModel.findByIdAndUpdate(

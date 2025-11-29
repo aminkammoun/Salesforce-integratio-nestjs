@@ -44,5 +44,7 @@ export class CreateRecurringDto {
     @ApiPropertyOptional({ description: 'ID of the donor (user) initiating the transaction in the sub database', example: '0031t00000XyZzAAB', })
     @IsOptional()
     salesforceID?: string
-
+    @ApiPropertyOptional({ description: 'Stripe customer id', example: 1 })
+    @IsOptional()
+    customerStipe?: string;
 }

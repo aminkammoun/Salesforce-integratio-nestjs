@@ -49,6 +49,26 @@ export class SalesforceController {
     }
     @Post('/getPaymentMethods')
     async getPaymentMethods(@Body() req: any) {
-        return await this.salesforceService.collectPaymentMethod(req.readerId,req.paymentIntentId);
+        return await this.salesforceService.collectPaymentMethod(req.readerId, req.paymentIntentId);
+    }
+    @Post('/createPrice')
+    async createPrice(@Body() body: any, @Res() res: any) {
+        return await this.salesforceService.createStripePrice(body, res);
+    }
+    @Post('/createCustomer')
+    async createCustomer(@Body() body: any, @Res() res: any) {
+        return await this.salesforceService.createStripeCustomer(body);
+    }
+    @Post('/createSubscription')
+    async createSubscription(@Body() body: any, @Res() res: any) {
+        return await this.salesforceService.createStripeSubscription(body, res);
+    }
+    @Post('/linkPayment')
+    async linkPaymentMethodToCustomer(@Body() body: any) {
+        return await this.salesforceService.linkPaymentMethodToCustomer(body);
+    }
+    @Post('/setupIntent')
+    async setupIntents(@Body() body: any, @Res() res: any) {
+        return await this.salesforceService.setupIntents(body, res);
     }
 }

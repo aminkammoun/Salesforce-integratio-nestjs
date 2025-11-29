@@ -34,6 +34,15 @@ export enum Frequency {
  * DTO used to create a Donation record.
  * Mirrors the Donation entity fields and includes Swagger metadata + validation.
  */
+export class CartItemDto {
+    type: 'one-time' | 'recurring';
+    programId?: string; // For program donations
+    childId?: string; // For sponsorships
+    amount: number;
+    interval: 'monthly' | 'quarterly' | 'yearly';
+    Requestedcount?: number; // Number of children for bulk sponsorships
+    nationality?: string;
+}
 export class CreateDonationDto {
 
     @IsNotEmpty()
@@ -59,10 +68,10 @@ export class CreateDonationDto {
     @IsNotEmpty()
     StageName: string;
 
-    @ApiPropertyOptional({ description: 'Monetary amount of the donation', example: 250.5 })
+    /* @ApiPropertyOptional({ description: 'Monetary amount of the donation', example: 250.5 })
     @IsNotEmpty()
     @IsNumber()
-    Amount: number;
+    Amount: number; */
 
     @ApiPropertyOptional({ description: "Primary contact's Salesforce ID (optional)", example: '0031t00000XyZzAAB' })
     @IsOptional()
@@ -74,10 +83,10 @@ export class CreateDonationDto {
     @IsString()
     Donation_Source__c?: string;
 
-    @ApiPropertyOptional({ description: 'Record Type Id (optional)', example: '0121t000000XyZ' })
+    /* @ApiPropertyOptional({ description: 'Record Type Id (optional)', example: '0121t000000XyZ' })
     @IsOptional()
     @IsString()
-    RecordTypeId?: string;
+    RecordTypeId?: string; */
 
     @ApiPropertyOptional({ enum: PaymentMethod, example: PaymentMethod.CARD })
     @IsOptional()
@@ -99,17 +108,17 @@ export class CreateDonationDto {
     @IsOptional()
     @IsString()
     salesforceID?: string;
-    @ApiPropertyOptional({ description: 'Is the donation recurring?', example: false })
+    /* @ApiPropertyOptional({ description: 'Is the donation recurring?', example: false })
     @IsOptional()
-    isRecurring?: boolean;
+    isRecurring?: boolean; */
     @ApiPropertyOptional({ description: 'If associated with a Recurring plan, pass the Recurring document _id here', example: '64b8f9c2a2...' })
     @IsOptional()
     @IsString()
     Recurring?: string;
-    @ApiPropertyOptional({ description: 'If recurring, frequency in months (e.g. 1=monthly, 3=Yearly)', example: 1 })
+    /* @ApiPropertyOptional({ description: 'If recurring, frequency in months (e.g. 1=monthly, 3=Yearly)', example: 1 })
     @IsNotEmpty()
     @IsEnum(Frequency)
-    frequency: Frequency;
+    frequency: Frequency; */
     @ApiPropertyOptional({ description: 'If recurring, frequency in months (e.g. 1=monthly, 3=Yearly)', example: 1 })
     @IsOptional()
     donation_details?: ChildToreserve[];
@@ -122,6 +131,8 @@ export class CreateDonationDto {
     @ApiPropertyOptional({ description: 'Stripe customer id', example: 1 })
     @IsOptional()
     customerStipe?: string;
+
+    cartItems: CartItemDto[];
 }
 
 export default CreateDonationDto;

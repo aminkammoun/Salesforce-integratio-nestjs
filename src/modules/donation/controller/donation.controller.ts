@@ -36,4 +36,8 @@ export class DonationController {
         // Pass the actual DTO instance to the service (not a string literal)
         return this.donationService.uploadDonationsToSalesforce();
     }
+    @Post('/delete')
+    async deleteDonation(@Body() id: string[]) {
+        return this.donationService.delete(id)
+    }
 }

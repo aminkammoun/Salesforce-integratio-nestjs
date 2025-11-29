@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema } from 'mongoose';
 import { ChildToreserve } from 'src/config/types';
 import { Contact } from 'src/modules/contact/entities/contact.entity';
+import { CartItemDto } from '../dto/create-donation.dto';
 
 @Schema()
 export class Donation extends Document {
@@ -57,5 +58,7 @@ export class Donation extends Document {
 
     @Prop({required : false})
     customerStipe: string
+    @Prop({required : false})
+    cartItems : CartItemDto[]
 }
 export const DonationSchema = SchemaFactory.createForClass(Donation);

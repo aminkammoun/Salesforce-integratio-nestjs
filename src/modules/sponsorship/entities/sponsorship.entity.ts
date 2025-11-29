@@ -53,6 +53,10 @@ export class Sponsorship extends Document {
     syncedWithSalesforce: boolean;
     @Prop({ required: false })
     salesforceID: string
+    @Prop({ required: false })
+    frequency: string;
+    @Prop({ required: false })
+    Amount: number;
 }
 
 export const SponsorshipSchema = SchemaFactory.createForClass(Sponsorship);

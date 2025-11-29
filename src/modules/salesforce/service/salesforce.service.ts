@@ -10,6 +10,7 @@ import { DonationService } from 'src/modules/donation/service/donation.service';
 import { TransactionService } from 'src/modules/transaction/service/transaction.service';
 import { SponsorshipService } from 'src/modules/sponsorship/service/sponsorship.service';
 import { RecurringService } from 'src/modules/recurring/service/recurring.service';
+import { CartItemDto } from 'src/modules/donation/dto/create-donation.dto';
 @Injectable()
 export class SalesforceService {
     private stripe: Stripe;
@@ -98,38 +99,124 @@ export class SalesforceService {
         const logger = new Logger('StripeWebhook');
         logger.log(`metadata: ${object.metadata.donationID}`);
         logger.log(`metadata: ${object.metadata.sponsorshipId}`);
-        console.log('object.billing_details?.Phone', object.billing_details?.phone);
+
         const contacts = await this.contactService.findByPhone(object.billing_details?.phone);
         const contact = Array.isArray(contacts) ? contacts[0] : contacts;
         if (!contact) {
             return res.status(200).json({ message: "Event ignored" });
         } else {
-            const sponsorshipId = event.data.object.metadata.sponsorshipId;
             //await this.sponsorshipService.updateToActive(sponsorshipId);
-
-
             const donation = await this.donationService.findOneId(object.metadata.donationID)
 
             if (donation) {
-                const sponsorship = await this.sponsorshipService.findById(sponsorshipId);
+                //if (donation.isRecurring) {
+                const customer = await this.createStripeCustomer({
+                    name: object.billing_details?.name,
+                    phone: object.billing_details?.phone
 
-                let recurringDonation = {
-                    donorType: "Contact",
-                    frequency: donation?.frequency || "Monthly",
-                    amount: donation?.Amount || 0,
-                    DayOfMonth: new Date().getDate(),
-                    donations: donation?._id ? (new mongoose.Types.ObjectId(donation._id as string) as unknown as any) : '',
-                    sponsorships: event.id ? (new mongoose.Types.ObjectId(sponsorshipId) as unknown as any) : '',
-                    donor: contact._id ? (new mongoose.Types.ObjectId(contact._id as string) as unknown as any) : '',
-                    status: "Active",
-                };
+                })
+
+                console.log('customer', customer);
+                await this.linkPaymentMethodToCustomer({
+                    customerId: (await customer).id,
+                    paymentId: object.payment_method
+                })
+                const cartItems = JSON.parse(object.metadata.cart_items);
+                console.log("cart Items " + cartItems)
+                for (let i = 0; i < cartItems.length; i++) {
+                    const item = cartItems[i];
+                    const donationId = object.metadata.donationID;
+                    console.log("khal hna")
+                    if (item.type = "Recurring") {
+                        await this.processCartItemAfterPayment({
+                            item,
+                            donationId,
+                            contact,
+                            customer,
+                            object,
+                        });
+                    }
+                }
+                /*
+                                const price = await this.createStripePrice({
+                                    amount: donation.Amount,
+                                    currency: "USD",
+                                    recurring: {
+                                        interval: "month"
+                                    },
+                                    productId: "prod_TUqyZQ8Vrk49vd",
+                                    product_data: {
+                                        name: "Gold Plan"
+                                    }
+                                }, {})
+                                const subscription = await this.createStripeSubscription({
+                                    customerId: (await customer).id,
+                                    priceId: price.id
+                                }, {})*/
+
+
+                const sponsorshipId = JSON.parse(event.data.object.metadata.sponsorshipId);
+                console.log(sponsorshipId)
+                const sponsorship = await this.sponsorshipService.findByIds(sponsorshipId);
+                console.log(sponsorship)
+                for (const sp of sponsorship) {
+                    console.log(sp)
+                    let recurringDonation = {
+                        donorType: "Contact",
+                        frequency: sp?.frequency || "Monthly",
+                        customerStipe: (await customer).id,
+                        amount: sp?.Amount || 0,
+                        DayOfMonth: new Date().getDate(),
+                        donations: donation?._id ? (new mongoose.Types.ObjectId(donation._id as string) as unknown as any) : '',
+                        sponsorships: sp._id ? (new mongoose.Types.ObjectId(sp._id as string) as unknown as any) : '',
+                        donor: contact._id ? (new mongoose.Types.ObjectId(contact._id as string) as unknown as any) : '',
+                        status: "Active",
+                    };
+                    sp.Status = 'Active';
+                    const recurring = await this.recurringService.createRecurring(recurringDonation);
+                    donation.Recurring = recurring._id ? (new mongoose.Types.ObjectId(recurring._id as string) as unknown as any) : '';
+                    sp.Recurring = recurring._id ? (new mongoose.Types.ObjectId(recurring._id as string) as unknown as any) : '';
+                    sp.save();
+                }
                 donation.StageName = 'Closed Won';
-                sponsorship.Status = 'Active';
-                const recurring = await this.recurringService.createRecurring(recurringDonation);
-                donation.Recurring = recurring._id ? (new mongoose.Types.ObjectId(recurring._id as string) as unknown as any) : '';
-                sponsorship.Recurring = recurring._id ? (new mongoose.Types.ObjectId(recurring._id as string) as unknown as any) : '';
+                donation.customerStipe = (await customer).id;
                 //donation.npe03__Recurring_Donation__c = 
-                sponsorship.save();
+
+
+                this.logger.log(`Donation ${donation._id} updated to Closed Won and transaction created.`);
+                //return res.status(200).json({ message: "Donation and transaction updated" });
+                /*} else {
+                    donation.StageName = 'Closed Won';
+                    const customer = this.createStripeCustomer({
+                        name: object.billing_details?.name,
+                        phone: object.billing_details?.phone
+
+                    })
+
+                    console.log('customer', customer);
+                    await this.linkPaymentMethodToCustomer({
+                        customerId: (await customer).id,
+                        paymentId: object.payment_method
+                    })
+
+                    const price = await this.createStripePrice({
+                        amount: donation.Amount,
+                        currency: "USD",
+                        recurring: {
+                            interval: "month"
+                        },
+                        productId: "prod_TUqyZQ8Vrk49vd",
+                        product_data: {
+                            name: "Gold Plan"
+                        }
+                    }, {})
+                    const subscription = await this.createStripeSubscription({
+                        customerId: (await customer).id,
+                        priceId: price.id
+                    }, {})
+                    donation.customerStipe = (await customer).id;
+                }*/
+
                 let transactionData = {
                     IATSPayment__Amount__c: object.amount / 100,
                     IATSPayment__Amount_currency__c: object.currency,
@@ -158,8 +245,6 @@ export class SalesforceService {
                 //const donationObj = donation.toObject();
                 await this.transactionService.create(transactionData);
 
-                this.logger.log(`Donation ${donation._id} updated to Closed Won and transaction created.`);
-                return res.status(200).json({ message: "Donation and transaction updated" });
             }
         }
 
@@ -174,8 +259,9 @@ export class SalesforceService {
             const paymentIntent = await this.stripe.paymentIntents.create({
                 amount: req.amount,
                 currency: req.currency,
-                payment_method_types: ['card_present'],
-                capture_method: 'automatic',
+                //setup_future_usage: 'off_session',
+                //payment_method_types: ['card_present'],
+                //capture_method: 'automatic',
                 //customer: customerId,
                 //payment_method_types: ['card'],
                 metadata: req.metadata || {},
@@ -190,7 +276,73 @@ export class SalesforceService {
             this.logger.error('Error creating payment intent:', error);
             throw error;
         }
+    }
+    async createStripeCustomer(req: any) {
+        try {
+            this.logger.log(`Creating Stripe customer for email: ${req.email}`);
+            const customer = await this.stripe.customers.create({
+                //email: req.email,
+                name: req.name,
+                phone: req.phone,
+                metadata: req.metadata || {},
+            });
+            console.log('Created Customer:', customer.id);
+            return customer;
+        } catch (error) {
+            this.logger.error('Error creating customer:', error);
+            throw error;
+        }
+    }
+    async updateDefaultPM(req: any, res: any) {
+        const result = await this.stripe.customers.update(req.customerId, {
+            invoice_settings: {
+                default_payment_method: req.paymentMethod
+            }
+        });
+        return result
+    }
+    async createStripePrice(req: any, res: any) {
+        try {
+            this.logger.log(
+                `Creating Stripe price for product: ${req.productId}, amount: ${req.amount}, currency: ${req.currency}`
+            );
 
+            const price = await this.stripe.prices.create({
+                unit_amount: Number(req.amount) * 100,   // ensure number
+                currency: req.currency,
+                recurring: {
+                    interval: req.recurring.interval.toLowerCase(), // <-- correct
+                },
+                product: req.productId,
+            });
+
+            console.log('Created Price:', price.id);
+            return price;
+
+        } catch (error) {
+            this.logger.error('Error creating price:', error);
+            throw error;
+        }
+    }
+    async createStripeSubscription(req: any, res: any) {
+        try {
+            this.logger.log(`Creating Stripe subscription for customer: ${req.customerId}, priceId: ${req.priceId}`);
+            const subscription = await this.stripe.subscriptions.create({
+                customer: req.customerId,
+                items: [{ price: req.priceId }],
+                //trial_end: req.trial_end, // NEW: prevent immediate charge
+                billing_cycle_anchor: req.billing_cycle_anchor, // NEW: set billing date
+                metadata: req.metadata || {},
+                proration_behavior: 'none',
+                expand: ['latest_invoice.payment_intent'],
+            });
+            console.log('Created Subscription:', subscription.id);
+            return subscription;
+
+        } catch (error) {
+            this.logger.error('Error creating subscription:', error);
+            throw error;
+        }
     }
     async createTerminalReader(res: any) {
         let connectionToken = await this.stripe.terminal.connectionTokens.create();
@@ -223,5 +375,172 @@ export class SalesforceService {
             this.logger.error('Error collecting payment method:', error);
             throw error;
         }
+    }
+    async linkPaymentMethodToCustomer(req: any) {
+        try {
+            // 1. Attach payment method to customer
+            const attachedPaymentMethod = await this.stripe.paymentMethods.attach(
+                req.paymentId,
+                { customer: req.customerId }
+            );
+
+            // 2. Set as default payment method for invoices (important!)
+            await this.stripe.customers.update(req.customerId, {
+                invoice_settings: {
+                    default_payment_method: req.paymentId,
+                }
+            });
+
+            return attachedPaymentMethod;
+
+        } catch (error) {
+            console.error("Error linking payment method:", error);
+            throw error;
+        }
+    }
+    async setupIntents(req: any, res: any) {
+        console.log(req.customerId)
+        const setupIntent = await this.stripe.setupIntents.create({
+            customer: req.customerId,
+            payment_method_types: ['card_present'],
+            usage: 'off_session'
+        });
+        console.log(setupIntent)
+        return setupIntent
+        // 2. Collect via terminal (just saves card, no charge)
+        //await this.stripe.terminal.readers.processSetupIntent(readerId, setupIntent.id);
+
+        // 3. Create subscription (first charge happens automatically)
+        /* const subscription = await this.stripe.subscriptions.create({
+            customer: req.customerId,
+            items: [{ price: req.priceId }],
+            default_payment_method: setupIntent.payment_method
+        }); */
+    }
+    private mapIntervalToStripeInterval(interval: string) {
+        const map = {
+            monthly: { interval: 'month', interval_count: 1 },
+            quarterly: { interval: 'month', interval_count: 3 },
+            yearly: { interval: 'year', interval_count: 1 },
+        };
+        return map[interval] || { interval: 'month', interval_count: 1 };
+    }
+
+    private calculateNextBillingDate(interval: string): number {
+        const now = Math.floor(Date.now() / 1000);
+        const days = {
+            monthly: 30,
+            quarterly: 90,
+            yearly: 365,
+        };
+        const daysToAdd = days[interval] || 30;
+        return now + (daysToAdd * 24 * 60 * 60);
+    }
+    private mapIntervalToFrequency(interval: string): string {
+        const map = {
+            monthly: 'Monthly',
+            quarterly: 'Quarterly',
+            yearly: 'Yearly',
+        };
+        return map[interval] || 'One-Time';
+    }
+    private async processCartItemAfterPayment(params: {
+        item: CartItemDto;
+        donationId: string;
+        contact: any;
+        customer: any;
+        object: any;
+    }) {
+        const { item, donationId, contact, customer, object } = params;
+
+        const donation = await this.donationService.findOneId(donationId);
+        if (!donation) {
+            throw new Error(`Donation ${donationId} not found`);
+        }
+
+        // Update donation status
+        donation.StageName = 'Closed Won';
+
+        if (item.type === 'one-time') {
+            // One-time donation - just update status
+            await donation.save();
+            this.logger.log(`One-time donation ${donationId} marked as Closed Won`);
+            return;
+        }
+
+        // For recurring donations/sponsorships
+        if (!customer) {
+            throw new Error('Stripe customer required for recurring donations');
+        }
+
+        donation.customerStipe = customer.id;
+
+        // Create Stripe price
+        const interval = this.mapIntervalToStripeInterval(item.interval);
+        const price = await this.createStripePrice({
+            amount: item.amount,
+            currency: "usd",
+            recurring: {
+                interval: interval.interval,
+                interval_count: interval.interval_count,
+            },
+            productId: "prod_TVy2unytb3L8hZ", // Use env variable
+            product_data: {
+                name: item.type === 'recurring'
+                    ? `Recurring Donation - ${item.programId}`
+                    : `Child Sponsorship - ${item.nationality}`,
+            },
+        }, {});
+        console.log("price + ", price)
+        // Calculate when subscription should start billing
+        const billingCycleAnchor = this.calculateNextBillingDate(item.interval);
+        console.log(billingCycleAnchor)
+        // Create Stripe subscription with trial to prevent immediate charge
+        const subscription = await this.createStripeSubscription({
+            customerId: customer.id,
+            priceId: price.id,
+            trial_end: billingCycleAnchor, // Don't charge until next period
+            billing_cycle_anchor: billingCycleAnchor,
+            metadata: {
+                donationId: donationId,
+                contactId: contact._id.toString(),
+                type: item.type,
+            },
+        }, {});
+
+        this.logger.log(`Created subscription ${subscription.id} for ${item.type}`);
+
+        /* // Create recurring donation record
+         const recurringDonation = await this.recurringService.createRecurring({
+             donorType: "Contact",
+             frequency: donation.frequency || "Monthly",
+             customerStipe: stripeCustomer.id,
+             amount: donation.Amount || 0,
+             DayOfMonth: new Date(billingCycleAnchor * 1000).getDate(),
+             donations: new mongoose.Types.ObjectId(donation._id as string),
+             sponsorships: sponsorshipId
+                 ? new mongoose.Types.ObjectId(sponsorshipId)
+                 : null,
+             donor: new mongoose.Types.ObjectId(contact._id as string),
+             status: "Active",
+             stripeSubscriptionId: subscription.id,
+             nextBillingDate: new Date(billingCycleAnchor * 1000),
+         });
+ 
+         // Link recurring to donation
+         donation.Recurring = new mongoose.Types.ObjectId(recurringDonation._id as string);
+ 
+         // Update sponsorship if exists
+         if (sponsorshipId) {
+             const sponsorship = await this.sponsorshipService.findById(sponsorshipId);
+             if (sponsorship) {
+                 sponsorship.Status = 'Active';
+                 sponsorship.Recurring = new mongoose.Types.ObjectId(recurringDonation._id as string);
+                 sponsorship.stripeSubscriptionId = subscription.id;
+                 await sponsorship.save();
+             }
+         }
+ 
+         await donation.save();*/
     }
 }

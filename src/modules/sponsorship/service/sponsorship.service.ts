@@ -81,6 +81,13 @@ export class SponsorshipService {
         }
         return sponsorship;
     }
+    async findByIds(ids: string[]) {
+        const sponsorship = await this.SponsorshipModel.find({
+            _id: { $in: ids },
+            Status: "pending"
+        }).exec();
+        return sponsorship
+    }
     async updateDonationWithRecurringSalesforceID(id: string, salesforceId: string) {
         const sponsorship = await this.findById(id)
         if (!sponsorship) {
@@ -165,8 +172,8 @@ export class SponsorshipService {
                     /* sponsorshipDevidedChild.push({
                         sponsorshipID: `SP${timestamp}${random}`,
                         child: child,
-
-
+    
+    
                         Status: sponsorship.Status,
                         Donor__c: sponsorship.Donor__c,
                         Start_Date__c: sponsorship.Start_Date__c,
@@ -188,7 +195,7 @@ export class SponsorshipService {
                 }
             }
 
-           
+
             console.log('sponsorshipDevidedChild: ', sponsorshipDevidedChild);
         }
     }
