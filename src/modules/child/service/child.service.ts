@@ -171,6 +171,7 @@ export class ChildService {
         session.startTransaction();
         try {
             const reservationResults: { message: string; nationality: string; reservedCount: number; }[] = [];
+            const finalResult: any []=[]
             for (const childmap of childToreserve) {
 
 
@@ -183,7 +184,7 @@ export class ChildService {
                     reservedIDs.push(...reservedIds);
                     console.log(reservedIDs);
                     await this.ChildModel.updateMany(
-                        {SalesforceID :{$in : reservedIds}},
+                        { SalesforceID: { $in: reservedIds } },
                         { $set: { Status__c: 'Reserved', reservedAt: new Date() } }
                     );
                     if (reservedIds.length == 0) {
@@ -193,6 +194,7 @@ export class ChildService {
                         reservationResults.push({ message: reservedIds.length + ' ' + nat + ' children has been sponsored', nationality: nat, reservedCount: reservedIds.length });
                     }
                 }
+
                 if (reservedIDs.length > 0) {
                     console.log('Reserved Children IDs:', reservedIDs);
                     // Step 2: Create Sponsorship record
@@ -208,10 +210,11 @@ export class ChildService {
                     await session.commitTransaction();
                     session.endSession();
                     console.log('Created Sponsorship:', sp);
-                    
+                    finalResult.push(sp)
+
                 }
             }
-            return reservationResults;
+            return finalResult;
 
         } catch (error) {
             console.error('Error reserving children:', error);

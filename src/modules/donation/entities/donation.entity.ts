@@ -27,7 +27,7 @@ export class Donation extends Document {
     Category: string
     @Prop({ required: false })
     Acknowledgment_Status__c: string
-    @Prop({ required: true })
+    @Prop({ required: false })
     frequency: string
 
     @Prop({ required: false })
