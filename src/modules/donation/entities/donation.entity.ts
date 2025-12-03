@@ -49,10 +49,11 @@ export class Donation extends Document {
     contact: string;
 
     @Prop({ type: MongooseSchema.Types.ObjectId, required: false })
-    Recurring: string;
+    Recurring: string[];
     
     @Prop({ required: false })
-    npe03__Recurring_Donation__c: string;
+    npe03__Recurring_Donation__c: string[];
+    
     @Prop({required : false})
     macAddress : string
 

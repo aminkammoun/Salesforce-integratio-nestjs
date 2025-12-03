@@ -100,13 +100,19 @@ export class SalesforceService {
         logger.log(`metadata: ${object.metadata.donationID}`);
         logger.log(`metadata: ${object.metadata.sponsorshipId}`);
 
-        const contacts = await this.contactService.findByPhone(object.billing_details?.phone);
+        const donation = await this.donationService.findOneId(object.metadata.donationID)
+        let contactId;
+        if (donation?.contact) {
+
+            contactId = await this.contactService.findOne(donation?.contact);
+        }
+        const contacts = await this.contactService.findByPhone(contactId?.phone || '');
         const contact = Array.isArray(contacts) ? contacts[0] : contacts;
-        if (!contact) {
+
+        if (!donation) {
             return res.status(200).json({ message: "Event ignored" });
         } else {
             //await this.sponsorshipService.updateToActive(sponsorshipId);
-            const donation = await this.donationService.findOneId(object.metadata.donationID)
 
             if (donation) {
                 //if (donation.isRecurring) {
@@ -137,23 +143,6 @@ export class SalesforceService {
                         });
                     }
                 }
-                /*
-                                const price = await this.createStripePrice({
-                                    amount: donation.Amount,
-                                    currency: "USD",
-                                    recurring: {
-                                        interval: "month"
-                                    },
-                                    productId: "prod_TUqyZQ8Vrk49vd",
-                                    product_data: {
-                                        name: "Gold Plan"
-                                    }
-                                }, {})
-                                const subscription = await this.createStripeSubscription({
-                                    customerId: (await customer).id,
-                                    priceId: price.id
-                                }, {})*/
-
 
                 const sponsorshipId = JSON.parse(event.data.object.metadata.sponsorshipId);
                 console.log(sponsorshipId)
@@ -162,7 +151,7 @@ export class SalesforceService {
                 for (const sp of sponsorship) {
                     console.log(sp)
                     let recurringDonation = {
-                        donorType: "Contact",
+                        donorType: "Open",
                         frequency: sp?.frequency || "Monthly",
                         customerStipe: (await customer).id,
                         amount: sp?.Amount || 0,
@@ -174,7 +163,7 @@ export class SalesforceService {
                     };
                     sp.Status = 'Active';
                     const recurring = await this.recurringService.createRecurring(recurringDonation);
-                    donation.Recurring = recurring._id ? (new mongoose.Types.ObjectId(recurring._id as string) as unknown as any) : '';
+                    donation.Recurring.push(<string>recurring._id) //= recurring._id ? (new mongoose.Types.ObjectId(recurring._id as string) as unknown as any) : '';
                     sp.Recurring = recurring._id ? (new mongoose.Types.ObjectId(recurring._id as string) as unknown as any) : '';
                     sp.save();
                 }
@@ -260,8 +249,8 @@ export class SalesforceService {
                 amount: req.amount,
                 currency: req.currency,
                 //setup_future_usage: 'off_session',
-                payment_method_types: ['card_present'],
-                capture_method: 'automatic',
+                //payment_method_types: ['card_present'],
+                //capture_method: 'automatic',
                 //customer: customerId,
                 //payment_method_types: ['card'],
                 metadata: req.metadata || {},

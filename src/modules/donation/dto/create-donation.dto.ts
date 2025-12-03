@@ -35,6 +35,7 @@ export enum Frequency {
  * Mirrors the Donation entity fields and includes Swagger metadata + validation.
  */
 export class CartItemDto {
+    Name: string;
     type: 'one-time' | 'recurring';
     programId?: string; // For program donations
     childId?: string; // For sponsorships
@@ -42,6 +43,7 @@ export class CartItemDto {
     interval: 'monthly' | 'quarterly' | 'yearly';
     Requestedcount?: number; // Number of children for bulk sponsorships
     nationality?: string;
+    npe03__Recurring_Donation__c: string;
 }
 export class CreateDonationDto {
 
@@ -114,7 +116,7 @@ export class CreateDonationDto {
     @ApiPropertyOptional({ description: 'If associated with a Recurring plan, pass the Recurring document _id here', example: '64b8f9c2a2...' })
     @IsOptional()
     @IsString()
-    Recurring?: string;
+    Recurring?: string[];
     /* @ApiPropertyOptional({ description: 'If recurring, frequency in months (e.g. 1=monthly, 3=Yearly)', example: 1 })
     @IsNotEmpty()
     @IsEnum(Frequency)
@@ -131,6 +133,9 @@ export class CreateDonationDto {
     @ApiPropertyOptional({ description: 'Stripe customer id', example: 1 })
     @IsOptional()
     customerStipe?: string;
+    @ApiPropertyOptional({ description: 'Stripe customer id', example: 1 })
+    @IsOptional()
+    npe03__Recurring_Donation__c?: string[];
 
     cartItems: CartItemDto[];
 }

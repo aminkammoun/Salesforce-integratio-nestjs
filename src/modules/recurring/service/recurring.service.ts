@@ -71,6 +71,7 @@ export class RecurringService {
             console.log('Salesforce upload result for recurring:', result);
             if (result.salesforceId) {
                 recurring.salesforceID = result.salesforceId;
+                //ecurring.syncedWithSalesforce = true;
                 await recurring.save();
                 await this.donationService.updateDonationWithRecurringSalesforceID(recurring.donations.toString(), result.salesforceId);
                 await this.sponsorshipService.updateDonationWithRecurringSalesforceID(recurring.sponsorships.toString(), result.salesforceId);
@@ -78,5 +79,11 @@ export class RecurringService {
 
         })
         return recurrings;
+    }
+    async findBySalesforceID(salesforceID: string) {
+        return this.RecurringModel.findOne({ salesforceID });
+    }
+    async findAllBySalesforceID(salesforceID: string[]) {
+        return this.RecurringModel.find({ salesforceID });
     }
 }
