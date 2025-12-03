@@ -101,6 +101,7 @@ export class SalesforceService {
         logger.log(`metadata: ${object.metadata.sponsorshipId}`);
 
         const donation = await this.donationService.findOneId(object.metadata.donationID)
+        console.log('donation ' + donation)
         let contactId;
         if (donation?.contact) {
 
