@@ -3,7 +3,7 @@ version: '3.9'
 services:
   api:
     build: .
-    container_name: nest-api
+    container_name: nest-api-test
     restart: unless-stopped
     ports:
       - "8082:8081"
@@ -18,7 +18,7 @@ services:
 
   mongo:
     image: mongo:6
-    container_name: mongodb
+    container_name: mongodb-test
     restart: unless-stopped
     ports:
       - "27019:27017"
