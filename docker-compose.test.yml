@@ -28,7 +28,7 @@ services:
       #MONGO_INITDB_ROOT_PASSWORD: rootpassword
       #MONGO_INITDB_DATABASE: fundraisingDB
     volumes:
-      - mongo_data:/data/db
+      - mongo_test_data:/data/db
 
 volumes:
-  mongo_data:
+  mongo_test_data:
