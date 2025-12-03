@@ -99,9 +99,9 @@ export class SalesforceService {
         const logger = new Logger('StripeWebhook');
         logger.log(`metadata: ${object.metadata.donationID}`);
         logger.log(`metadata: ${object.metadata.sponsorshipId}`);
-        logger.log(`metadata: ${object.metadata.contactId}`);
+        logger.log(`metadata: ${object.metadata.contactPhone}`);
 
-        const contacts = await this.contactService.findByPhone(object.billing_details?.phone);
+        const contacts = await this.contactService.findByPhone(object.metadata.contactPhone);
         const contact = Array.isArray(contacts) ? contacts[0] : contacts;
         if (!contact) {
             return res.status(200).json({ message: "Event ignored" });
