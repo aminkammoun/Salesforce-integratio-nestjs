@@ -105,8 +105,8 @@ export class SalesforceService {
         if (donation?.contact) {
 
             contactId = await this.contactService.findOne(donation?.contact);
+            console.log('contactId', contactId);
         }
-        console.log('contactId', contactId);
         const contacts = await this.contactService.findByPhone(contactId?.phone || '');
         const contact = Array.isArray(contacts) ? contacts[0] : contacts;
 
