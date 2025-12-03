@@ -99,22 +99,15 @@ export class SalesforceService {
         const logger = new Logger('StripeWebhook');
         logger.log(`metadata: ${object.metadata.donationID}`);
         logger.log(`metadata: ${object.metadata.sponsorshipId}`);
+        logger.log(`metadata: ${object.metadata.contactId}`);
 
-        const donation = await this.donationService.findOneId(object.metadata.donationID)
-        console.log('donation ' + donation)
-        let contactId;
-        if (donation?.contact) {
-
-            contactId = await this.contactService.findOne(donation?.contact);
-            console.log('contactId', contactId);
-        }
-        const contacts = await this.contactService.findByPhone(contactId?.phone || '');
+        const contacts = await this.contactService.findByPhone(object.billing_details?.phone);
         const contact = Array.isArray(contacts) ? contacts[0] : contacts;
-
-        if (!donation) {
+        if (!contact) {
             return res.status(200).json({ message: "Event ignored" });
         } else {
             //await this.sponsorshipService.updateToActive(sponsorshipId);
+            const donation = await this.donationService.findOneId(object.metadata.donationID)
 
             if (donation) {
                 //if (donation.isRecurring) {
@@ -251,8 +244,8 @@ export class SalesforceService {
                 amount: req.amount,
                 currency: req.currency,
                 //setup_future_usage: 'off_session',
-                //payment_method_types: ['card_present'],
-                //capture_method: 'automatic',
+                payment_method_types: ['card_present'],
+                capture_method: 'automatic',
                 //customer: customerId,
                 //payment_method_types: ['card'],
                 metadata: req.metadata || {},
