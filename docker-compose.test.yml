@@ -14,7 +14,7 @@ services:
     env_file:
       - .env
     depends_on:
-      - mongo
+      - mongo-test
 
   mongo-test:
     image: mongo:6
