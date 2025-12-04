@@ -9,8 +9,8 @@ services:
       - "8082:8081"
     environment:
       - MONGO_URL=mongodb://mongo-test:27017
-      - MONGO_DATABASE_NAME=fundraisingDB
-      - NODE_ENV=production
+      - MONGO_DATABASE_NAME=fundraisingDB-test
+      - NODE_ENV=test
     env_file:
       - .env.test
     depends_on:
