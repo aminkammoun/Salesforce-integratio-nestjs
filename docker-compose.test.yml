@@ -12,7 +12,7 @@ services:
       - MONGO_DATABASE_NAME=fundraisingDB
       - NODE_ENV=production
     env_file:
-      - .env
+      - .env.test
     depends_on:
       - mongo-test
 
