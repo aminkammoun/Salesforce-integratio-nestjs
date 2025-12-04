@@ -1,8 +1,58 @@
-test-up:
-	docker compose -f docker-compose.yml -f docker-compose.test.yml up -d
+# -----------------------------------------
+#  Docker Prod & Test Environment Commands
+# -----------------------------------------
 
-test-down:
-	docker compose -f docker-compose.yml -f docker-compose.test.yml down
+# File names
+PROD_COMPOSE = docker-compose.yml
+TEST_COMPOSE = docker-compose.test.yml
 
-test-reset:
-	docker compose -f docker-compose.yml -f docker-compose.test.yml down -v
+# ----------------------
+# Run Environments
+# ----------------------
+
+.PHONY: prod
+prod:
+	docker compose -f $(PROD_COMPOSE) up -d
+
+.PHONY: test
+test:
+	docker compose -f $(TEST_COMPOSE) up -d
+
+.PHONY: all
+all:
+	docker compose -f $(PROD_COMPOSE) up -d
+	docker compose -f $(TEST_COMPOSE) up -d
+
+# ----------------------
+# Stop Environments
+# ----------------------
+
+.PHONY: stop-prod
+stop-prod:
+	docker compose -f $(PROD_COMPOSE) down
+
+.PHONY: stop-test
+stop-test:
+	docker compose -f $(TEST_COMPOSE) down
+
+.PHONY: stop-all
+stop-all:
+	docker compose -f $(PROD_COMPOSE) down
+	docker compose -f $(TEST_COMPOSE) down
+
+# ----------------------
+# Reset Volumes
+# ----------------------
+
+.PHONY: clean-test
+clean-test:
+	docker volume rm -f mongo_test_data || true
+
+.PHONY: clean-prod
+clean-prod:
+	docker volume rm -f mongo_data || true
+
+.PHONY: clean-all
+clean-all:
+	docker volume rm -f mongo_data || true
+	docker volume rm -f mongo_test_data || true
