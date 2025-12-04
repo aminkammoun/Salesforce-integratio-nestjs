@@ -1,7 +1,7 @@
 version: '3.9'
 
 services:
-  api:
+  api-test:
     build: .
     container_name: nest-api-test
     restart: unless-stopped
@@ -9,14 +9,14 @@ services:
       - "8082:8081"
     environment:
       - MONGO_URL=mongodb://mongo:27017
-      - MONGO_DATABASE_NAME=fundraisingDB-test
+      - MONGO_DATABASE_NAME=fundraisingDB
       - NODE_ENV=production
     env_file:
       - .env
     depends_on:
       - mongo
 
-  mongo:
+  mongo-test:
     image: mongo:6
     container_name: mongodb-test
     restart: unless-stopped
