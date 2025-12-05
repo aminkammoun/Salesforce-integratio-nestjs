@@ -106,9 +106,10 @@ export class SalesforceService {
         if (!contact) {
             return res.status(200).json({ message: "Event ignored" });
         } else {
+            console.log('Donation ID:', object.metadata.donationID);
             //await this.sponsorshipService.updateToActive(sponsorshipId);
             const donation = await this.donationService.findOneId(object.metadata.donationID)
-
+            console.log('donation', donation);
             if (donation) {
                 //if (donation.isRecurring) {
                 const customer = await this.createStripeCustomer({
@@ -158,7 +159,12 @@ export class SalesforceService {
                     };
                     sp.Status = 'Active';
                     const recurring = await this.recurringService.createRecurring(recurringDonation);
-                    donation.Recurring.push(<string>recurring._id) //= recurring._id ? (new mongoose.Types.ObjectId(recurring._id as string) as unknown as any) : '';
+                    console.log('recurring', recurring);
+                    // Initialize donation.Recurring as array if it doesn't exist
+                    if (!Array.isArray(donation.Recurring)) {
+                        donation.Recurring = [];
+                    }                    
+                    donation.Recurring.push(new mongoose.Types.ObjectId(recurring._id as string) as unknown as any);
                     sp.Recurring = recurring._id ? (new mongoose.Types.ObjectId(recurring._id as string) as unknown as any) : '';
                     sp.save();
                 }

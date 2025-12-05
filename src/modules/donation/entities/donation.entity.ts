@@ -48,8 +48,12 @@ export class Donation extends Document {
     })
     contact: string;
 
-    @Prop({ type: MongooseSchema.Types.ObjectId, required: false })
-    Recurring: string[];
+    @Prop({ 
+        type: [{ type: MongooseSchema.Types.ObjectId, ref: 'Recurring' }], 
+        required: false,
+        default: []
+    })
+    Recurring: MongooseSchema.Types.ObjectId[];
     
     @Prop({ required: false })
     npe03__Recurring_Donation__c: string[];
