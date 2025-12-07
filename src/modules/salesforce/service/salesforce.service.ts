@@ -130,7 +130,7 @@ export class SalesforceService {
                     const item = cartItems[i];
                     const donationId = object.metadata.donationID;
                     console.log("khal hna")
-                    if (item.type = "Recurring") {
+                    if (item.type == "Recurring") {
                         await this.processCartItemAfterPayment({
                             item,
                             donationId,
