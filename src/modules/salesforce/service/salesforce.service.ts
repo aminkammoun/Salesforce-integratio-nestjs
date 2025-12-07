@@ -476,7 +476,7 @@ export class SalesforceService {
                 interval: interval.interval,
                 interval_count: interval.interval_count,
             },
-            productId: "prod_TVy2unytb3L8hZ", // Use env variable
+            productId: "prod_TYxTnm0rvxuSWn", // Use env variable
             product_data: {
                 name: item.type === 'recurring'
                     ? `Recurring Donation - ${item.programId}`
