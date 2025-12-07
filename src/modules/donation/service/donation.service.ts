@@ -9,19 +9,32 @@ import { UpdateDonationDto } from '../dto/update-donation.dto';
 import { handleInsertQuery, handleQuery } from 'src/config/utils';
 import { Sponsorship } from 'src/modules/sponsorship/entities/sponsorship.entity';
 import { RecurringService } from 'src/modules/recurring/service/recurring.service';
+import { ContactService } from 'src/modules/contact/service/contact.service';
 @Injectable()
 export class DonationService {
     constructor(
         @InjectModel(Donation.name) private readonly DonationModel: Model<Donation>,
         @InjectModel(Recurring.name) private readonly RecurringModel: Model<Recurring>,
-        //@Inject() private readonly recurringService: RecurringService,
+        @Inject(forwardRef(() => ContactService)) private readonly contactService: ContactService,
         @Inject(forwardRef(() => RecurringService)) private readonly recurringService: RecurringService,
+        //@Inject() private readonly recurringService: RecurringService,
+        //@Inject() private readonly contactService: ContactService,
 
         //@InjectModel(Sponsorship.name) private readonly SponsorshipModel: Model<Sponsorship>,
     ) { }
 
     async create(createDonationDto: CreateDonationDto[]) {
         try {
+            if (!createDonationDto[0].contact) {
+                throw new InternalServerErrorException('Contact ID is required');
+            }
+            const contact = await this.contactService.findOne(createDonationDto[0].contact);
+            const isContactSynced = contact?.syncedWithSalesforce ? true : false;
+            createDonationDto = createDonationDto.map(donation => ({
+                ...donation,
+                npsp__Primary_Contact__c: isContactSynced ? contact?.salesforceID : undefined,
+                //syncedWithSalesforce: isContactSynced,
+            }));
             const donation = await this.DonationModel.create(createDonationDto, { ordered: false });
             //const response = await donation.save();
             // If the donation is linked to a Recurring plan, add it to the Recurring.donations array
@@ -257,18 +270,18 @@ export class DonationService {
                                 Program_Cohort__c: item.programId,
                             }
                             const allocationResult = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Program_Allocation_Unit__c/', allocationPayload);
-                           
-                             const queryGAU= await handleQuery('/services/data/v65.0/query/?q=', `SELECT+General_Accounting_Unit__c+FROM+pmdm__ProgramCohort__c+WHERE+id ='${ item.programId}'`);
-                             console.log('General Accounting Unit Query Result:', queryGAU);
-                             //select Id,Name,npsp__Amount__c,npsp__Percent__c,npsp__General_Accounting_Unit__c,npsp__Opportunity__c from npsp__Allocation__c
-                             const GAUPayload = {
-                                 npsp__Opportunity__c: result.salesforceId,
-                                 npsp__General_Accounting_Unit__c: queryGAU.records[0].General_Accounting_Unit__c,
-                                 npsp__Amount__c : item.amount,
-                                 npsp__Percent__c : donation.Amount ? (item.amount / donation.Amount) * 100 : 100,
-                                 GAU_Type__c : 'Once'
-                             }
-                             const GAUResult = await handleInsertQuery('/services/data/v65.0/sobjects/', 'npsp__Allocation__c/', GAUPayload);
+
+                            const queryGAU = await handleQuery('/services/data/v65.0/query/?q=', `SELECT+General_Accounting_Unit__c+FROM+pmdm__ProgramCohort__c+WHERE+id ='${item.programId}'`);
+                            console.log('General Accounting Unit Query Result:', queryGAU);
+                            //select Id,Name,npsp__Amount__c,npsp__Percent__c,npsp__General_Accounting_Unit__c,npsp__Opportunity__c from npsp__Allocation__c
+                            const GAUPayload = {
+                                npsp__Opportunity__c: result.salesforceId,
+                                npsp__General_Accounting_Unit__c: queryGAU.records[0].General_Accounting_Unit__c,
+                                npsp__Amount__c: item.amount,
+                                npsp__Percent__c: donation.Amount ? (item.amount / donation.Amount) * 100 : 100,
+                                GAU_Type__c: 'Once'
+                            }
+                            const GAUResult = await handleInsertQuery('/services/data/v65.0/sobjects/', 'npsp__Allocation__c/', GAUPayload);
 
                         }
                         console.log(donation);
