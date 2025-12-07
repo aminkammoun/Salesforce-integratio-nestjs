@@ -64,7 +64,7 @@ export class ContactService {
                     return obj;
                 });
             }
-
+            console.log('Prepared contacts for insertion:', childCollec);
             if (childCollec.length > 0) {
                 try {
                     await this.ContactModel.insertMany(childCollec, { ordered: false });

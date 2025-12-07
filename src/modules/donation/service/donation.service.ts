@@ -6,7 +6,7 @@ import { Recurring } from 'src/modules/recurring/entities/recurring.entity';
 import { InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { CreateDonationDto } from '../dto/create-donation.dto';
 import { UpdateDonationDto } from '../dto/update-donation.dto';
-import { handleInsertQuery } from 'src/config/utils';
+import { handleInsertQuery, handleQuery } from 'src/config/utils';
 import { Sponsorship } from 'src/modules/sponsorship/entities/sponsorship.entity';
 import { RecurringService } from 'src/modules/recurring/service/recurring.service';
 @Injectable()
@@ -148,12 +148,12 @@ export class DonationService {
             }
             const salesforcePayloads = donations.map(async donation => {
                 let payload: any
-
                 const recurringItems = await this.recurringService.findAllBySalesforceID(donation.npe03__Recurring_Donation__c);
-                donation.cartItems.map(item => {
-                    if (item.Name.toLowerCase().includes('orphan') && item.type.toLowerCase() === 'recurring') {
-                        console.log('Processing recurring orphan sponsorship item:');
-
+                donation.cartItems.map(async (item, index) => {
+                    console.log('index:', index);
+                    console.log('index:', !item.Name.toLowerCase().includes('orphan'));
+                    if (item.Name.toLowerCase().includes('orphan') && item.type.toLowerCase() === 'recurring' && !item.sfId) {
+                        console.log(item.Name.toLowerCase().includes('orphan') && item.type.toLowerCase() === 'recurring', item)
                         recurringItems.forEach(async recurring => {
                             if (recurring.amount === item.amount && recurring.frequency.toLowerCase() === item.interval.toLowerCase()) {
                                 payload = {
@@ -169,17 +169,119 @@ export class DonationService {
                                     //RecordTypeId: donation.RecordTypeId,
                                 };
                                 item.npe03__Recurring_Donation__c = recurring.salesforceID;
+                                //item.sfId = recurring.donationSf;
+                                console.log('Updated cart item with Salesforce ID:', item);
+                                if (!payload) {
+                                    return;
+                                }
+                                const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Opportunity/', payload);
+                                if (result.salesforceId) {
+                                    if (recurring) {
+                                        recurring.donationSf = result.salesforceId || '';
+                                        item.sfId = result.salesforceId;
+                                    }
+
+                                }
+                                console.log(donation);
+                                console.log(donation.cartItems);
+                                await recurring.save();
+                                donation.syncedWithSalesforce = true;
+                                await this.update(donation._id as string, { syncedWithSalesforce: donation.syncedWithSalesforce, cartItems: donation.cartItems });
                             }
                         })
-                        console.log('Prepared payload for Salesforce:', payload);
+                    } else if (!item.Name.toLowerCase().includes('orphan') && item.type.toLowerCase() === 'recurring' && !item.sfId) {
+                        console.log('Existing recurring donation item, skipping creation:', item);
+                        let createRecPay: any;
+                        let createOppPay: any;
+                        createRecPay = {
+                            Name: item.Name,
+                            npsp__RecurringType__c: 'Open',
+                            npe03__Installment_Period__c: item.interval,
+                            npe03__Amount__c: item.amount,
+                            npe03__Contact__c: donation.npsp__Primary_Contact__c,
+                            npe03__Date_Established__c: donation.CloseDate,
+                            npsp__Day_of_Month__c: donation.CloseDate.getDate(),
+                            npsp__Status__c: 'Active',
+                            //RecordTypeId: donation.RecordTypeId,
+                        };
+                        const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'npe03__Recurring_Donation__c/', createRecPay);
+                        if (result.salesforceId) {
+                            item.npe03__Recurring_Donation__c = result.salesforceId;
 
-                    } else {
 
+                            createOppPay = {
+                                Name: donation.Name,
+                                Amount: item.amount,
+                                //frequency: recurring?.frequency,
+                                CloseDate: donation.CloseDate,
+                                StageName: donation.StageName,
+                                npsp__Acknowledgment_Status__c: donation.Acknowledgment_Status__c,
+                                Donation_Source__c: donation.Donation_Source__c,
+                                npsp__Primary_Contact__c: donation.npsp__Primary_Contact__c,
+                                npe03__Recurring_Donation__c: result.salesforceId,
+                            }
+
+                            const oppResult = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Opportunity/', createOppPay);
+                            if (oppResult.salesforceId) {
+                                item.sfId = oppResult.salesforceId;
+                            }
+                            donation.syncedWithSalesforce = true;
+                            await this.update(donation._id as string, { syncedWithSalesforce: donation.syncedWithSalesforce, cartItems: donation.cartItems });
+                        }
+                    } else if (item.type.toLowerCase() === 'one-time' && !item.sfId) {
+                        console.log('One-time donation item, skipping creation:', item);
+                        payload = {
+                            Name: donation.Name,
+                            Amount: <Number>item.amount,
+                            //frequency: recurring?.frequency,
+                            CloseDate: donation.CloseDate,
+                            StageName: donation.StageName,
+                            npsp__Acknowledgment_Status__c: donation.Acknowledgment_Status__c,
+                            Donation_Source__c: donation.Donation_Source__c,
+                            npsp__Primary_Contact__c: donation.npsp__Primary_Contact__c,
+                            //npe03__Recurring_Donation__c: recurring.salesforceID,
+                            //RecordTypeId: donation.RecordTypeId,
+                        };
+                        //item.npe03__Recurring_Donation__c = recurring.salesforceID;
+                        //item.sfId = recurring.donationSf;
+                        console.log('Updated cart item with Salesforce ID:', item);
+                        if (!payload) {
+                            return;
+                        }
+                        const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Opportunity/', payload);
+                        if (result.salesforceId) {
+                            item.sfId = result.salesforceId;
+                            const allocationPayload = {
+                                Opportunity__c: result.salesforceId,
+                                Amount__c: item.amount,
+                                Program_Cohort__c: item.programId,
+                            }
+                            const allocationResult = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Program_Allocation_Unit__c/', allocationPayload);
+                           
+                             const queryGAU= await handleQuery('/services/data/v65.0/query/?q=', `SELECT+General_Accounting_Unit__c+FROM+pmdm__ProgramCohort__c+WHERE+id ='${ item.programId}'`);
+                             console.log('General Accounting Unit Query Result:', queryGAU);
+                             //select Id,Name,npsp__Amount__c,npsp__Percent__c,npsp__General_Accounting_Unit__c,npsp__Opportunity__c from npsp__Allocation__c
+                             const GAUPayload = {
+                                 npsp__Opportunity__c: result.salesforceId,
+                                 npsp__General_Accounting_Unit__c: queryGAU.records[0].General_Accounting_Unit__c,
+                                 npsp__Amount__c : item.amount,
+                                 npsp__Percent__c : donation.Amount ? (item.amount / donation.Amount) * 100 : 100,
+                                 GAU_Type__c : 'Once'
+                             }
+                             const GAUResult = await handleInsertQuery('/services/data/v65.0/sobjects/', 'npsp__Allocation__c/', GAUPayload);
+
+                        }
+                        console.log(donation);
+                        console.log(donation.cartItems);
+                        donation.syncedWithSalesforce = true;
+                        await this.update(donation._id as string, { syncedWithSalesforce: donation.syncedWithSalesforce, cartItems: donation.cartItems });
                     }
 
 
                 })
 
+
+                return donation;
                 /*donation.npe03__Recurring_Donation__c.forEach(async item => {
                     const recurring = await this.recurringService.findBySalesforceID(item);
         
@@ -214,7 +316,8 @@ export class DonationService {
                 //this.recurringService.updateWithDonationSalesforceID(donation._id as string, result.salesforceId)
                 return donation;*/
             })
-            return salesforcePayloads;
+
+            //return salesforcePayloads;
         } catch (error) {
             throw new InternalServerErrorException(error);
         }

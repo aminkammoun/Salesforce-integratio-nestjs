@@ -11,6 +11,7 @@ import { TransactionService } from 'src/modules/transaction/service/transaction.
 import { SponsorshipService } from 'src/modules/sponsorship/service/sponsorship.service';
 import { RecurringService } from 'src/modules/recurring/service/recurring.service';
 import { CartItemDto } from 'src/modules/donation/dto/create-donation.dto';
+import { ChildService } from 'src/modules/child/service/child.service';
 @Injectable()
 export class SalesforceService {
     private stripe: Stripe;
@@ -18,7 +19,7 @@ export class SalesforceService {
 
     constructor(
 
-
+        @Inject() private readonly childService: ChildService,
         @Inject() private readonly contactService: ContactService,
         @Inject() private readonly transactionService: TransactionService,
         @Inject() private readonly donationService: DonationService,
@@ -163,10 +164,11 @@ export class SalesforceService {
                     // Initialize donation.Recurring as array if it doesn't exist
                     if (!Array.isArray(donation.Recurring)) {
                         donation.Recurring = [];
-                    }                    
+                    }
                     donation.Recurring.push(new mongoose.Types.ObjectId(recurring._id as string) as unknown as any);
                     sp.Recurring = recurring._id ? (new mongoose.Types.ObjectId(recurring._id as string) as unknown as any) : '';
                     sp.save();
+                    this.childService.updateToSponsored(sp.child);
                 }
                 donation.StageName = 'Closed Won';
                 donation.customerStipe = (await customer).id;
@@ -250,8 +252,8 @@ export class SalesforceService {
                 amount: req.amount,
                 currency: req.currency,
                 //setup_future_usage: 'off_session',
-                payment_method_types: ['card_present'],
-                capture_method: 'automatic',
+                //payment_method_types: ['card_present'],
+                //capture_method: 'automatic',
                 //customer: customerId,
                 //payment_method_types: ['card'],
                 metadata: req.metadata || {},

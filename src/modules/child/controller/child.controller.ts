@@ -34,4 +34,9 @@ export class ChildController {
     async getChildrenByNationality(@Body() childToreserve: ChildToreserve[]) {
         return this.childService.getAvailableChildrenByNationality(childToreserve);
     }
+    @Get('/salesforceIDs')
+    async getBySalesforceIDs(@Body() ids: string[]) {
+        
+        return this.childService.findBySalesforceIDs(ids);
+    }
 }

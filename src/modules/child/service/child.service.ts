@@ -171,7 +171,7 @@ export class ChildService {
         session.startTransaction();
         try {
             const reservationResults: { message: string; nationality: string; reservedCount: number; }[] = [];
-            const finalResult: any []=[]
+            const finalResult: any[] = []
             for (const childmap of childToreserve) {
 
 
@@ -235,6 +235,25 @@ export class ChildService {
 
             await child.save();
             return child;
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
+    }
+    async updateToSponsored(childIds: string[]) {
+        try {
+            const result = await this.ChildModel.updateMany(
+                { SalesforceID: { $in: childIds } },
+                { $set: { Status__c: 'Sponsored' } }
+            );
+            return result;
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
+    }
+    async findBySalesforceIDs(salesforceIDs: string[]) {
+        try {
+            const children = await this.ChildModel.find({ SalesforceID: { $in: salesforceIDs } });
+            return children;
         } catch (error) {
             throw new InternalServerErrorException(error);
         }

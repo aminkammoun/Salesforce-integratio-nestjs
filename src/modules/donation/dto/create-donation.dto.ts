@@ -44,6 +44,7 @@ export class CartItemDto {
     Requestedcount?: number; // Number of children for bulk sponsorships
     nationality?: string;
     npe03__Recurring_Donation__c: string;
+    sfId: string;
 }
 export class CreateDonationDto {
 

@@ -13,5 +13,6 @@ import { ChildCronService } from './service/child-cron.service';
   ],
   controllers: [ChildController],
   providers: [ChildService,ChildCronService],
+  exports: [ChildService],
 })
 export class ChildModule { }
