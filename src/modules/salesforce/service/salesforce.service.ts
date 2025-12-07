@@ -251,10 +251,10 @@ export class SalesforceService {
             const paymentIntent = await this.stripe.paymentIntents.create({
                 amount: req.amount,
                 currency: req.currency,
-                setup_future_usage: 'off_session',
+                //setup_future_usage: 'off_session',
                 payment_method_types: ['card_present'],
                 capture_method: 'automatic',
-                customer: req.customerId,
+                //customer: req.customerId,
                 //payment_method_types: ['card'],
                 metadata: req.metadata || {},
             });
