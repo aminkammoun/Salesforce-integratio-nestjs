@@ -216,7 +216,7 @@ export class SalesforceService {
                     contact: contact.salesforceID,
                     IATSPayment__Method_of_Payment__c: object.payment_method_details?.type,
                     IATSPayment__Status__c: object.status,
-                    IATSPayment__Contact__c: contact.salesforceID,
+                    IATSPayment__Contact__c: contact.salesforceID || <string> contact._id,
                     transactionID: object.id,
                     IATSPayment__Payer_Address__c: object.billing_details?.address?.line1,
                     IATSPayment__Payer_City__c: object.billing_details?.address?.city,

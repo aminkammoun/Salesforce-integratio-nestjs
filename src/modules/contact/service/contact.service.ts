@@ -48,7 +48,9 @@ export class ContactService {
             const res = await handleQuery('/services/data/v65.0/query/?q=', query);
             let childCollec = [];
             console.log('Service received response:', res);
-            if (res.done == true) {
+            
+            setTimeout(async() => {
+                if (res) {
                 childCollec = res.records.map(record => {
                     const obj: any = {
                         firstName: record.FirstName,
@@ -64,17 +66,19 @@ export class ContactService {
                     return obj;
                 });
             }
-            console.log('Prepared contacts for insertion:', childCollec);
-            if (childCollec.length > 0) {
-                try {
-                    await this.ContactModel.insertMany(childCollec, { ordered: false });
+                console.log('Prepared contacts for insertion:', childCollec);
 
-                } catch (error) {
+                if (childCollec.length > 0) {
+                    try {
+                        await this.ContactModel.insertMany(childCollec, { ordered: false });
 
-                    console.error('Error inserting contacts:', error);
+                    } catch (error) {
+
+                        console.error('Error inserting contacts:', error);
+                    }
                 }
-            }
-            return childCollec;
+                return childCollec;
+            }, 5000);
 
 
         } catch (error) {
@@ -97,9 +101,9 @@ export class ContactService {
             const contacts = await this.ContactModel.find({ Phone: phone });
             if (contacts.length === 0) {
                 // If no exact match, try searching after cleaning the phone number
-                
+
                 console.log('No exact match found. Searching for cleaned phone number:');
-                
+
             }
             console.log('Found contacts:', contacts);
 
