@@ -1,6 +1,6 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types as MongooseTypes, Types } from 'mongoose';
+import { Model, Types as MongooseTypes, set, Types } from 'mongoose';
 import { Donation } from '../entities/donation.entity';
 import { Recurring } from 'src/modules/recurring/entities/recurring.entity';
 import { InternalServerErrorException, NotFoundException } from '@nestjs/common';
@@ -154,7 +154,7 @@ export class DonationService {
 
     async uploadDonationsToSalesforce() {
         try {
-            const donations = await this.DonationModel.find({ syncedWithSalesforce: false,contact:'69363ba0fbd71eb32a25a630' });
+            const donations = await this.DonationModel.find({ syncedWithSalesforce: false});
             if (donations.length === 0) {
                 console.log('No donations to upload to Salesforce');
                 return [];
@@ -242,52 +242,57 @@ export class DonationService {
                             await this.update(donation._id as string, { syncedWithSalesforce: donation.syncedWithSalesforce, cartItems: donation.cartItems });
                         }
                     } else if (item.type.toLowerCase() === 'onetime' && !item.sfId) {
-                        console.log('One-time donation item, skipping creation:', item);
-                        payload = {
-                            Name: donation.Name,
-                            Amount: <Number>item.amount,
-                            //frequency: recurring?.frequency,
-                            CloseDate: donation.CloseDate,
-                            StageName: donation.StageName,
-                            npsp__Acknowledgment_Status__c: donation.Acknowledgment_Status__c,
-                            Donation_Source__c: "Fundraising App",
-                            npsp__Primary_Contact__c: donation.npsp__Primary_Contact__c,
-                            //npe03__Recurring_Donation__c: recurring.salesforceID,
-                            //RecordTypeId: donation.RecordTypeId,
-                        };
-                        //item.npe03__Recurring_Donation__c = recurring.salesforceID;
-                        //item.sfId = recurring.donationSf;
-                        console.log('Updated cart item with Salesforce ID:', item);
-                        if (!payload) {
-                            return;
-                        }
-                        const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Opportunity/', payload);
-                        if (result.salesforceId) {
-                            item.sfId = result.salesforceId;
-                            const allocationPayload = {
-                                Opportunity__c: result.salesforceId,
-                                Amount__c: item.amount,
-                                Program_Cohort__c: item.programId,
-                            }
-                            const allocationResult = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Program_Allocation_Unit__c/', allocationPayload);
+                        // Process one-time item immediately and synchronously (no setTimeout)
+                        try {
+                            console.log('Processing one-time donation item:', item);
+                            payload = {
+                                Name: donation.Name,
+                                Amount: Number(item.amount),
+                                CloseDate: donation.CloseDate,
+                                StageName: donation.StageName,
+                                npsp__Acknowledgment_Status__c: donation.Acknowledgment_Status__c,
+                                Donation_Source__c: donation.Donation_Source__c || 'Fundraising App',
+                                npsp__Primary_Contact__c: donation.npsp__Primary_Contact__c,
+                            };
 
-                            const queryGAU = await handleQuery('/services/data/v65.0/query/?q=', `SELECT+General_Accounting_Unit__c+FROM+pmdm__ProgramCohort__c+WHERE+id ='${item.programId}'`);
-                            console.log('General Accounting Unit Query Result:', queryGAU);
-                            //select Id,Name,npsp__Amount__c,npsp__Percent__c,npsp__General_Accounting_Unit__c,npsp__Opportunity__c from npsp__Allocation__c
-                            const GAUPayload = {
-                                npsp__Opportunity__c: result.salesforceId,
-                                npsp__General_Accounting_Unit__c: queryGAU.records[0].General_Accounting_Unit__c,
-                                npsp__Amount__c: item.amount,
-                                npsp__Percent__c: donation.Amount ? (item.amount / donation.Amount) * 100 : 100,
-                                GAU_Type__c: 'Once'
-                            }
-                            const GAUResult = await handleInsertQuery('/services/data/v65.0/sobjects/', 'npsp__Allocation__c/', GAUPayload);
+                            const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Opportunity/', payload);
+                            if (result && result.salesforceId) {
+                                item.sfId = result.salesforceId;
 
+                                // Create allocation unit if programId present
+                                if (item.programId) {
+                                    const allocationPayload = {
+                                        Opportunity__c: result.salesforceId,
+                                        Amount__c: item.amount,
+                                        Program_Cohort__c: item.programId,
+                                    };
+                                    await handleInsertQuery('/services/data/v65.0/sobjects/', 'Program_Allocation_Unit__c/', allocationPayload);
+
+                                    // Fetch GAU and create GAU allocation
+                                    const queryGAU = await handleQuery('/services/data/v65.0/query/?q=', `SELECT+General_Accounting_Unit__c+FROM+pmdm__ProgramCohort__c+WHERE+id='${item.programId}'`);
+                                    if (queryGAU?.records?.length) {
+                                        const GAUPayload = {
+                                            npsp__Opportunity__c: result.salesforceId,
+                                            npsp__General_Accounting_Unit__c: queryGAU.records[0].General_Accounting_Unit__c,
+                                            npsp__Amount__c: item.amount,
+                                            npsp__Percent__c: donation.Amount ? (item.amount / donation.Amount) * 100 : 100,
+                                            GAU_Type__c: 'Once',
+                                        };
+                                        await handleInsertQuery('/services/data/v65.0/sobjects/', 'npsp__Allocation__c/', GAUPayload);
+                                    } else {
+                                        console.warn('GAU query returned no records for programId:', item.programId);
+                                    }
+                                }
+
+                                // Persist updated cart item and mark donation synced
+                                donation.syncedWithSalesforce = true;
+                                await this.update(donation._id as string, { syncedWithSalesforce: donation.syncedWithSalesforce, cartItems: donation.cartItems });
+                            } else {
+                                console.warn('Opportunity creation returned no salesforceId for donation item:', item);
+                            }
+                        } catch (err) {
+                            console.error('Error processing one-time donation item:', err);
                         }
-                        console.log(donation);
-                        console.log(donation.cartItems);
-                        donation.syncedWithSalesforce = true;
-                        await this.update(donation._id as string, { syncedWithSalesforce: donation.syncedWithSalesforce, cartItems: donation.cartItems });
                     }
 
 
