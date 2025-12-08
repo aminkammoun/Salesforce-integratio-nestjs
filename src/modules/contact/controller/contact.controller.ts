@@ -14,6 +14,10 @@ export class ContactController {
     findByPhone(@Param('phone') phone: string) {
         return this.contactService.findByPhone(phone);
     }
+    @Get('/:id')
+    findOne(@Param('id') id: string) {
+        return this.contactService.findOne(id);
+    }
     @Get('/email/:email')
     findByEmail(@Param('email') email: string) {
         return this.contactService.findByEmail(email);
