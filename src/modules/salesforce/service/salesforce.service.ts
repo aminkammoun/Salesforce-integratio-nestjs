@@ -171,7 +171,7 @@ export class SalesforceService {
                     this.childService.updateToSponsored(sp.child);
                 }
                 donation.StageName = 'Closed Won';
-                donation.customerStipe = (await customer).id;
+                donation.customerStipe = object.payment_intent;
                 //donation.npe03__Recurring_Donation__c = 
 
 
