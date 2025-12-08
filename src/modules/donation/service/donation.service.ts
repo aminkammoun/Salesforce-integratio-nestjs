@@ -241,7 +241,7 @@ export class DonationService {
                             donation.syncedWithSalesforce = true;
                             await this.update(donation._id as string, { syncedWithSalesforce: donation.syncedWithSalesforce, cartItems: donation.cartItems });
                         }
-                    } else if (item.type.toLowerCase() === 'one-time' && !item.sfId) {
+                    } else if (item.type.toLowerCase() === 'OneTime' && !item.sfId) {
                         console.log('One-time donation item, skipping creation:', item);
                         payload = {
                             Name: donation.Name,
@@ -250,7 +250,7 @@ export class DonationService {
                             CloseDate: donation.CloseDate,
                             StageName: donation.StageName,
                             npsp__Acknowledgment_Status__c: donation.Acknowledgment_Status__c,
-                            Donation_Source__c: donation.Donation_Source__c,
+                            Donation_Source__c: "Fundraising App",
                             npsp__Primary_Contact__c: donation.npsp__Primary_Contact__c,
                             //npe03__Recurring_Donation__c: recurring.salesforceID,
                             //RecordTypeId: donation.RecordTypeId,
