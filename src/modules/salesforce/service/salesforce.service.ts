@@ -101,15 +101,15 @@ export class SalesforceService {
         logger.log(`metadata: ${object.metadata.donationID}`);
         logger.log(`metadata: ${object.metadata.sponsorshipId}`);
         logger.log(`metadata: ${object.metadata.contactPhone}`);
-
-        const contacts = await this.contactService.findByPhone(object.metadata.contactPhone);
+        const donation = await this.donationService.findOneId(object.metadata.donationID)
+        const contacts = await this.contactService.findOne(donation?.contact as string);
         const contact = Array.isArray(contacts) ? contacts[0] : contacts;
         if (!contact) {
             return res.status(200).json({ message: "Event ignored" });
         } else {
             console.log('Donation ID:', object.metadata.donationID);
             //await this.sponsorshipService.updateToActive(sponsorshipId);
-            const donation = await this.donationService.findOneId(object.metadata.donationID)
+
             console.log('donation', donation);
             if (donation) {
                 //if (donation.isRecurring) {
@@ -216,7 +216,7 @@ export class SalesforceService {
                     contact: contact.salesforceID,
                     IATSPayment__Method_of_Payment__c: object.payment_method_details?.type,
                     IATSPayment__Status__c: object.status,
-                    IATSPayment__Contact__c: contact.salesforceID || <string> contact._id,
+                    IATSPayment__Contact__c: contact.salesforceID || <string>contact._id,
                     transactionID: object.id,
                     IATSPayment__Payer_Address__c: object.billing_details?.address?.line1,
                     IATSPayment__Payer_City__c: object.billing_details?.address?.city,
