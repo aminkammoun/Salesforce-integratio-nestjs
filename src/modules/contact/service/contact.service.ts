@@ -87,48 +87,57 @@ export class ContactService {
         }
     } */
     async insertFromSalesforce(query: string) {
-        try {
-            const res = await handleQuery('/services/data/v65.0/query/?q=', query);
+        const records = await this.fetchAllSalesforceContacts(query);
+        
+        const operations = records.map((record: any) => ({
+            updateOne: {
+                filter: { salesforceID: record.Id },
+                update: {
+                    $set: {
+                        firstName: record.FirstName,
+                        lastName: record.LastName,
+                        Name: record.Name,
+                        email: record.Email,
+                        Phone: record.MobilePhone || record.Phone,
+                        syncedWithSalesforce: true,
+                        salesforceID: record.Id,
+                    }
+                },
+                upsert: true
+            }
+        }));
 
-            if (!res || !res.records) return [];
+        const result = await this.ContactModel.bulkWrite(operations, { ordered: false });
 
-            const operations = res.records.map(record => {
-                const cleanPhone =
-                    record.Phone?.replace(/[^0-9]/g, '') ||record.MobilePhone?.replace(/[^0-9]/g, '') || record.Phone || null;
-
-                const contactData = {
-                    firstName: record.FirstName,
-                    lastName: record.LastName,
-                    Name: record.Name,
-                    email: record.Email,
-                    Phone: cleanPhone,
-                    syncedWithSalesforce: true,
-                    salesforceID: record.Id,
-                };
-
-                return {
-                    updateOne: {
-                        filter: { salesforceID: record.Id },
-                        update: { $set: contactData },
-                        upsert: true, // insert if not exists
-                    },
-                };
-            });
-
-            // Apply ALL inserts/updates in one shot
-            const result = await this.ContactModel.bulkWrite(operations, {
-                ordered: false,
-            });
-
-            console.log('Salesforce sync result:', result);
-            return result;
-
-        } catch (error) {
-            console.error('Error during Salesforce sync:', error);
-            throw new InternalServerErrorException(error);
-        }
+        console.log('Imported contacts:', result);
+        return result;
     }
 
+    async fetchAllSalesforceContacts(query: string) {
+        try {
+            const allRecords: any[] = [];
+
+            // 1) First query
+            let res = await handleQuery('/services/data/v65.0/query/?q=', query);
+
+            allRecords.push(...res.records);
+
+            // 2) Fetch next records while there is a next URL
+            while (!res.done) {
+                console.log('Fetching next batch...');
+
+                res = await handleQuery('', res.nextRecordsUrl);
+                allRecords.push(...res.records);
+            }
+
+            console.log('Total contacts retrieved:', allRecords.length);
+            return allRecords;
+
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+    }
 
 
     async findByPhone(phone: string) {
