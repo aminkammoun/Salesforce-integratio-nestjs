@@ -19,7 +19,7 @@ export class Contact extends Document {
   sponsorships: any[]; // Will be populated with Sponsorship documents
   @Prop({ required: false })
   Name: string;
-  @Prop({ required: true })
+  @Prop({ required: false })
   email: string;
   @Prop({ required: false })
   first_name: string;

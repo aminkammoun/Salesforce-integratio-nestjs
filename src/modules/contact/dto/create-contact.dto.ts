@@ -12,6 +12,7 @@ export class CreateContactDto {
   Name: string;
 
   @ApiProperty({ description: 'Email address of the contact', example: 'user@example.com' })
+  @IsOptional()
   email: string;
   @IsOptional()
   @ApiPropertyOptional({ description: 'First name of the contact', example: 'John' })

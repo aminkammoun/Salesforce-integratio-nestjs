@@ -113,17 +113,7 @@ export class SalesforceService {
             console.log('donation', donation);
             if (donation) {
                 //if (donation.isRecurring) {
-                const customer = await this.createStripeCustomer({
-                    name: object.billing_details?.name,
-                    phone: object.billing_details?.phone
-
-                })
-
-                console.log('customer', customer);
-                /*await this.linkPaymentMethodToCustomer({
-                    customerId: (await customer).id,
-                    paymentId: object.payment_method
-                })*/
+                var customer: any;
                 const cartItems = JSON.parse(object.metadata.cart_items);
                 console.log("cart Items " + cartItems)
                 for (let i = 0; i < cartItems.length; i++) {
@@ -131,6 +121,19 @@ export class SalesforceService {
                     const donationId = object.metadata.donationID;
                     console.log("khal hna")
                     if (item.type == "Recurring") {
+                        customer = await this.createStripeCustomer({
+                            name: object.billing_details?.name,
+                            phone: object.billing_details?.phone
+
+                        }, {})
+                        const paymentMethodId = object.payment_method;
+                        console.log('customer', customer);
+                        const pmList = await this.stripe.paymentMethods.list({ customer: customer.id, type: 'card' });
+                        const savedPm = pmList.data[0];
+                        /*await this.linkPaymentMethodToCustomer({
+                            customerId: (await customer).id,
+                            paymentId: object.payment_method
+                        })*/
                         await this.processCartItemAfterPayment({
                             item,
                             donationId,
@@ -176,45 +179,14 @@ export class SalesforceService {
 
 
                 this.logger.log(`Donation ${donation._id} updated to Closed Won and transaction created.`);
-                //return res.status(200).json({ message: "Donation and transaction updated" });
-                /*} else {
-                    donation.StageName = 'Closed Won';
-                    const customer = this.createStripeCustomer({
-                        name: object.billing_details?.name,
-                        phone: object.billing_details?.phone
-
-                    })
-
-                    console.log('customer', customer);
-                    await this.linkPaymentMethodToCustomer({
-                        customerId: (await customer).id,
-                        paymentId: object.payment_method
-                    })
-
-                    const price = await this.createStripePrice({
-                        amount: donation.Amount,
-                        currency: "USD",
-                        recurring: {
-                            interval: "month"
-                        },
-                        productId: "prod_TUqyZQ8Vrk49vd",
-                        product_data: {
-                            name: "Gold Plan"
-                        }
-                    }, {})
-                    const subscription = await this.createStripeSubscription({
-                        customerId: (await customer).id,
-                        priceId: price.id
-                    }, {})
-                    donation.customerStipe = (await customer).id;
-                }*/
+                
 
                 let transactionData = {
                     IATSPayment__Amount__c: object.amount / 100,
                     IATSPayment__Amount_currency__c: object.currency,
                     donation: object.metadata.donationID,
                     contact: contact.salesforceID,
-                    IATSPayment__Method_of_Payment__c: object.payment_method_details?.type,
+                    IATSPayment__Method_of_Payment__c: object.payment_method_details.card_present?.type,
                     IATSPayment__Status__c: object.status,
                     IATSPayment__Contact__c: contact.salesforceID || <string>contact._id,
                     transactionID: object.id,
@@ -224,9 +196,9 @@ export class SalesforceService {
                     IATSPayment__Payer_Zip_Code__c: object.billing_details?.address?.postal_code,
                     IATSPayment__Payer_First_Name__c: object.billing_details?.name?.split(' ')[0],
                     IATSPayment__Payer_Last_name__c: object.billing_details?.name?.split(' ')[1] || '',
-                    IATSPayment__Credit_Card__c: object.payment_method_details?.card?.last4,
-                    IATSPayment__Credit_Card_Type__c: object.payment_method_details?.card?.brand,
-                    IATSPayment__Credit_Card_Expiry_Date__c: object.payment_method_details?.card?.exp_month + '/' + object.payment_method_details?.card?.exp_year,
+                    IATSPayment__Credit_Card__c: object.billing_method_details.card_present?.last4,
+                    IATSPayment__Credit_Card_Type__c: object.payment_method_details?.card_present?.brand,
+                    IATSPayment__Credit_Card_Expiry_Date__c: object.payment_method_details.card_present?.exp_month + '/' + object.payment_method_details.card_present?.exp_year,
                     Stripe_Customer_ID__c: object.payment_intent || object.id,
                     note: `Transaction created from Stripe webhook for payment intent ${object.payment_intent || object.id}`,
                     salesforceDonation: donation.salesforceID,
@@ -251,8 +223,8 @@ export class SalesforceService {
             const paymentIntent = await this.stripe.paymentIntents.create({
                 amount: req.amount,
                 currency: req.currency,
-                //setup_future_usage: 'off_session',
-                payment_method_types: ['card_present'],
+                setup_future_usage: 'off_session',
+                //payment_method_types: ['card_present'],
                 capture_method: 'automatic',
                 //customer: req.customerId,
                 //payment_method_types: ['card'],
@@ -269,7 +241,15 @@ export class SalesforceService {
             throw error;
         }
     }
-    async createStripeCustomer(req: any) {
+    async createSetupIntentForTerminal(customerId: string) {
+        const setupIntent = await this.stripe.setupIntents.create({
+            customer: customerId,
+            usage: 'off_session',
+            payment_method_types: ['card_present'],
+        });
+        return setupIntent; // includes client_secret
+    }
+    async createStripeCustomer(req: any, res: any) {
         try {
             this.logger.log(`Creating Stripe customer for email: ${req.email}`);
             const customer = await this.stripe.customers.create({
@@ -282,6 +262,20 @@ export class SalesforceService {
             return customer;
         } catch (error) {
             this.logger.error('Error creating customer:', error);
+            throw error;
+        }
+    }
+    async getGeneratedPaymentMethods(paymentIntentId: string) {
+        try {
+            this.logger.log(`Retrieving payment methods for customer: ${paymentIntentId}`);
+            const successfulPaymentIntent = await this.stripe.paymentIntents.retrieve(paymentIntentId);
+
+            // The ID of the reusable payment method you need for subscriptions
+            const reusablePaymentMethodId = successfulPaymentIntent.payment_method;
+            return reusablePaymentMethodId;
+        }
+        catch (error) {
+            this.logger.error('Error retrieving payment methods:', error);
             throw error;
         }
     }
@@ -476,7 +470,7 @@ export class SalesforceService {
                 interval: interval.interval,
                 interval_count: interval.interval_count,
             },
-            productId: "prod_TYxTnm0rvxuSWn", // Use env variable
+            productId: "prod_TVy2unytb3L8hZ", // Use env variable
             product_data: {
                 name: item.type === 'recurring'
                     ? `Recurring Donation - ${item.programId}`
@@ -493,6 +487,7 @@ export class SalesforceService {
             priceId: price.id,
             trial_end: billingCycleAnchor, // Don't charge until next period
             billing_cycle_anchor: billingCycleAnchor,
+            default_payment_method: object.payment_method,
             metadata: {
                 donationId: donationId,
                 contactId: contact._id.toString(),
@@ -502,37 +497,6 @@ export class SalesforceService {
 
         this.logger.log(`Created subscription ${subscription.id} for ${item.type}`);
 
-        /* // Create recurring donation record
-         const recurringDonation = await this.recurringService.createRecurring({
-             donorType: "Contact",
-             frequency: donation.frequency || "Monthly",
-             customerStipe: stripeCustomer.id,
-             amount: donation.Amount || 0,
-             DayOfMonth: new Date(billingCycleAnchor * 1000).getDate(),
-             donations: new mongoose.Types.ObjectId(donation._id as string),
-             sponsorships: sponsorshipId
-                 ? new mongoose.Types.ObjectId(sponsorshipId)
-                 : null,
-             donor: new mongoose.Types.ObjectId(contact._id as string),
-             status: "Active",
-             stripeSubscriptionId: subscription.id,
-             nextBillingDate: new Date(billingCycleAnchor * 1000),
-         });
- 
-         // Link recurring to donation
-         donation.Recurring = new mongoose.Types.ObjectId(recurringDonation._id as string);
- 
-         // Update sponsorship if exists
-         if (sponsorshipId) {
-             const sponsorship = await this.sponsorshipService.findById(sponsorshipId);
-             if (sponsorship) {
-                 sponsorship.Status = 'Active';
-                 sponsorship.Recurring = new mongoose.Types.ObjectId(recurringDonation._id as string);
-                 sponsorship.stripeSubscriptionId = subscription.id;
-                 await sponsorship.save();
-             }
-         }
- 
-         await donation.save();*/
+        
     }
 }

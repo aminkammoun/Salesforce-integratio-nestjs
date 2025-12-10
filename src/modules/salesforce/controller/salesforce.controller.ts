@@ -57,7 +57,7 @@ export class SalesforceController {
     }
     @Post('/createCustomer')
     async createCustomer(@Body() body: any, @Res() res: any) {
-        return await this.salesforceService.createStripeCustomer(body);
+        return await this.salesforceService.createStripeCustomer(body,res);
     }
     @Post('/createSubscription')
     async createSubscription(@Body() body: any, @Res() res: any) {
