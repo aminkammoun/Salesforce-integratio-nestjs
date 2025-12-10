@@ -125,7 +125,8 @@ export class SalesforceService {
                 console.log("recurringItem " + recurringItem)
                 if (recurringItem) {
                     customer = await this.createStripeCustomer({
-                        name: contact.Name,
+                        email : contact.email,
+                        name: "Ameed Jaara",
                         phone: contact.Phone,
                     })
                 }
@@ -213,7 +214,7 @@ export class SalesforceService {
                     }, {})
                     donation.customerStipe = (await customer).id;
                 }*/
-                console.log('last 4 ' +object.payment_method_details?.card_present?.last4)
+                console.log('last 4 ' + object.payment_method_details?.card_present?.last4)
                 console.log('brand ' + object.payment_method_details?.card_present?.brand)
                 console.log('expmonth ' + object.payment_method_details?.card_present?.exp_month)
                 let transactionData = {
@@ -280,10 +281,16 @@ export class SalesforceService {
         try {
             this.logger.log(`Creating Stripe customer for email: ${req.email}`);
             const customer = await this.stripe.customers.create({
-                //email: req.email,
-                name: req.name,
-                phone: req.phone,
-                metadata: req.metadata || {},
+                email: req.email ?? undefined,
+                name: req.name ?? undefined,
+                phone: req.phone ?? undefined,
+
+                // In case Stripe ignores top-level fields, ALWAYS store here
+                metadata: {
+                    customer_name: req.name || "",
+                    customer_phone: req.phone || "",
+                    ...(req.metadata || {})
+                },
             });
             console.log('Created Customer:', customer.id);
             return customer;
