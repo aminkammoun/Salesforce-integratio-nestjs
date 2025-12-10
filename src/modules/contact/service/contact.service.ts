@@ -94,7 +94,7 @@ export class ContactService {
 
             const operations = res.records.map(record => {
                 const cleanPhone =
-                    record.Phone?.replace(/[^0-9]/g, '') || record.Phone || null;
+                    record.Phone?.replace(/[^0-9]/g, '') ||record.MobilePhone?.replace(/[^0-9]/g, '') || record.Phone || null;
 
                 const contactData = {
                     firstName: record.FirstName,

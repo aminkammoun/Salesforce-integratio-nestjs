@@ -26,7 +26,7 @@ export class Contact extends Document {
   first_name: string;
   @Prop({ required: false })
   last_name: string;
-  @Prop({ required: true,unique: true })
+  @Prop({ required: true })
   Phone: string;
   @Prop({ default: Date.now })
   createdAt: Date;
