@@ -120,19 +120,21 @@ export class SalesforceService {
                 })*/
                 let customer: any
                 const cartItems = JSON.parse(object.metadata.cart_items);
-                console.log("cart Items " + cartItems)
+                const recurringItem = cartItems.find(item => item.type === 'Recurring');
+                console.log("recurringItem " + recurringItem)
+                if (recurringItem) {
+                    customer = await this.createStripeCustomer({
+                        name: object.billing_details?.name,
+                        phone: object.billing_details?.phone
+
+                    })
+                }
                 for (let i = 0; i < cartItems.length; i++) {
                     const item = cartItems[i];
                     const donationId = object.metadata.donationID;
                     console.log("khal hna")
+
                     if (item.type == "Recurring") {
-
-                        customer = await this.createStripeCustomer({
-                            name: object.billing_details?.name,
-                            phone: object.billing_details?.phone
-
-                        })
-
                         console.log('customer', customer);
                         await this.processCartItemAfterPayment({
                             item,

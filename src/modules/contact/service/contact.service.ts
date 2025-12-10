@@ -48,24 +48,24 @@ export class ContactService {
             const res = await handleQuery('/services/data/v65.0/query/?q=', query);
             let childCollec = [];
             console.log('Service received response:', res);
-            
-            setTimeout(async() => {
+
+            setTimeout(async () => {
                 if (res) {
-                childCollec = res.records.map(record => {
-                    const obj: any = {
-                        firstName: record.FirstName,
-                        lastName: record.LastName,
-                        email: record.Email,
-                        Phone: record.Phone?.replace(/[^0-9]/g, '') || record.Phone,
-                        syncedWithSalesforce: true,
-                    };
-                    if (record.Id) {
-                        // Only include salesforceID when it's present and non-empty
-                        obj.salesforceID = record.Id;
-                    }
-                    return obj;
-                });
-            }
+                    childCollec = res.records.map(record => {
+                        const obj: any = {
+                            firstName: record.FirstName,
+                            lastName: record.LastName,
+                            email: record.Email,
+                            Phone: record.Phone?.replace(/[^0-9]/g, '') || record.Phone,
+                            syncedWithSalesforce: true,
+                        };
+                        if (record.Id) {
+                            // Only include salesforceID when it's present and non-empty
+                            obj.salesforceID = record.Id;
+                        }
+                        return obj;
+                    });
+                }
                 console.log('Prepared contacts for insertion:', childCollec);
 
                 if (childCollec.length > 0) {

@@ -6,7 +6,8 @@ export class Contact extends Document {
   // Salesforce contacts have IDs, local contacts start without one
   // sparse: true ensures uniqueness only applies to docs that have a salesforceID
   @Prop({ 
-    required: false
+    required: false,
+    unique: true,
     
   })
   salesforceID: string;
