@@ -224,7 +224,7 @@ export class SalesforceService {
                 amount: req.amount,
                 currency: req.currency,
                 setup_future_usage: 'off_session',
-                //payment_method_types: ['card_present'],
+                payment_method_types: ['card_present'],
                 capture_method: 'automatic',
                 //customer: req.customerId,
                 //payment_method_types: ['card'],
