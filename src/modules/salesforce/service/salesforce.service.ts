@@ -212,7 +212,9 @@ export class SalesforceService {
                     }, {})
                     donation.customerStipe = (await customer).id;
                 }*/
-
+                console.log('last 4 ' +object.payment_method_details?.card_present?.last4)
+                console.log('brand ' + object.payment_method_details?.card_present?.brand)
+                console.log('expmonth ' + object.payment_method_details?.card_present?.exp_month)
                 let transactionData = {
                     IATSPayment__Amount__c: object.amount / 100,
                     IATSPayment__Amount_currency__c: object.currency,
