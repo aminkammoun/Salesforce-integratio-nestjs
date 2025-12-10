@@ -104,6 +104,7 @@ export class SalesforceService {
         const donation = await this.donationService.findOneId(object.metadata.donationID)
         const contacts = await this.contactService.findOne(donation?.contact as string);
         const contact = Array.isArray(contacts) ? contacts[0] : contacts;
+        console.log('contact', contact);
         if (!contact) {
             return res.status(200).json({ message: "Event ignored" });
         } else {
