@@ -124,9 +124,8 @@ export class SalesforceService {
                 console.log("recurringItem " + recurringItem)
                 if (recurringItem) {
                     customer = await this.createStripeCustomer({
-                        name: object.billing_details?.name,
-                        phone: object.billing_details?.phone
-
+                        name: contact.Name,
+                        phone: contact.Phone,
                     })
                 }
                 for (let i = 0; i < cartItems.length; i++) {
