@@ -43,7 +43,7 @@ export class ContactService {
         }
     }
 
-    async insertFromSalesforce(query: string) {
+    /* async insertFromSalesforce(query: string) {
         try {
             const res = await handleQuery('/services/data/v65.0/query/?q=', query);
             let childCollec = [];
@@ -55,6 +55,7 @@ export class ContactService {
                         const obj: any = {
                             firstName: record.FirstName,
                             lastName: record.LastName,
+                            Name : record.Name,
                             email: record.Email,
                             Phone: record.Phone?.replace(/[^0-9]/g, '') || record.Phone,
                             syncedWithSalesforce: true,
@@ -82,6 +83,48 @@ export class ContactService {
 
 
         } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
+    } */
+    async insertFromSalesforce(query: string) {
+        try {
+            const res = await handleQuery('/services/data/v65.0/query/?q=', query);
+
+            if (!res || !res.records) return [];
+
+            const operations = res.records.map(record => {
+                const cleanPhone =
+                    record.Phone?.replace(/[^0-9]/g, '') || record.Phone || null;
+
+                const contactData = {
+                    firstName: record.FirstName,
+                    lastName: record.LastName,
+                    Name: record.Name,
+                    email: record.Email,
+                    Phone: cleanPhone,
+                    syncedWithSalesforce: true,
+                    salesforceID: record.Id,
+                };
+
+                return {
+                    updateOne: {
+                        filter: { salesforceID: record.Id },
+                        update: { $set: contactData },
+                        upsert: true, // insert if not exists
+                    },
+                };
+            });
+
+            // Apply ALL inserts/updates in one shot
+            const result = await this.ContactModel.bulkWrite(operations, {
+                ordered: false,
+            });
+
+            console.log('Salesforce sync result:', result);
+            return result;
+
+        } catch (error) {
+            console.error('Error during Salesforce sync:', error);
             throw new InternalServerErrorException(error);
         }
     }
