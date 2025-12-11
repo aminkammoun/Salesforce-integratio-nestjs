@@ -12,6 +12,7 @@ import { SponsorshipService } from 'src/modules/sponsorship/service/sponsorship.
 import { RecurringService } from 'src/modules/recurring/service/recurring.service';
 import { CartItemDto } from 'src/modules/donation/dto/create-donation.dto';
 import { ChildService } from 'src/modules/child/service/child.service';
+import { metadata } from 'reflect-metadata/no-conflict';
 @Injectable()
 export class SalesforceService {
     private stripe: Stripe;
@@ -452,7 +453,7 @@ export class SalesforceService {
         const interval = this.mapIntervalToStripeInterval(item.interval);
 
         const priceCheck = await this.stripe.prices.search({
-            query: `product:"prod_TYxTnm0rvxuSWn" AND unit_amount:${item.amount * 100} AND recurring.interval:'${interval.interval}'`,
+            query: `product:"prod_TYxTnm0rvxuSWn" AND metadata['price']:'${item.amount}' AND recurring.interval:'${interval.interval}' AND recurring.interval_count:'${interval.interval_count}'`,
         });
         let price;
         if (priceCheck.data.length > 0) {
@@ -471,6 +472,9 @@ export class SalesforceService {
                         ? `Recurring Donation - ${item.programId}`
                         : `Child Sponsorship - ${item.nationality}`,
                 },
+                metadata: {
+                    price: item.amount
+                }
             }, {});
         }
         // Calculate when subscription should start billing
