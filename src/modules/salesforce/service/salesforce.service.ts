@@ -450,21 +450,29 @@ export class SalesforceService {
 
         // Create Stripe price
         const interval = this.mapIntervalToStripeInterval(item.interval);
-        const price = await this.createStripePrice({
-            amount: item.amount,
-            currency: "usd",
-            recurring: {
-                interval: interval.interval,
-                interval_count: interval.interval_count,
-            },
-            productId: "prod_TYxTnm0rvxuSWn", // Use env variable
-            product_data: {
-                name: item.type === 'recurring'
-                    ? `Recurring Donation - ${item.programId}`
-                    : `Child Sponsorship - ${item.nationality}`,
-            },
-        }, {});
-        console.log("price + ", price)
+
+        const priceCheck = await this.stripe.prices.search({
+            query: `active:\'true\' AND unit_amount:${item.amount * 100} AND recurring.interval:'${interval.interval}'`,
+        });
+        let price;
+        if (priceCheck.data.length > 0) {
+            price = priceCheck.data[0];
+        } else {
+            price = await this.createStripePrice({
+                amount: item.amount,
+                currency: "usd",
+                recurring: {
+                    interval: interval.interval,
+                    interval_count: interval.interval_count,
+                },
+                productId: "prod_TYxTnm0rvxuSWn", // Use env variable
+                product_data: {
+                    name: item.type === 'recurring'
+                        ? `Recurring Donation - ${item.programId}`
+                        : `Child Sponsorship - ${item.nationality}`,
+                },
+            }, {});
+        }
         // Calculate when subscription should start billing
         const billingCycleAnchor = this.calculateNextBillingDate(item.interval);
         console.log(billingCycleAnchor)
