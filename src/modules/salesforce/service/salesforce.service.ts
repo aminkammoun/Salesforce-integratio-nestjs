@@ -113,17 +113,22 @@ export class SalesforceService {
 
             console.log('donation', donation);
             if (donation) {
-                
+
                 let customer: any
                 const cartItems = JSON.parse(object.metadata.cart_items);
                 const recurringItem = cartItems.find(item => item.type === 'Recurring');
                 console.log("recurringItem " + recurringItem)
                 if (recurringItem) {
-                    customer = await this.createStripeCustomer({
-                        email : contact.email,
+                    const checkCustomer = await this.stripe.customers.search({
+                        query: `email:"${contact.email}"`,
+                    });
+                    customer = checkCustomer.data.length > 0 ? checkCustomer.data[0] : this.createStripeCustomer({
+                        email: contact.email,
                         name: "Ameed Jaara",
                         phone: contact.Phone,
-                    })
+                    });
+
+                    // customer = await 
                 }
                 for (let i = 0; i < cartItems.length; i++) {
                     const item = cartItems[i];
@@ -175,10 +180,10 @@ export class SalesforceService {
 
 
                 this.logger.log(`Donation ${donation._id} updated to Closed Won and transaction created.`);
-               const last4 = object.payment_method_details?.card_present?.last4
-               const brand = object.payment_method_details?.card_present?.brand
-               const expMonth = object.payment_method_details?.card_present?.exp_month
-               const expYear = object.payment_method_details?.card_present?.exp_year
+                const last4 = object.payment_method_details?.card_present?.last4
+                const brand = object.payment_method_details?.card_present?.brand
+                const expMonth = object.payment_method_details?.card_present?.exp_month
+                const expYear = object.payment_method_details?.card_present?.exp_year
                 console.log('last 4 ' + object.payment_method_details?.card_present?.last4)
                 console.log('brand ' + object.payment_method_details?.card_present?.brand)
                 console.log('expmonth ' + object.payment_method_details?.card_present?.exp_month)
