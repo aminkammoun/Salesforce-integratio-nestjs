@@ -187,7 +187,7 @@ export class SalesforceService {
                     IATSPayment__Amount_currency__c: object.currency,
                     donation: object.metadata.donationID,
                     contact: contact.salesforceID,
-                    IATSPayment__Method_of_Payment__c: object.payment_method_details.card_present?.type,
+                    IATSPayment__Method_of_Payment__c: object.payment_method_details?.type,
                     IATSPayment__Status__c: object.status,
                     IATSPayment__Contact__c: contact.salesforceID || <string>contact._id,
                     transactionID: object.id,
@@ -205,11 +205,7 @@ export class SalesforceService {
                     salesforceDonation: donation.salesforceID,
                 };
                 await donation.save();
-
-
-                //const donationObj = donation.toObject();
                 await this.transactionService.create(transactionData);
-
             }
         }
 
