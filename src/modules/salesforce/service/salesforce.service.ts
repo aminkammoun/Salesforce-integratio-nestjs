@@ -113,12 +113,7 @@ export class SalesforceService {
 
             console.log('donation', donation);
             if (donation) {
-                //if (donation.isRecurring) {
-
-                /*await this.linkPaymentMethodToCustomer({
-                    customerId: (await customer).id,
-                    paymentId: object.payment_method
-                })*/
+                
                 let customer: any
                 const cartItems = JSON.parse(object.metadata.cart_items);
                 const recurringItem = cartItems.find(item => item.type === 'Recurring');
@@ -167,7 +162,6 @@ export class SalesforceService {
                     sp.Status = 'Active';
                     const recurring = await this.recurringService.createRecurring(recurringDonation);
                     console.log('recurring', recurring);
-                    // Initialize donation.Recurring as array if it doesn't exist
                     if (!Array.isArray(donation.Recurring)) {
                         donation.Recurring = [];
                     }
@@ -178,42 +172,13 @@ export class SalesforceService {
                 }
                 donation.StageName = 'Closed Won';
                 donation.customerStipe = object.payment_intent;
-                //donation.npe03__Recurring_Donation__c = 
 
 
                 this.logger.log(`Donation ${donation._id} updated to Closed Won and transaction created.`);
-                //return res.status(200).json({ message: "Donation and transaction updated" });
-                /*} else {
-                    donation.StageName = 'Closed Won';
-                    const customer = this.createStripeCustomer({
-                        name: object.billing_details?.name,
-                        phone: object.billing_details?.phone
-
-                    })
-
-                    console.log('customer', customer);
-                    await this.linkPaymentMethodToCustomer({
-                        customerId: (await customer).id,
-                        paymentId: object.payment_method
-                    })
-
-                    const price = await this.createStripePrice({
-                        amount: donation.Amount,
-                        currency: "USD",
-                        recurring: {
-                            interval: "month"
-                        },
-                        productId: "prod_TUqyZQ8Vrk49vd",
-                        product_data: {
-                            name: "Gold Plan"
-                        }
-                    }, {})
-                    const subscription = await this.createStripeSubscription({
-                        customerId: (await customer).id,
-                        priceId: price.id
-                    }, {})
-                    donation.customerStipe = (await customer).id;
-                }*/
+               const last4 = object.payment_method_details?.card_present?.last4
+               const brand = object.payment_method_details?.card_present?.brand
+               const expMonth = object.payment_method_details?.card_present?.exp_month
+               const expYear = object.payment_method_details?.card_present?.exp_year
                 console.log('last 4 ' + object.payment_method_details?.card_present?.last4)
                 console.log('brand ' + object.payment_method_details?.card_present?.brand)
                 console.log('expmonth ' + object.payment_method_details?.card_present?.exp_month)
@@ -232,9 +197,9 @@ export class SalesforceService {
                     IATSPayment__Payer_Zip_Code__c: object.billing_details?.address?.postal_code,
                     IATSPayment__Payer_First_Name__c: object.billing_details?.name?.split(' ')[0],
                     IATSPayment__Payer_Last_name__c: object.billing_details?.name?.split(' ')[1] || '',
-                    IATSPayment__Credit_Card__c: object.billing_method_details.card_present?.last4,
-                    IATSPayment__Credit_Card_Type__c: object.payment_method_details?.card_present?.brand,
-                    IATSPayment__Credit_Card_Expiry_Date__c: object.payment_method_details.card_present?.exp_month + '/' + object.payment_method_details.card_present?.exp_year,
+                    IATSPayment__Credit_Card__c: last4,
+                    IATSPayment__Credit_Card_Type__c: brand,
+                    IATSPayment__Credit_Card_Expiry_Date__c: expMonth + '/' + expYear,
                     Stripe_Customer_ID__c: object.payment_intent || object.id,
                     note: `Transaction created from Stripe webhook for payment intent ${object.payment_intent || object.id}`,
                     salesforceDonation: donation.salesforceID,
@@ -250,7 +215,8 @@ export class SalesforceService {
 
 
         // Here you would process the webhook data as needed
-        return { message: 'Webhook received successfully' };
+        return res.status(200).json({ message: "Donation and transaction updated" });
+        //return { message: 'Webhook received successfully' };
     }
     async createPaymentIntent(req: any, res: any) {
         try {
