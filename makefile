@@ -20,8 +20,8 @@ test:
 
 .PHONY: all
 all:
-	docker compose -f $(PROD_COMPOSE) up -d
-	docker compose -f $(TEST_COMPOSE) up -d
+	docker compose -f $(PROD_COMPOSE) up -d --build 
+	docker compose -f $(TEST_COMPOSE) up -d	--build
 
 # ----------------------
 # Stop Environments
