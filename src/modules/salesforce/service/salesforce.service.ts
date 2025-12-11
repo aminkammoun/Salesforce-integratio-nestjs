@@ -121,7 +121,7 @@ export class SalesforceService {
                 console.log("recurringItem " + recurringItem)
                 if (recurringItem) {
                     const checkCustomer = await this.stripe.customers.search({
-                        query: `email:"${contact.email}"`,
+                        query: `metadata['customer_phone']:'${contact.Phone}'`,
                     });
                     customer = checkCustomer.data.length > 0 ? checkCustomer.data[0] : this.createStripeCustomer({
                         email: contact.email,
