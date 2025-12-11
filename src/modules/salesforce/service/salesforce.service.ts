@@ -288,6 +288,7 @@ export class SalesforceService {
                     interval: req.recurring.interval.toLowerCase(), // <-- correct
                 },
                 product: req.productId,
+                metadata: req.metadata || {},
             });
 
             console.log('Created Price:', price.id);
