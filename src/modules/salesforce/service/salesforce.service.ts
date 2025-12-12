@@ -125,7 +125,7 @@ export class SalesforceService {
                     });
                     customer = checkCustomer.data.length > 0 ? checkCustomer.data[0] : this.createStripeCustomer({
                         email: contact.email,
-                        name: "Ameed Jaara",
+                        name: contact.Name,
                         phone: contact.Phone,
                     });
 
