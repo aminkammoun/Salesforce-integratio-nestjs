@@ -165,7 +165,7 @@ export class DonationService {
                 donation.cartItems.map(async (item, index) => {
                     console.log('index:', index);
                     console.log('index:', !item.Name.toLowerCase().includes('orphan'));
-                    if (item.Name.toLowerCase().includes('orphan') && item.type.toLowerCase() === 'recurring' && !item.sfId) {
+                    if (item.type.toLowerCase() === 'sponsorship' && !item.sfId) {
                         console.log(item.Name.toLowerCase().includes('orphan') && item.type.toLowerCase() === 'recurring', item)
                         recurringItems.forEach(async recurring => {
                             if (recurring.amount === item.amount && recurring.frequency.toLowerCase() === item.interval.toLowerCase()) {
@@ -202,7 +202,7 @@ export class DonationService {
                                 await this.update(donation._id as string, { syncedWithSalesforce: donation.syncedWithSalesforce, cartItems: donation.cartItems });
                             }
                         })
-                    } else if (!item.Name.toLowerCase().includes('orphan') && item.type.toLowerCase() === 'recurring' && !item.sfId) {
+                    } else if (item.type.toLowerCase() === 'recurring' && !item.sfId) {
                         console.log('Existing recurring donation item, skipping creation:', item);
                         let createRecPay: any;
                         let createOppPay: any;
@@ -300,42 +300,10 @@ export class DonationService {
 
 
                 return donation;
-                /*donation.npe03__Recurring_Donation__c.forEach(async item => {
-                    const recurring = await this.recurringService.findBySalesforceID(item);
-        
-                    payload = {
-                        Name: donation.Name,
-                        Amount: recurring?.amount,
-                        //frequency: recurring?.frequency,
-                        CloseDate: donation.CloseDate,
-                        StageName: donation.StageName,
-                        npsp__Acknowledgment_Status__c: donation.Acknowledgment_Status__c,
-                        Donation_Source__c: donation.Donation_Source__c,
-                        npsp__Primary_Contact__c: donation.npsp__Primary_Contact__c,
-                        npe03__Recurring_Donation__c: item,
-                        //RecordTypeId: donation.RecordTypeId,
-                    };
-                    console.log('Prepared payload for Salesforce:', payload);
-                    const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Opportunity/', payload);
-                    // If you want to upload immediately, perform it outside map with Promise.all.
-                    console.log('Salesforce upload result:', result);
-                    if (result.salesforceId) {
-                        if (recurring) {
-                            recurring.donationSf = result.salesforceId || '';
-                        }
-                        donation.syncedWithSalesforce = true;
-                        await donation.save();
-                    }
-                    //donation.salesforceID = result.salesforceId;
-                    //donation.syncedWithSalesforce = true;
-                    //donation.save()
-                })
-                //return payload;
-                //this.recurringService.updateWithDonationSalesforceID(donation._id as string, result.salesforceId)
-                return donation;*/
+                
             })
 
-            //return salesforcePayloads;
+        
         } catch (error) {
             throw new InternalServerErrorException(error);
         }

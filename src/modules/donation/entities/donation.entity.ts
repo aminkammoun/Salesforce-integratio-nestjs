@@ -65,5 +65,7 @@ export class Donation extends Document {
     customerStipe: string
     @Prop({required : false})
     cartItems : CartItemDto[]
+    @Prop({ required: false })
+    timeToProcessDonationMs: number
 }
 export const DonationSchema = SchemaFactory.createForClass(Donation);

@@ -36,7 +36,7 @@ export enum Frequency {
  */
 export class CartItemDto {
     Name: string;
-    type: 'one-time' | 'recurring';
+    type: 'one-time' | 'recurring'| 'sponsorship';
     programId?: string; // For program donations
     childId?: string; // For sponsorships
     amount: number;

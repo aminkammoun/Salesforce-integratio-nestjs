@@ -136,7 +136,7 @@ export class SalesforceService {
                     const donationId = object.metadata.donationID;
                     console.log("khal hna")
 
-                    if (item.type == "Recurring") {
+                    if (item.type == "Recurring" || item.type == "Sponsorship") {
                         console.log('customer', customer);
                         await this.processCartItemAfterPayment({
                             item,
@@ -178,7 +178,11 @@ export class SalesforceService {
                 }
                 donation.StageName = 'Closed Won';
                 donation.customerStipe = object.payment_intent;
-
+                console.log(new Date(donation.CloseDate).getTime());
+                console.log(object.created* 1000);
+                const timeOfProcess = (new Date(donation.CloseDate).getTime() - object.created * 1000) / 1000;
+                donation.timeToProcessDonationMs = timeOfProcess;
+                this.logger.log(`Time taken to process donation ${donation._id}: ${timeOfProcess} ms`);
 
                 this.logger.log(`Donation ${donation._id} updated to Closed Won and transaction created.`);
                 const last4 = object.payment_method_details?.card_present?.last4
@@ -228,8 +232,8 @@ export class SalesforceService {
                 amount: req.amount,
                 currency: req.currency,
                 //setup_future_usage: 'off_session',
-                payment_method_types: ['card_present'],
-                capture_method: 'automatic',
+                //payment_method_types: ['card_present'],
+                //capture_method: 'automatic',
                 //customer: req.customerId,
                 //payment_method_types: ['card'],
                 metadata: req.metadata || {},
