@@ -23,11 +23,10 @@ export class ContactService {
             // Clean the phone number
             const cleanedData: any = {
                 ...createArticleDto,
-                Phone: createArticleDto.Phone?.replace(/[^0-9]/g, '') || createArticleDto.Phone,
+                Phone: '+1' + createArticleDto.Phone,
                 // Set sync status based on whether this is from Salesforce
                 syncedWithSalesforce: !!createArticleDto.salesforceID
             };
-            console.log('Creating contact with data:', createArticleDto.salesforceID);
             // If salesforceID is empty string, remove it to avoid unique index conflicts
             if (cleanedData.salesforceID == undefined || cleanedData.salesforceID === '') {
                 delete cleanedData.salesforceID;
@@ -88,7 +87,7 @@ export class ContactService {
     } */
     async insertFromSalesforce(query: string) {
         const records = await this.fetchAllSalesforceContacts(query);
-        
+
         const operations = records.map((record: any) => ({
             updateOne: {
                 filter: { salesforceID: record.Id },
