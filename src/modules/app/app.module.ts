@@ -15,6 +15,8 @@ import { SponsorshipModule } from '../sponsorship/sponsorship.module';
 import { RecurringModule } from '../recurring/recurring.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { Orders } from '../orders/entities/orders.entity';
+import { OrdersModule } from '../orders/orders.module';
 
 @Module({
   imports: [
@@ -33,6 +35,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     AuthModule,
     SponsorshipModule,
     RecurringModule,
+    OrdersModule,
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (config: ConfigService) => ({
