@@ -199,4 +199,16 @@ export class SponsorshipService {
             console.log('sponsorshipDevidedChild: ', sponsorshipDevidedChild);
         }
     }
+    async updateToExpired(childIds: string[]) {
+        try {
+            console.log('Updating sponsorships to Expired for child IDs:', typeof childIds);
+            const result = await this.SponsorshipModel.updateMany(
+                { child: { $in: childIds } },
+                { $set: { Status: 'Expired' } }
+            );
+            return result;
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
+    }
 }

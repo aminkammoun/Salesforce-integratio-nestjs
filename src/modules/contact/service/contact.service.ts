@@ -87,7 +87,7 @@ export class ContactService {
     } */
     async insertFromSalesforce(query: string) {
         const records = await this.fetchAllSalesforceContacts(query);
-
+        console.log('Fetched records from Salesforce:', records);
         const operations = records.map((record: any) => ({
             updateOne: {
                 filter: { salesforceID: record.Id },
@@ -100,6 +100,7 @@ export class ContactService {
                         Phone: record.MobilePhone || record.Phone,
                         syncedWithSalesforce: true,
                         salesforceID: record.Id,
+                        wordpressID: record.Word_Press_Id__c || null
                     }
                 },
                 upsert: true
@@ -251,5 +252,24 @@ export class ContactService {
             throw new InternalServerErrorException(error);
         }
     }
-
+    async getContactWithEmptyEmail() {
+        try {
+            const contacts = await this.ContactModel.find({ $or: [{ email: { $exists: false } }, { email: '' }] });
+            return contacts;
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
+    }
+    async assignEmailToContact(phone: string, email: string) {
+        try {
+            const contact = await this.ContactModel.findOneAndUpdate(
+                { Phone: phone },
+                { $set: { email: email } },
+                { new: true }
+            );
+            return contact;
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
+    }
 }

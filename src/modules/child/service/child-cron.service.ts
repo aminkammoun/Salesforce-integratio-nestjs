@@ -1,9 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Child } from '../entities/child.entity';
 import { Sponsorship } from 'src/modules/sponsorship/entities/sponsorship.entity';
+import { SponsorshipService } from 'src/modules/sponsorship/service/sponsorship.service';
 
 @Injectable()
 export class ChildCronService {
@@ -12,6 +13,7 @@ export class ChildCronService {
     constructor(
         @InjectModel(Child.name) private readonly childModel: Model<Child>,
         @InjectModel(Sponsorship.name) private readonly sponsorshipModel: Model<Sponsorship>,
+        @Inject() private readonly sponsorshipService: SponsorshipService,
     ) { }
 
     // Run every minute
@@ -21,6 +23,7 @@ export class ChildCronService {
 
         // Step 1: Find expired reserved children
         const expiredChildren = await this.childModel.find({
+            SalesforceID: { $exists: true },
             Status__c: 'Reserved',
             reservedAt: { $lt: twoMinutesAgo },
         });
@@ -29,19 +32,20 @@ export class ChildCronService {
 
         this.logger.warn(`Releasing ${expiredChildren.length} expired child reservations...`);
 
-        const childIds = expiredChildren.map(c => c._id);
-
+        const childIds = expiredChildren.map(c => c.SalesforceID);
+        console.log('Expired child IDs to be released:', childIds);
         // Step 2: Release children
-        await this.childModel.updateMany(   
-            { _id: { $in: childIds } },
-            { $set: { Status__c: 'Available', reservedAt: null} },
+        await this.childModel.updateMany(
+            { SalesforceID: { $in: childIds } },
+            { $set: { Status__c: 'Available', reservedAt: null } },
         );
 
         // Step 3: Update sponsorships associated with them
         await this.sponsorshipModel.updateMany(
             { child: { $in: childIds }, Status: 'pending' },
-            { $set: { Status: 'expired' } },
+            { $set: { Status: 'Expired' } },
         );
+        //await this.sponsorshipService.updateToExpired(childIds);
 
         this.logger.log(`Expired reservations released.`);
     }

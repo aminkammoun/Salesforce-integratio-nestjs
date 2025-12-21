@@ -167,6 +167,7 @@ export class ChildService {
 
     //async reserveChildren(childToreserve: ChildToreserve[], donorId: string, donationId: string,frequency:string,amount: number) {
     async reserveChildren(childToreserve: SponsorshipChilds[]) {
+        console.log('Reserving children with input:', childToreserve);
         const session: ClientSession = await this.ChildModel.db.startSession();
         session.startTransaction();
         try {
@@ -183,14 +184,18 @@ export class ChildService {
                     const reservedIds = availableChildren.map(child => String(child.SalesforceID));
                     reservedIDs.push(...reservedIds);
                     console.log(reservedIDs);
-                    await this.ChildModel.updateMany(
-                        { SalesforceID: { $in: reservedIds } },
-                        { $set: { Status__c: 'Reserved', reservedAt: new Date() } }
-                    );
+
                     if (reservedIds.length == 0) {
                         reservationResults.push({ message: 'No available children to be sponsored for nationality ' + nat, nationality: nat, reservedCount: reservedIds.length });
-
+                        return { message: 'No available children to be sponsored for nationality ' + nat, nationality: nat, reservedCount: reservedIds.length };
+                    } else if (availableChildren.length < count) {
+                        reservationResults.push({ message: 'Not enought available children to be sponsored for nationality ' + nat, nationality: nat, reservedCount: reservedIds.length });
+                        return { message: 'Not enought available children to be sponsored for nationality ' + nat, nationality: nat, reservedCount: reservedIds.length };
                     } else {
+                        await this.ChildModel.updateMany(
+                            { SalesforceID: { $in: reservedIds } },
+                            { $set: { Status__c: 'Reserved', reservedAt: new Date() } }
+                        );
                         reservationResults.push({ message: reservedIds.length + ' ' + nat + ' children has been sponsored', nationality: nat, reservedCount: reservedIds.length });
                     }
                 }

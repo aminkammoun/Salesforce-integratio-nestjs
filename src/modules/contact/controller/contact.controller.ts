@@ -24,7 +24,6 @@ export class ContactController {
     }
     @Get('/findAll/:q')
     findAll(@Param('q') q: string) {
-        console.log('Controller received query param:', q);
         return this.contactService.insertFromSalesforce(q);
     }
     @Patch('/:id')
@@ -39,5 +38,14 @@ export class ContactController {
     async uploadToSalesforce() {
         const contacts = await this.contactService.updloadContactsToSalesforce();
         return contacts;
+    }
+    @Get('/emptyEmail')
+    async findContactsWithEmptyEmail() {
+        return this.contactService.getContactWithEmptyEmail();
+    }
+    @Post('/assignEmail/')
+    async assignEmailToContacts(@Body() body: { phone: string; email: string }) {
+        const { phone, email } = body;
+        return this.contactService.assignEmailToContact(phone, email);
     }
 }
