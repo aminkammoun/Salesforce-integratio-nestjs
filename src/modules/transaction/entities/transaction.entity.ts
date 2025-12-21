@@ -13,39 +13,39 @@ export class Transaction extends Document {
     @Prop({ required: true, unique: true })
     transactionID: string;
     @Prop({ required: true })
-    IATSPayment__Amount__c: number;
+    Payment__Amount__c: number;
     @Prop({ required: true })
-    IATSPayment__Amount_currency__c: string;
+    Payment__Amount_currency__c: string;
     @Prop({ required: true })
-    IATSPayment__Status__c: string;
+    Payment__Status__c: string;
     @Prop({ default: Date.now })
     createdAt: Date;
     @Prop({ required: true })
-    IATSPayment__Method_of_Payment__c: string;
+    Payment__Method_of_Payment__c: string;
     @Prop({ required: true })
-    IATSPayment__Contact__c: string;
+    Payment__Contact__c: string;
     @Prop({ required: false })
-    IATSPayment__Payer_Address__c: string;
+    Payment__Payer_Address__c: string;
     @Prop({ required: false })
-    IATSPayment__Payer_City__c: string
+    Payment__Payer_City__c: string
     @Prop({ required: false })
-    IATSPayment__Payer_State__c: string
+    Payment__Payer_State__c: string
     @Prop({ required: false })
-    IATSPayment__Payer_Zip_Code__c: string
+    Payment__Payer_Zip_Code__c: string
     @Prop({ required: false })
-    IATSPayment__Payer_First_Name__c: string
+    Payment__Payer_First_Name__c: string
     @Prop({ required: false })
-    IATSPayment__Payer_Last_name__c: string
+    Payment__Payer_Last_name__c: string
     @Prop({ required: false })
-    IATSPayment__Credit_Card__c: string
+    Payment__Credit_Card__c: string
     @Prop({ required: false })
-    IATSPayment__Credit_Card_Type__c: string
+    Payment__Credit_Card_Type__c: string
     @Prop({ required: false })
-    IATSPayment__Credit_Card_Expiry_Date__c: string
+    Payment__Credit_Card_Expiry_Date__c: string
     @Prop({ required: false })
-    IATSPayment__ACH_Account_Number__c: string
+    Payment__ACH_Account_Number__c: string
     @Prop({ required: false })
-    IATSPayment__ACH_Account_Type__c: string
+    Payment__ACH_Account_Type__c: string
     @Prop({ required: true })
     Stripe_Customer_ID__c: string;
     @Prop({
@@ -57,7 +57,7 @@ export class Transaction extends Document {
     @Prop({ required: false })
     note: string;
     @Prop({ required: false })
-    salesforceDonation : string;
+    salesforceDonation: string;
 }
 
 export const TransactionSchema = SchemaFactory.createForClass(Transaction);

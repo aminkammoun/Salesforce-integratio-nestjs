@@ -272,4 +272,12 @@ export class ContactService {
             throw new InternalServerErrorException(error);
         }
     }
+    async findByWordPressID(wordpressID: string) {
+        try {
+            const contact = await this.ContactModel.findOne({ wordpressID });
+            return contact;
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
+    }
 }
