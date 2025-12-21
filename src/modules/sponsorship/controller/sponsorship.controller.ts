@@ -26,4 +26,9 @@ export class SponsorshipController {
         const sponsorships = await this.sponsorshipService.uploadSponsorshipsToSalesforce();
         return sponsorships;
     }
+    @Post('/expired')
+    async markExpired(@Body('childIds') childIds: string[]) {
+        console.log('Marking children as expired:', childIds);
+        return this.sponsorshipService.updateToExpired(childIds);
+    }
 }

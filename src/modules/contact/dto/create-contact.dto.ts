@@ -25,4 +25,6 @@ export class CreateContactDto {
 
   @ApiPropertyOptional({ description: 'Role of the contact (optional)', example: 'Donor' })
   role?: string;
+  @ApiPropertyOptional({ description: 'WordPress ID of the contact (optional)', example: 12345 })
+  wordpressID?: number;
 }

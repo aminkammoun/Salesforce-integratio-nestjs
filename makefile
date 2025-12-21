@@ -12,11 +12,11 @@ TEST_COMPOSE = docker-compose.test.yml
 
 .PHONY: prod
 prod:
-	docker compose -f $(PROD_COMPOSE) up -d
+	docker compose -f $(PROD_COMPOSE) up -d --build
 
 .PHONY: test
 test:
-	docker compose -f $(TEST_COMPOSE) up -d
+	docker compose -f $(TEST_COMPOSE) up -d --build
 
 .PHONY: all
 all:

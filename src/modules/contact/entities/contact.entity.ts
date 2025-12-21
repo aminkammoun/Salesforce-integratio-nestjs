@@ -5,10 +5,10 @@ import { Document, Schema as MongooseSchema } from 'mongoose';
 export class Contact extends Document {
   // Salesforce contacts have IDs, local contacts start without one
   // sparse: true ensures uniqueness only applies to docs that have a salesforceID
-  @Prop({ 
+  @Prop({
     required: false,
     unique: false,
-    
+
   })
   salesforceID: string;
 
@@ -30,6 +30,8 @@ export class Contact extends Document {
   Phone: string;
   @Prop({ default: Date.now })
   createdAt: Date;
+  @Prop({ required: false, default: null })
+  wordpressID: string;
 }
 
 export const ContactSchema = SchemaFactory.createForClass(Contact);
