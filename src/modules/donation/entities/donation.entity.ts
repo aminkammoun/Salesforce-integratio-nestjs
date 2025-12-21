@@ -2,7 +2,8 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema } from 'mongoose';
 import { ChildToreserve } from 'src/config/types';
 import { Contact } from 'src/modules/contact/entities/contact.entity';
-import { CartItemDto } from '../dto/create-donation.dto';
+import { CartItemDto, TransactionDetailDto } from '../dto/create-donation.dto';
+import { Transaction } from 'src/modules/transaction/entities/transaction.entity';
 
 @Schema()
 export class Donation extends Document {
@@ -29,7 +30,6 @@ export class Donation extends Document {
     Acknowledgment_Status__c: string
     @Prop({ required: false })
     frequency: string
-
     @Prop({ required: false })
     donation_details: ChildToreserve[];
     // Flag to track sync status with Salesforce
@@ -44,28 +44,25 @@ export class Donation extends Document {
     @Prop({
         type: String,
         required: false,
-        ref: Contact.name
     })
     contact: string;
-
-    @Prop({ 
-        type: [{ type: MongooseSchema.Types.ObjectId, ref: 'Recurring' }], 
+    @Prop({
+        type: [{ type: MongooseSchema.Types.ObjectId, ref: 'Recurring' }],
         required: false,
         default: []
     })
     Recurring: MongooseSchema.Types.ObjectId[];
-    
     @Prop({ required: false })
     npe03__Recurring_Donation__c: string[];
-    
-    @Prop({required : false})
-    macAddress : string
-
-    @Prop({required : false})
+    @Prop({ required: false })
+    macAddress: string
+    @Prop({ required: false })
     customerStipe: string
-    @Prop({required : false})
-    cartItems : CartItemDto[]
+    @Prop({ required: false })
+    cartItems: CartItemDto[]
     @Prop({ required: false })
     timeToProcessDonationMs: number
+    @Prop({ required: false })
+    transactionDetails: TransactionDetailDto
 }
 export const DonationSchema = SchemaFactory.createForClass(Donation);
