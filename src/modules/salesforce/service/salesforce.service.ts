@@ -117,7 +117,7 @@ export class SalesforceService {
 
                 let customer: any
                 const cartItems = JSON.parse(object.metadata.cart_items);
-                const recurringItem = cartItems.find(item => item.type === 'Recurring');
+                const recurringItem = cartItems.find(item => item.type === 'Recurring'|| item.type === 'Sponsorship');
                 console.log("recurringItem " + recurringItem)
                 if (recurringItem) {
                     const checkCustomer = await this.stripe.customers.search({
@@ -232,8 +232,8 @@ export class SalesforceService {
                 amount: req.amount,
                 currency: req.currency,
                 //setup_future_usage: 'off_session',
-                //payment_method_types: ['card_present'],
-                //capture_method: 'automatic',
+                payment_method_types: ['card_present'],
+                capture_method: 'automatic',
                 //customer: req.customerId,
                 //payment_method_types: ['card'],
                 metadata: req.metadata || {},
