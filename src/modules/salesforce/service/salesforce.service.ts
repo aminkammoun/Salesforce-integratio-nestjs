@@ -117,7 +117,7 @@ export class SalesforceService {
 
                 let customer: any
                 const cartItems = JSON.parse(object.metadata.cart_items);
-                const recurringItem = cartItems.find(item => item.type === 'Recurring'|| item.type === 'Sponsorship');
+                const recurringItem = cartItems.find(item => item.type === 'Recurring' || item.type === 'Sponsorship');
                 console.log("recurringItem " + recurringItem)
                 if (recurringItem) {
                     const checkCustomer = await this.stripe.customers.search({
@@ -151,7 +151,7 @@ export class SalesforceService {
                 const sponsorshipId = await JSON.parse(event.data.object.metadata.sponsorshipId);
                 console.log(sponsorshipId)
                 const sponsorship = await this.sponsorshipService.findByIds(sponsorshipId);
-                console.log('sponsorship ',  sponsorship)
+                console.log('sponsorship ', sponsorship)
                 for (const sp of sponsorship) {
                     console.log(sp)
                     let recurringDonation = {
@@ -179,7 +179,7 @@ export class SalesforceService {
                 donation.StageName = 'Closed Won';
                 donation.customerStipe = object.payment_intent;
                 console.log(new Date(donation.CloseDate).getTime());
-                console.log(object.created* 1000);
+                console.log(object.created * 1000);
                 const timeOfProcess = (new Date(donation.CloseDate).getTime() - object.created * 1000) / 1000;
                 donation.timeToProcessDonationMs = timeOfProcess;
                 this.logger.log(`Time taken to process donation ${donation._id}: ${timeOfProcess} ms`);
@@ -232,8 +232,8 @@ export class SalesforceService {
                 amount: req.amount,
                 currency: req.currency,
                 //setup_future_usage: 'off_session',
-                //payment_method_types: ['card_present'],
-                //capture_method: 'automatic',
+                payment_method_types: ['card_present'],
+                capture_method: 'automatic',
                 //customer: req.customerId,
                 //payment_method_types: ['card'],
                 metadata: req.metadata || {},
@@ -471,8 +471,8 @@ export class SalesforceService {
                     interval: interval.interval,
                     interval_count: interval.interval_count,
                 },
-                //productId: "prod_TYxTnm0rvxuSWn", // Use env variable
-                productId: "prod_TVy2unytb3L8hZ", // Use env variable
+                productId: "prod_TYxTnm0rvxuSWn", // Use env variable
+                //productId: "prod_TVy2unytb3L8hZ", // Use env variable
                 product_data: {
                     name: item.type === 'recurring'
                         ? `Recurring Donation - ${item.programId}`
