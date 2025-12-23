@@ -39,12 +39,12 @@ export class CreateTransactionDto {
     @IsNumber()
     @Min(0)
     @IsOptional()
-    IATSPayment__Amount__c: number;
+    Payment__Amount__c: number;
 
     @ApiProperty({ description: 'ISO currency code', example: 'USD' })
     @IsString()
     @IsNotEmpty()
-    IATSPayment__Amount_currency__c: string;
+    Payment__Amount_currency__c: string;
 
     @ApiPropertyOptional({
         description: 'Reference or description for the transaction',
@@ -64,12 +64,12 @@ export class CreateTransactionDto {
     @ApiPropertyOptional({ enum: PaymentMethod, example: PaymentMethod.CARD })
     @IsOptional()
     @IsEnum(PaymentMethod)
-    IATSPayment__Method_of_Payment__c?: PaymentMethod;
+    Payment__Method_of_Payment__c?: PaymentMethod;
 
     @ApiPropertyOptional({ enum: TransactionStatus, example: TransactionStatus.PENDING })
     @IsOptional()
     @IsEnum(TransactionStatus)
-    IATSPayment__Status__c?: TransactionStatus;
+    Payment__Status__c?: TransactionStatus;
 
     @ApiPropertyOptional({ description: 'Optional internal note', example: 'Recurring donation' })
     @IsOptional()
@@ -83,7 +83,7 @@ export class CreateTransactionDto {
     @IsNotEmpty()
     @ApiProperty({ description: 'Salesforce ID of the contact associated with the transaction', example: '0031t00000XyZzAAB' })
     @IsString()
-    IATSPayment__Contact__c: string;
+    Payment__Contact__c: string;
 
     @IsNotEmpty()
     @ApiProperty({ description: 'Unique transaction ID', example: 'txn_1234567890' })
@@ -92,59 +92,59 @@ export class CreateTransactionDto {
     @ApiPropertyOptional({ description: "Payer's address (optional)", example: '123 Main St' })
     @IsOptional()
     @IsString()
-    IATSPayment__Payer_Address__c?: string;
+    Payment__Payer_Address__c?: string;
 
     @ApiPropertyOptional({ description: "Payer's city (optional)", example: 'Riyadh' })
     @IsOptional()
     @IsString()
-    IATSPayment__Payer_City__c?: string;
+    Payment__Payer_City__c?: string;
 
     @ApiPropertyOptional({ description: "Payer's state (optional)", example: 'CA' })
     @IsOptional()
     @IsString()
-    IATSPayment__Payer_State__c?: string;
+    Payment__Payer_State__c?: string;
 
     @ApiPropertyOptional({ description: "Payer's ZIP/postal code (optional)", example: '90210' })
     @IsOptional()
     @IsString()
-    IATSPayment__Payer_Zip_Code__c?: string;
+    Payment__Payer_Zip_Code__c?: string;
 
     @ApiPropertyOptional({ description: "Payer's first name (optional)", example: 'John' })
     @IsOptional()
     @IsString()
-    IATSPayment__Payer_First_Name__c?: string;
+    Payment__Payer_First_Name__c?: string;
 
     @ApiPropertyOptional({ description: "Payer's last name (optional)", example: 'Doe' })
     @IsOptional()
     @IsString()
-    IATSPayment__Payer_Last_name__c?: string;
+    Payment__Payer_Last_name__c?: string;
 
     @ApiPropertyOptional({ description: 'Last 4 digits of credit card (if provided)', example: '1234' })
     @IsOptional()
     @IsString()
     @Length(4, 4, { message: 'Credit card field must be exactly 4 characters (last 4 digits)' })
-    IATSPayment__Credit_Card__c?: string;
+    Payment__Credit_Card__c?: string;
 
     @ApiPropertyOptional({ description: 'Credit card type (optional)', example: 'Visa' })
     @IsOptional()
     @IsString()
-    IATSPayment__Credit_Card_Type__c?: string;
+    Payment__Credit_Card_Type__c?: string;
 
     @ApiPropertyOptional({ description: 'Credit card expiry date (optional)', example: '12/2026' })
     @IsOptional()
     @IsString()
-    IATSPayment__Credit_Card_Expiry_Date__c?: string;
+    Payment__Credit_Card_Expiry_Date__c?: string;
 
     @ApiPropertyOptional({ description: 'Last 4 digits of ACH account number (if provided)', example: '5678' })
     @IsOptional()
     @IsString()
     @Length(4, 4, { message: 'ACH account number must be exactly 4 characters (last 4 digits)' })
-    IATSPayment__ACH_Account_Number__c?: string;
+    Payment__ACH_Account_Number__c?: string;
 
     @ApiPropertyOptional({ description: 'ACH account type (optional)', example: 'Checking' })
     @IsOptional()
     @IsString()
-    IATSPayment__ACH_Account_Type__c?: string;
+    Payment__ACH_Account_Type__c?: string;
 
     @ApiPropertyOptional({ description: 'Customer ID from strip', example: '  ' })
     @IsOptional()

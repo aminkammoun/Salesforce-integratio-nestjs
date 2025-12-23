@@ -148,10 +148,10 @@ export class SalesforceService {
                     }
                 }
 
-                const sponsorshipId = JSON.parse(event.data.object.metadata.sponsorshipId);
+                const sponsorshipId = await JSON.parse(event.data.object.metadata.sponsorshipId);
                 console.log(sponsorshipId)
                 const sponsorship = await this.sponsorshipService.findByIds(sponsorshipId);
-                console.log(sponsorship)
+                console.log('sponsorship ',  sponsorship)
                 for (const sp of sponsorship) {
                     console.log(sp)
                     let recurringDonation = {
@@ -193,23 +193,23 @@ export class SalesforceService {
                 console.log('brand ' + object.payment_method_details?.card_present?.brand)
                 console.log('expmonth ' + object.payment_method_details?.card_present?.exp_month)
                 let transactionData = {
-                    IATSPayment__Amount__c: object.amount / 100,
-                    IATSPayment__Amount_currency__c: object.currency,
+                    Payment__Amount__c: object.amount / 100,
+                    Payment__Amount_currency__c: object.currency,
                     donation: object.metadata.donationID,
                     contact: contact.salesforceID,
-                    IATSPayment__Method_of_Payment__c: object.payment_method_details?.type,
-                    IATSPayment__Status__c: object.status,
-                    IATSPayment__Contact__c: contact.salesforceID || <string>contact._id,
+                    Payment__Method_of_Payment__c: object.payment_method_details?.type,
+                    Payment__Status__c: object.status,
+                    Payment__Contact__c: contact.salesforceID || <string>contact._id,
                     transactionID: object.id,
-                    IATSPayment__Payer_Address__c: object.billing_details?.address?.line1,
-                    IATSPayment__Payer_City__c: object.billing_details?.address?.city,
-                    IATSPayment__Payer_State__c: object.billing_details?.address?.state,
-                    IATSPayment__Payer_Zip_Code__c: object.billing_details?.address?.postal_code,
-                    IATSPayment__Payer_First_Name__c: object.billing_details?.name?.split(' ')[0],
-                    IATSPayment__Payer_Last_name__c: object.billing_details?.name?.split(' ')[1] || '',
-                    IATSPayment__Credit_Card__c: last4,
-                    IATSPayment__Credit_Card_Type__c: brand,
-                    IATSPayment__Credit_Card_Expiry_Date__c: expMonth + '/' + expYear,
+                    Payment__Payer_Address__c: object.billing_details?.address?.line1,
+                    Payment__Payer_City__c: object.billing_details?.address?.city,
+                    Payment__Payer_State__c: object.billing_details?.address?.state,
+                    Payment__Payer_Zip_Code__c: object.billing_details?.address?.postal_code,
+                    Payment__Payer_First_Name__c: object.billing_details?.name?.split(' ')[0],
+                    Payment__Payer_Last_name__c: object.billing_details?.name?.split(' ')[1] || '',
+                    Payment__Credit_Card__c: last4,
+                    Payment__Credit_Card_Type__c: brand,
+                    Payment__Credit_Card_Expiry_Date__c: expMonth + '/' + expYear,
                     Stripe_Customer_ID__c: object.payment_intent || object.id,
                     note: `Transaction created from Stripe webhook for payment intent ${object.payment_intent || object.id}`,
                     salesforceDonation: donation.salesforceID,
@@ -232,8 +232,8 @@ export class SalesforceService {
                 amount: req.amount,
                 currency: req.currency,
                 //setup_future_usage: 'off_session',
-                payment_method_types: ['card_present'],
-                capture_method: 'automatic',
+                //payment_method_types: ['card_present'],
+                //capture_method: 'automatic',
                 //customer: req.customerId,
                 //payment_method_types: ['card'],
                 metadata: req.metadata || {},
@@ -471,7 +471,8 @@ export class SalesforceService {
                     interval: interval.interval,
                     interval_count: interval.interval_count,
                 },
-                productId: "prod_TYxTnm0rvxuSWn", // Use env variable
+                //productId: "prod_TYxTnm0rvxuSWn", // Use env variable
+                productId: "prod_TVy2unytb3L8hZ", // Use env variable
                 product_data: {
                     name: item.type === 'recurring'
                         ? `Recurring Donation - ${item.programId}`

@@ -1,5 +1,5 @@
 import { Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
-import { handleQuery } from 'src/config/utils';
+import { fetchAllSalesforceContacts, handleQuery } from 'src/config/utils';
 import { Child } from '../entities/child.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { ClientSession, Model, Types as MongooseTypes } from 'mongoose';
@@ -48,6 +48,31 @@ export class ChildService {
         } else {
             console.log('No records to process from Salesforce response.');
         }
+    }
+    async insertFromSalesforce(query: string) {
+        const records = await fetchAllSalesforceContacts(query);
+        const operations = records.map((record: any) => ({
+            updateOne: {
+                filter: { SalesforceID: record.Id },
+                update: {
+                    $set: {
+                        SalesforceID: record.Id,
+                        Child_Name__c: record.Child_Name__c,
+                        NationalityList__c: record.NationalityList__c,
+                        Age__c: record.Age_Calculated__c,
+                        Status__c: record.Status__c,
+                        url: record.attributes?.url,
+                    }
+                },
+                upsert: true
+            }
+
+        }));
+        const result = await this.ChildModel.bulkWrite(operations, { ordered: false });
+
+        console.log('Imported children:', result);
+        return result;
+
     }
     async create(createChild: CreateChildDto[]) {
         try {

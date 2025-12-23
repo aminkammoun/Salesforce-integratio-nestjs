@@ -13,6 +13,10 @@ export class SponsorshipController {
     findAll() {
         return this.sponsorshipService.findAll();
     }
+    @Get('/:id')
+    findOne(@Body('id') id: string[]) {
+        return this.sponsorshipService.findByIds(id);
+    }
     @Post('/updateToActive/:sponsorshipId')
     updateToActive(@Param('sponsorshipId') sponsorshipId: string) {
         return this.sponsorshipService.updateToActive(sponsorshipId);

@@ -12,7 +12,7 @@ export class ChildController {
     @Get('/findAll/:q')
     findAll(@Param('q') q: string) {
         console.log('Controller received query param:', q);
-        return this.childService.findAll(q);
+        return this.childService.insertFromSalesforce(q);
     }
 
     @Post('/create')
@@ -36,7 +36,7 @@ export class ChildController {
     }
     @Get('/salesforceIDs')
     async getBySalesforceIDs(@Body() ids: string[]) {
-        
+
         return this.childService.findBySalesforceIDs(ids);
     }
 }
