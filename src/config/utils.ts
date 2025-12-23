@@ -54,3 +54,28 @@ export async function handleQuery(version: string, query: string) {
 
 }
 
+export async function fetchAllSalesforceContacts(query: string) {
+    try {
+        const allRecords: any[] = [];
+
+        // 1) First query
+        let res = await handleQuery('/services/data/v65.0/query/?q=', query);
+
+        allRecords.push(...res.records);
+
+        // 2) Fetch next records while there is a next URL
+        while (!res.done) {
+            console.log('Fetching next batch...');
+
+            res = await handleQuery('', res.nextRecordsUrl);
+            allRecords.push(...res.records);
+        }
+
+        console.log('Total contacts retrieved:', allRecords.length);
+        return allRecords;
+
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}

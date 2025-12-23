@@ -1,8 +1,9 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { ContactService } from '../service/contact.service';
 import { CreateContactDto } from '../dto/create-contact.dto';
 import { UpdateContactDto } from '../dto/update-contact.dto';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 
 @Controller('contact')
 export class ContactController {
@@ -21,6 +22,7 @@ export class ContactController {
     findByPhone(@Param('phone') phone: string) {
         return this.contactService.findByPhone(phone);
     }
+    @UseGuards(JwtAuthGuard)
     @Get('/:id')
     @ApiOperation({ summary: 'Find contact by id', description: 'Finds a contact by their id number.' })
     @ApiResponse({ status: 200, description: 'Contact found successfully' })
@@ -53,12 +55,14 @@ export class ContactController {
         const contacts = await this.contactService.updloadContactsToSalesforce();
         return contacts;
     }
+    @UseGuards(JwtAuthGuard)
     @Get('/emptyEmail')
     @ApiOperation({ summary: 'Find contacts with empty email', description: 'Finds all contacts that have an empty email field.' })
     @ApiResponse({ status: 200, description: 'Contacts found successfully' })
     async findContactsWithEmptyEmail() {
         return this.contactService.getContactWithEmptyEmail();
     }
+    @UseGuards(JwtAuthGuard)
     @Post('/assignEmail/')
     @ApiOperation({ summary: 'Assign email to a contact', description: 'Assigns an email address to a contact based on their phone number.' })
     @ApiResponse({ status: 200, description: 'Email assigned successfully' })
@@ -66,6 +70,7 @@ export class ContactController {
         const { phone, email } = body;
         return this.contactService.assignEmailToContact(phone, email);
     }
+    @UseGuards(JwtAuthGuard)
     @Get('/wordpressid/:wordpressID')
     @ApiOperation({ summary: 'Find contact by WordPress ID', description: 'Finds a contact by their WordPress ID.' })
     @ApiResponse({ status: 200, description: 'Contact found successfully' })

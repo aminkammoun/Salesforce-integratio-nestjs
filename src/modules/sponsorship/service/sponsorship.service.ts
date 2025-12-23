@@ -82,10 +82,12 @@ export class SponsorshipService {
         return sponsorship;
     }
     async findByIds(ids: string[]) {
+        console.log('Finding sponsorships by IDs:', ids);
         const sponsorship = await this.SponsorshipModel.find({
             _id: { $in: ids },
             Status: "pending"
         }).exec();
+        console.log('Found sponsorships:', sponsorship);
         return sponsorship
     }
     async updateDonationWithRecurringSalesforceID(id: string, salesforceId: string) {
