@@ -4,7 +4,7 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateUserDto } from '../dto/create-user.dto';
+import { userCreateUserDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { User } from '../entities/user.entity';
 import { InjectModel } from '@nestjs/mongoose';
@@ -16,7 +16,7 @@ export class UserService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<User>,
   ) { }
-  async create(createUserDto: CreateUserDto) {
+  async create(createUserDto: userCreateUserDto) {
     try {
       let user = await this.userModel.findOne({ email: createUserDto.email });
 
