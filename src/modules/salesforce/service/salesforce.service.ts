@@ -164,8 +164,10 @@ export class SalesforceService {
                         sponsorships: sp._id ? (new mongoose.Types.ObjectId(sp._id as string) as unknown as any) : '',
                         donor: contact._id ? (new mongoose.Types.ObjectId(contact._id as string) as unknown as any) : '',
                         status: "Active",
+                        npe03__Contact__c: contact.salesforceID ? contact.salesforceID : null,
                     };
                     sp.Status = 'Active';
+                    contact.salesforceID ? sp.Donor__c = contact.salesforceID : null;
                     const recurring = await this.recurringService.createRecurring(recurringDonation);
                     console.log('recurring', recurring);
                     if (!Array.isArray(donation.Recurring)) {

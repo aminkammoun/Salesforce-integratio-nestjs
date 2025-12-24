@@ -22,13 +22,13 @@ export class ContactController {
     findByPhone(@Param('phone') phone: string) {
         return this.contactService.findByPhone(phone);
     }
-    @UseGuards(JwtAuthGuard)
+    /* @UseGuards(JwtAuthGuard)
     @Get('/:id')
     @ApiOperation({ summary: 'Find contact by id', description: 'Finds a contact by their id number.' })
     @ApiResponse({ status: 200, description: 'Contact found successfully' })
     findOne(@Param('id') id: string) {
         return this.contactService.findOne(id);
-    }
+    } */
     @Get('/email/:email')
     @ApiOperation({ summary: 'Find contact by email', description: 'Finds a contact by their email address.' })
     @ApiResponse({ status: 200, description: 'Contact found successfully' })
@@ -55,14 +55,16 @@ export class ContactController {
         const contacts = await this.contactService.updloadContactsToSalesforce();
         return contacts;
     }
-    @Get('/emptyEmail')
+    @UseGuards(JwtAuthGuard)
+    @Get('/text/emptyEmail')
     @ApiOperation({ summary: 'Find contacts with empty email', description: 'Finds all contacts that have an empty email field.' })
     @ApiResponse({ status: 200, description: 'Contacts found successfully' })
     async findContactsWithEmptyEmail() {
         console.log('Finding contacts with empty email');
         return this.contactService.getContactWithEmptyEmail();
     }
-    @Post('/assignEmail/')
+    @UseGuards(JwtAuthGuard)
+    @Post('/text/assignEmail/')
     @ApiOperation({ summary: 'Assign email to a contact', description: 'Assigns an email address to a contact based on their phone number.' })
     @ApiResponse({ status: 200, description: 'Email assigned successfully' })
     async assignEmailToContacts(@Body() body: { phone: string; email: string }) {
@@ -75,11 +77,11 @@ export class ContactController {
     findByWordPressID(@Param('wordpressID') wordpressID: string) {
         return this.contactService.findByWordPressID(wordpressID);
     }
-    @Get('/emptyEmails')
-    @ApiOperation({ summary: 'Find contacts with empty email', description: 'Finds all contacts that have an empty email field.' })
-    @ApiResponse({ status: 200, description: 'Contacts found successfully' })
-    async findContactsWithEmptyEmails() {
-        console.log('Finding contacts with empty email');
-        return this.contactService.getContactWithEmptyEmail();
+    @UseGuards(JwtAuthGuard)
+    @Get('/:id')
+    @ApiOperation({ summary: 'Find contact by id', description: 'Finds a contact by their id number.' })
+    @ApiResponse({ status: 200, description: 'Contact found successfully' })
+    findOne(@Param('id') id: string) {
+        return this.contactService.findOne(id);
     }
 }

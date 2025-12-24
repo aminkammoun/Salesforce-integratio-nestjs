@@ -37,9 +37,8 @@ export class CreateRecurringDto {
     @IsString({ each: true })
     sponsorships?: string[];
     @ApiPropertyOptional({ description: 'Associated Sponsorships (optional)', example: ['SP1234567890123', 'SP9876543210987'] })
-    @IsNotEmpty()
-    @IsString({ each: true })
-    npe03__Contact__c?: string[];
+    @IsOptional()
+    npe03__Contact__c?: string;
 
     @ApiPropertyOptional({ description: 'ID of the donor (user) initiating the transaction in the sub database', example: '0031t00000XyZzAAB', })
     @IsOptional()

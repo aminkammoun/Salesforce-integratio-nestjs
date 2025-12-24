@@ -254,7 +254,8 @@ export class ContactService {
     }
     async getContactWithEmptyEmail() {
         try {
-            const contacts = await this.ContactModel.find({ $or: [{ email: { $exists: false } }, { email: '' }] });
+            const contacts = await this.ContactModel.find({ email: { $in: ["", null, undefined] } });
+            console.log('Contacts with empty email:', contacts);
             return contacts;
         } catch (error) {
             throw new InternalServerErrorException(error);
