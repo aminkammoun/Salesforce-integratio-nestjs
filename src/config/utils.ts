@@ -1,13 +1,36 @@
+async function authenticateSalesforce() {
+    const url = `${process.env.ISTANCEURL}/services/oauth2/token?grant_type=refresh_token&client_id=${process.env.SALESFORCECLIENTID}&client_secret=${process.env.SALESFORCECLIENTSECRET}&refresh_token=${process.env.REFRESH_TOKEN}`;
+    console.log('Authenticating with Salesforce at URL:', url);
+
+    const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        //body: params,
+        cache: "no-store",
+    });
+
+    if (!res.ok) {
+        throw new Error(`Salesforce authentication failed: ${res.status} ${res.statusText}`);
+    }
+
+    const data = await res.json();
+    console.log('Salesforce Authentication Response:', data);
+    return data.access_token
+}
 export async function handleInsertQuery(query: string,
     object: string,
     body: any
 ) {
+    const token = await authenticateSalesforce();
+    console.log('Using Bearer Token:', token);
     console.log(process.env.ISTANCEURL + query + object)
     const res = await fetch(process.env.ISTANCEURL + query + object, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            Authorization: "Bearer " + process.env.BEARERTOKEN,
+            Authorization: "Bearer " + token,
         },
         body: JSON.stringify(body),
         cache: "no-store",
@@ -35,12 +58,14 @@ export async function handleInsertQuery(query: string,
     return null;
 }
 export async function handleQuery(version: string, query: string) {
+    const token = await authenticateSalesforce();
+    console.log('Using Bearer Token:', token);
     console.log(process.env.ISTANCEURL + version + query)
     const res = await fetch(process.env.ISTANCEURL + version + query, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
-            Authorization: "Bearer " + process.env.BEARERTOKEN,
+            Authorization: "Bearer " + token,
         },
         cache: "no-store",
     }

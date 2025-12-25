@@ -66,4 +66,8 @@ export class DonationController {
     async deleteDonation(@Body() id: string[]) {
         return this.donationService.delete(id)
     }
+    @Get('/getsf/:cnid')
+    getSalesforceDonations(@Param('cnid') cnid: string) {
+        return this.donationService.findDonationsFromSalesforceByWorksheetId(cnid);
+    }
 }

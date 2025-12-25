@@ -8,7 +8,7 @@ import { SponsorshipCreatedListener } from '../listeners/sponsorship-created.lis
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { SponsorshipCreatedEvent } from '../events/sponsprship-created.events';
 import { UpdateSponsorshipDto } from '../dto/update-sponsorship';
-import { handleInsertQuery } from 'src/config/utils';
+import { handleInsertQuery, handleQuery } from 'src/config/utils';
 
 
 @Injectable()
@@ -209,6 +209,15 @@ export class SponsorshipService {
                 { $set: { Status: 'Expired' } }
             );
             return result;
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
+    }
+    async findDonationsFromSalesforceByContactId(contactId: string) {
+        try {
+            const query = `SELECT Id, Child_Name__c, Start_Date__c, End_Date__c, Status__c, Name, Child_Profile_Picture__c FROM Sponsorship__c WHERE Donor__c = '${contactId}'`;
+            const res = await handleQuery('/services/data/v65.0/query/?q=', query);
+            return res.records;
         } catch (error) {
             throw new InternalServerErrorException(error);
         }
