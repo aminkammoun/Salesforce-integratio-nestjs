@@ -217,6 +217,7 @@ export class ContactService {
     async updloadContactsToSalesforce() {
         try {
             const contacts = await this.ContactModel.find({ syncedWithSalesforce: false });
+            console.log('Contacts to upload to Salesforce:', contacts);
             if (contacts.length === 0) {
                 console.log('No contacts to upload to Salesforce');
                 return [];
@@ -287,5 +288,5 @@ export class ContactService {
             throw new InternalServerErrorException(error);
         }
     }
-    
+
 }
