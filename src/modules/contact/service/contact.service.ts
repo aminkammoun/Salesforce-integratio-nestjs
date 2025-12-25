@@ -139,7 +139,6 @@ export class ContactService {
         }
     }
 
-
     async findByPhone(phone: string) {
         console.log('Finding contact by phone:', phone);
         try {
@@ -174,6 +173,7 @@ export class ContactService {
             throw new InternalServerErrorException(error);
         }
     }
+
     async findAll() {
         try {
             const contacts = await this.ContactModel.find();
@@ -182,6 +182,7 @@ export class ContactService {
             throw new InternalServerErrorException(error);
         }
     }
+
     async findOne(id: string) {
         try {
             const contact = await this.ContactModel.findById(new MongooseTypes.ObjectId(id));
@@ -190,6 +191,7 @@ export class ContactService {
             throw new InternalServerErrorException(error);
         }
     }
+
     async delete(id: string) {
         try {
             const result = await this.ContactModel.findByIdAndDelete(new MongooseTypes.ObjectId(id));
@@ -198,6 +200,7 @@ export class ContactService {
             throw new InternalServerErrorException(error);
         }
     }
+
     async update(id: string, updateContactDto: UpdateContactDto) {
         try {
             const contact = await this.ContactModel.findByIdAndUpdate(
@@ -252,6 +255,7 @@ export class ContactService {
             throw new InternalServerErrorException(error);
         }
     }
+
     async getContactWithEmptyEmail() {
         try {
             const contacts = await this.ContactModel.find({ email: { $in: ["", null, undefined] } });
@@ -261,6 +265,7 @@ export class ContactService {
             throw new InternalServerErrorException(error);
         }
     }
+
     async assignEmailToContact(phone: string, email: string) {
         try {
             const contact = await this.ContactModel.findOneAndUpdate(
@@ -273,6 +278,7 @@ export class ContactService {
             throw new InternalServerErrorException(error);
         }
     }
+
     async findByWordPressID(wordpressID: string) {
         try {
             const contact = await this.ContactModel.findOne({ wordpressID });
@@ -281,4 +287,5 @@ export class ContactService {
             throw new InternalServerErrorException(error);
         }
     }
+    
 }

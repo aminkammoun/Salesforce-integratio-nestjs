@@ -35,4 +35,8 @@ export class SponsorshipController {
         console.log('Marking children as expired:', childIds);
         return this.sponsorshipService.updateToExpired(childIds);
     }
+    @Get('/getsf/:cnid')
+    getSalesforceDonations(@Param('cnid') cnid: string) {
+        return this.sponsorshipService.findDonationsFromSalesforceByContactId(cnid);
+    }
 }
