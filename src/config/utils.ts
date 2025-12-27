@@ -23,14 +23,14 @@ export async function handleInsertQuery(query: string,
     object: string,
     body: any
 ) {
-    const token = await authenticateSalesforce();
-    console.log('Using Bearer Token:', token);
+   // const token = await authenticateSalesforce();
+    //console.log('Using Bearer Token:', token);
     console.log(process.env.ISTANCEURL + query + object)
     const res = await fetch(process.env.ISTANCEURL + query + object, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            Authorization: "Bearer " + token,
+            Authorization: "Bearer " + process.env.BEARERTOKEN,
         },
         body: JSON.stringify(body),
         cache: "no-store",
