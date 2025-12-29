@@ -218,7 +218,8 @@ export class SponsorshipService {
     async findDonationsFromSalesforceByContactId(contactId: string) {
         try {
             const query = `SELECT Id, Child_Name__c, Start_Date__c, End_Date__c, Status__c, Name, Child_Profile_Picture__c FROM Sponsorship__c WHERE Donor__c = '${contactId}'`;
-            const res = await handleQuery('/services/data/v65.0/query/?q=', query);
+            const token = await authenticateSalesforce();
+            const res = await handleQuery('/services/data/v65.0/query/?q=', query, token);
             return res.records;
         } catch (error) {
             throw new InternalServerErrorException(error);

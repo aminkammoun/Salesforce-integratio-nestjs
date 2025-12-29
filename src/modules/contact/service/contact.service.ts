@@ -118,7 +118,7 @@ export class ContactService {
             const allRecords: any[] = [];
 
             // 1) First query
-            let res = await handleQuery('/services/data/v65.0/query/?q=', query);
+            let res = await handleQuery('/services/data/v65.0/query/?q=', query, await authenticateSalesforce());
 
             allRecords.push(...res.records);
 
@@ -126,7 +126,7 @@ export class ContactService {
             while (!res.done) {
                 console.log('Fetching next batch...');
 
-                res = await handleQuery('', res.nextRecordsUrl);
+                res = await handleQuery('', res.nextRecordsUrl, await authenticateSalesforce());
                 allRecords.push(...res.records);
             }
 

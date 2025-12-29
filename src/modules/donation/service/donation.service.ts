@@ -272,7 +272,7 @@ export class DonationService {
                                     await handleInsertQuery('/services/data/v65.0/sobjects/', 'Program_Allocation_Unit__c/', allocationPayload, token);
 
                                     // Fetch GAU and create GAU allocation
-                                    const queryGAU = await handleQuery('/services/data/v65.0/query/?q=', `SELECT+General_Accounting_Unit__c+FROM+pmdm__ProgramCohort__c+WHERE+id='${item.programId}'`);
+                                    const queryGAU = await handleQuery('/services/data/v65.0/query/?q=', `SELECT+General_Accounting_Unit__c+FROM+pmdm__ProgramCohort__c+WHERE+id='${item.programId}'`, token);
                                     if (queryGAU?.records?.length) {
                                         const GAUPayload = {
                                             npsp__Opportunity__c: result.salesforceId,
@@ -281,7 +281,7 @@ export class DonationService {
                                             npsp__Percent__c: donation.Amount ? (item.amount / donation.Amount) * 100 : 100,
                                             GAU_Type__c: 'Once',
                                         };
-                                        await handleInsertQuery('/services/data/v65.0/sobjects/', 'npsp__Allocation__c/', GAUPayload);
+                                        await handleInsertQuery('/services/data/v65.0/sobjects/', 'npsp__Allocation__c/', GAUPayload, token);
                                     } else {
                                         console.warn('GAU query returned no records for programId:', item.programId);
                                     }
@@ -314,7 +314,8 @@ export class DonationService {
     async findDonationsFromSalesforceByWorksheetId(wordpressid: string) {
         try {
             const query = `SELECT Id, Name, Amount, CloseDate, StageName, npsp__Acknowledgment_Status__c, Donation_Source__c FROM Opportunity WHERE npsp__Primary_Contact__c = '${wordpressid}'`;
-            const res = await handleQuery('/services/data/v65.0/query/?q=', query);
+            const token = await authenticateSalesforce();
+            const res = await handleQuery('/services/data/v65.0/query/?q=', query, token);
             return res.records;
         } catch (error) {
             throw new InternalServerErrorException(error);
