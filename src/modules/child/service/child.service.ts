@@ -1,5 +1,5 @@
 import { Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
-import { fetchAllSalesforceContacts, handleQuery } from 'src/config/utils';
+import { authenticateSalesforce, fetchAllSalesforceContacts, handleQuery } from 'src/config/utils';
 import { Child } from '../entities/child.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { ClientSession, Model, Types as MongooseTypes } from 'mongoose';
@@ -15,7 +15,8 @@ export class ChildService {
         @Inject() private readonly sponsorshipService: SponsorshipService,
     ) { }
     async findAll(query: string) {
-        const res = await handleQuery('/services/data/v65.0/query/?q=', query);
+        const token = await authenticateSalesforce();
+        const res = await handleQuery('/services/data/v65.0/query/?q=', query, token);
         let childCollec: CreateChildDto[] = [];
         console.log('Service received response:', res);
         if (res.done === true && Array.isArray(res.records) && res.records.length) {

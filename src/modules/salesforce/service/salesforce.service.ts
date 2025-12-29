@@ -66,15 +66,6 @@ export class SalesforceService {
         console.log('Create Account Result:', result);
         return result;
     }
-    async createAccount2() {
-        const accountData = {
-            phone: "1234567890",
-            email: "am@gm.fr",
-            firstname: "Amine",
-            lastname: "Mokhtari"
-        };
-        return await handleInsertQuery('/services/data/v65.0/sobjects/', 'Contact/', accountData);
-    }
 
     async stripWebhook(req: any, res: any) {
         this.logger.log('Received Stripe webhook:');
