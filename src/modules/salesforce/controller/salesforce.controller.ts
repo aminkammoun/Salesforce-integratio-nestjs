@@ -20,10 +20,6 @@ export class SalesforceController {
     createAccount() {
         return this.salesforceService.createAccount();
     }
-    @Post('/createAccount2')
-    createAccount2() {
-        return this.salesforceService.createAccount2();
-    }
     @Post('/wh')
     stripWebhook(@Request() req: any, @Res() res: any) {
         console.log('Received webhook data:',);
