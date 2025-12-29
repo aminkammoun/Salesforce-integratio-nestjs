@@ -4,7 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types as MongooseTypes, set } from 'mongoose';
 import { CreateContactDto } from '../dto/create-contact.dto';
 import { UpdateContactDto } from '../dto/update-contact.dto';
-import { handleInsertQuery, handleQuery } from 'src/config/utils';
+import { authenticateSalesforce, handleInsertQuery, handleQuery } from 'src/config/utils';
 import { first, last } from 'rxjs';
 import { DonationService } from 'src/modules/donation/service/donation.service';
 import { SponsorshipService } from 'src/modules/sponsorship/service/sponsorship.service';
@@ -222,6 +222,8 @@ export class ContactService {
                 console.log('No contacts to upload to Salesforce');
                 return [];
             }
+            const token = await authenticateSalesforce();
+            console.log('Using Bearer Token for upload:', token);
             const salesforcePayloads = contacts.map(async contact => {
                 let payload: any
                 contact.first_name = contact.Name?.split(' ')[0] || '';
@@ -234,7 +236,7 @@ export class ContactService {
                     Phone: contact.Phone?.replace(/[^0-9]/g, '') || contact.Phone,
                 };
 
-                const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Contact/', payload);
+                const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Contact/', payload, token);
                 // If you want to upload immediately, perform it outside map with Promise.all.
                 console.log('Salesforce upload result:', result);
                 contact.salesforceID = result.salesforceId;

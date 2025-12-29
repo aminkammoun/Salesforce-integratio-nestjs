@@ -6,7 +6,7 @@ import { Recurring } from 'src/modules/recurring/entities/recurring.entity';
 import { InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { CreateDonationDto } from '../dto/create-donation.dto';
 import { UpdateDonationDto } from '../dto/update-donation.dto';
-import { handleInsertQuery, handleQuery } from 'src/config/utils';
+import { authenticateSalesforce, handleInsertQuery, handleQuery } from 'src/config/utils';
 import { Sponsorship } from 'src/modules/sponsorship/entities/sponsorship.entity';
 import { RecurringService } from 'src/modules/recurring/service/recurring.service';
 import { ContactService } from 'src/modules/contact/service/contact.service';
@@ -154,11 +154,13 @@ export class DonationService {
 
     async uploadDonationsToSalesforce() {
         try {
-            const donations = await this.DonationModel.find({ syncedWithSalesforce: false});
+            const donations = await this.DonationModel.find({ syncedWithSalesforce: false });
             if (donations.length === 0) {
                 console.log('No donations to upload to Salesforce');
                 return [];
             }
+            const token = await authenticateSalesforce();
+                        console.log('Using Bearer Token for upload:', token);
             const salesforcePayloads = donations.map(async donation => {
                 let payload: any
                 const recurringItems = await this.recurringService.findAllBySalesforceID(donation.npe03__Recurring_Donation__c);
@@ -187,7 +189,7 @@ export class DonationService {
                                 if (!payload) {
                                     return;
                                 }
-                                const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Opportunity/', payload);
+                                const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Opportunity/', payload, token);
                                 if (result.salesforceId) {
                                     if (recurring) {
                                         recurring.donationSf = result.salesforceId || '';
@@ -217,7 +219,7 @@ export class DonationService {
                             npsp__Status__c: 'Active',
                             //RecordTypeId: donation.RecordTypeId,
                         };
-                        const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'npe03__Recurring_Donation__c/', createRecPay);
+                        const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'npe03__Recurring_Donation__c/', createRecPay, token);
                         if (result.salesforceId) {
                             item.npe03__Recurring_Donation__c = result.salesforceId;
 
@@ -234,7 +236,7 @@ export class DonationService {
                                 npe03__Recurring_Donation__c: result.salesforceId,
                             }
 
-                            const oppResult = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Opportunity/', createOppPay);
+                            const oppResult = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Opportunity/', createOppPay, token);
                             if (oppResult.salesforceId) {
                                 item.sfId = oppResult.salesforceId;
                             }
@@ -250,12 +252,13 @@ export class DonationService {
                                 Amount: Number(item.amount),
                                 CloseDate: donation.CloseDate,
                                 StageName: donation.StageName,
+                                campainId: "701VW00000h1twBYAQ",
                                 npsp__Acknowledgment_Status__c: donation.Acknowledgment_Status__c,
                                 Donation_Source__c: donation.Donation_Source__c || 'Fundraising App',
                                 npsp__Primary_Contact__c: donation.npsp__Primary_Contact__c,
                             };
 
-                            const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Opportunity/', payload);
+                            const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Opportunity/', payload, token);
                             if (result && result.salesforceId) {
                                 item.sfId = result.salesforceId;
 
@@ -266,7 +269,7 @@ export class DonationService {
                                         Amount__c: item.amount,
                                         Program_Cohort__c: item.programId,
                                     };
-                                    await handleInsertQuery('/services/data/v65.0/sobjects/', 'Program_Allocation_Unit__c/', allocationPayload);
+                                    await handleInsertQuery('/services/data/v65.0/sobjects/', 'Program_Allocation_Unit__c/', allocationPayload, token);
 
                                     // Fetch GAU and create GAU allocation
                                     const queryGAU = await handleQuery('/services/data/v65.0/query/?q=', `SELECT+General_Accounting_Unit__c+FROM+pmdm__ProgramCohort__c+WHERE+id='${item.programId}'`);
@@ -300,10 +303,10 @@ export class DonationService {
 
 
                 return donation;
-                
+
             })
 
-        
+
         } catch (error) {
             throw new InternalServerErrorException(error);
         }
