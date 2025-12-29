@@ -160,7 +160,7 @@ export class DonationService {
                 return [];
             }
             const token = await authenticateSalesforce();
-                        console.log('Using Bearer Token for upload:', token);
+            console.log('Using Bearer Token for upload:', token);
             const salesforcePayloads = donations.map(async donation => {
                 let payload: any
                 const recurringItems = await this.recurringService.findAllBySalesforceID(donation.npe03__Recurring_Donation__c);
@@ -252,7 +252,7 @@ export class DonationService {
                                 Amount: Number(item.amount),
                                 CloseDate: donation.CloseDate,
                                 StageName: donation.StageName,
-                                CampaignId: "701VW00000h1twBYAQ",
+                                //CampaignId: "701VW00000h1twBYAQ",
                                 npsp__Acknowledgment_Status__c: donation.Acknowledgment_Status__c,
                                 Donation_Source__c: donation.Donation_Source__c || 'Fundraising App',
                                 npsp__Primary_Contact__c: donation.npsp__Primary_Contact__c,
