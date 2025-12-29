@@ -252,7 +252,7 @@ export class DonationService {
                                 Amount: Number(item.amount),
                                 CloseDate: donation.CloseDate,
                                 StageName: donation.StageName,
-                                campainId: "701VW00000h1twBYAQ",
+                                CampaignId: "701VW00000h1twBYAQ",
                                 npsp__Acknowledgment_Status__c: donation.Acknowledgment_Status__c,
                                 Donation_Source__c: donation.Donation_Source__c || 'Fundraising App',
                                 npsp__Primary_Contact__c: donation.npsp__Primary_Contact__c,
