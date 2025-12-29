@@ -4,7 +4,7 @@ import { RecurringModule } from '../recurring.module';
 import { Recurring } from '../entities/recurring.entity';
 import { Model, Types as MongooseTypes } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { handleInsertQuery } from 'src/config/utils';
+import { authenticateSalesforce, handleInsertQuery } from 'src/config/utils';
 import { DonationService } from 'src/modules/donation/service/donation.service';
 import { SponsorshipService } from 'src/modules/sponsorship/service/sponsorship.service';
 
@@ -53,6 +53,7 @@ export class RecurringService {
             console.log('No donations to upload to Salesforce');
             return [];
         }
+        const token = await authenticateSalesforce();
         const salesforcePayloads = recurrings.map(async recurring => {
 
             let payload: any
@@ -67,11 +68,11 @@ export class RecurringService {
                 npsp__Status__c: recurring.status,
                 //RecordTypeId: donation.RecordTypeId,
             };
-            const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'npe03__Recurring_Donation__c/', payload);
+            const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'npe03__Recurring_Donation__c/', payload, token);
             console.log('Salesforce upload result for recurring:', result);
             if (result.salesforceId) {
                 recurring.salesforceID = result.salesforceId;
-                //ecurring.syncedWithSalesforce = true;
+                recurring.syncedWithSalesforce = true;
                 await recurring.save();
                 await this.donationService.updateDonationWithRecurringSalesforceID(recurring.donations.toString(), result.salesforceId);
                 await this.sponsorshipService.updateDonationWithRecurringSalesforceID(recurring.sponsorships.toString(), result.salesforceId);

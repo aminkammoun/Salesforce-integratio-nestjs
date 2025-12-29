@@ -8,7 +8,7 @@ import { SponsorshipCreatedListener } from '../listeners/sponsorship-created.lis
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { SponsorshipCreatedEvent } from '../events/sponsprship-created.events';
 import { UpdateSponsorshipDto } from '../dto/update-sponsorship';
-import { handleInsertQuery, handleQuery } from 'src/config/utils';
+import { authenticateSalesforce, handleInsertQuery, handleQuery } from 'src/config/utils';
 
 
 @Injectable()
@@ -166,6 +166,8 @@ export class SponsorshipService {
         const sponsorshipDevidedChild: any[] = [];
         //const recurringCreated = await this.recurringService.createRecurring(recurring);
         if (sponsorships && sponsorships.length > 0) {
+            const token = await authenticateSalesforce();
+            console.log('Using Bearer Token for sponsorship upload:', token);
             for (const sponsorship of sponsorships) {
                 for (const child of sponsorship.child) {
                     const timestamp = new Date().getTime();
@@ -190,7 +192,7 @@ export class SponsorshipService {
                         Start_Date__c: sponsorship.Start_Date__c,
                         Current_Recurring_Donation__c: sponsorship.Current_Recurring_Donation__c,
                     };
-                    const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Sponsorship__c/', payload);
+                    const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Sponsorship__c/', payload, token);
                     sponsorship.salesforceID = result.salesforceId;
                     sponsorship.syncedWithSalesforce = true;
                     await sponsorship.save();

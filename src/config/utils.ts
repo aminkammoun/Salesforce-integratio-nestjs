@@ -1,4 +1,4 @@
-async function authenticateSalesforce() {
+export async function authenticateSalesforce() {
     const url = `${process.env.ISTANCEURL}/services/oauth2/token?grant_type=refresh_token&client_id=${process.env.SALESFORCECLIENTID}&client_secret=${process.env.SALESFORCECLIENTSECRET}&refresh_token=${process.env.REFRESH_TOKEN}`;
     console.log('Authenticating with Salesforce at URL:', url);
 
@@ -21,16 +21,17 @@ async function authenticateSalesforce() {
 }
 export async function handleInsertQuery(query: string,
     object: string,
-    body: any
+    body: any,
+    token?: string
 ) {
-   // const token = await authenticateSalesforce();
+    //const token = await authenticateSalesforce();
     //console.log('Using Bearer Token:', token);
     console.log(process.env.ISTANCEURL + query + object)
     const res = await fetch(process.env.ISTANCEURL + query + object, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            Authorization: "Bearer " + process.env.BEARERTOKEN,
+            Authorization: "Bearer " + token,
         },
         body: JSON.stringify(body),
         cache: "no-store",
@@ -57,8 +58,8 @@ export async function handleInsertQuery(query: string,
     }
     return null;
 }
-export async function handleQuery(version: string, query: string) {
-    const token = await authenticateSalesforce();
+export async function handleQuery(version: string, query: string, token?: string) {
+    //const token = await authenticateSalesforce();
     console.log('Using Bearer Token:', token);
     console.log(process.env.ISTANCEURL + version + query)
     const res = await fetch(process.env.ISTANCEURL + version + query, {
