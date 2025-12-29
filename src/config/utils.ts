@@ -22,7 +22,7 @@ export async function authenticateSalesforce() {
 export async function handleInsertQuery(query: string,
     object: string,
     body: any,
-    token?: string
+    token: string
 ) {
     //const token = await authenticateSalesforce();
     //console.log('Using Bearer Token:', token);
@@ -58,7 +58,7 @@ export async function handleInsertQuery(query: string,
     }
     return null;
 }
-export async function handleQuery(version: string, query: string, token?: string) {
+export async function handleQuery(version: string, query: string, token: string) {
     //const token = await authenticateSalesforce();
     console.log('Using Bearer Token:', token);
     console.log(process.env.ISTANCEURL + version + query)
@@ -83,9 +83,9 @@ export async function handleQuery(version: string, query: string, token?: string
 export async function fetchAllSalesforceContacts(query: string) {
     try {
         const allRecords: any[] = [];
-
+        const token = await authenticateSalesforce();
         // 1) First query
-        let res = await handleQuery('/services/data/v65.0/query/?q=', query);
+        let res = await handleQuery('/services/data/v65.0/query/?q=', query, token);
 
         allRecords.push(...res.records);
 
@@ -93,7 +93,7 @@ export async function fetchAllSalesforceContacts(query: string) {
         while (!res.done) {
             console.log('Fetching next batch...');
 
-            res = await handleQuery('', res.nextRecordsUrl);
+            res = await handleQuery('', res.nextRecordsUrl, token);
             allRecords.push(...res.records);
         }
 
