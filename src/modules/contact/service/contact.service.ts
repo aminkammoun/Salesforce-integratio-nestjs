@@ -290,5 +290,25 @@ export class ContactService {
             throw new InternalServerErrorException(error);
         }
     }
+    async cleanContactPhoneNumbers() {
+        try {
+            const contacts = await this.ContactModel.find();
+            for (const contact of contacts) {
+                if (contact.Phone) {
+                    console.log(`Original phone number for contact ${contact._id}: ${contact.Phone}`);
+
+                    const cleanedPhone = '+1' + contact.Phone.replace(/[^0-9]/g, '');
+                    console.log(`Cleaned phone number for contact ${contact._id}: ${cleanedPhone}`);
+                    if (contact.Phone !== cleanedPhone) {
+                        contact.Phone = cleanedPhone;
+                        await contact.save();
+                        console.log(`Cleaned phone number for contact ${contact._id}: ${cleanedPhone}`);
+                    }
+                }
+            }
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
+    }
 
 }
