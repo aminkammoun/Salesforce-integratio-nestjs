@@ -78,10 +78,14 @@ export class ContactController {
         return this.contactService.findByWordPressID(wordpressID);
     }
     @UseGuards(JwtAuthGuard)
-    @Get('/:id')
+    @Get('/find/:id')
     @ApiOperation({ summary: 'Find contact by id', description: 'Finds a contact by their id number.' })
     @ApiResponse({ status: 200, description: 'Contact found successfully' })
     findOne(@Param('id') id: string) {
         return this.contactService.findOne(id);
+    }
+    @Post('/clean')
+    async cleanContacts() {
+        return this.contactService.cleanContactPhoneNumbers();
     }
 }
