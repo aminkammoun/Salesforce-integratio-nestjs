@@ -39,4 +39,8 @@ export class ChildController {
 
         return this.childService.findBySalesforceIDs(ids);
     }
+    @Post('/whereMostNeeded')
+    async getMostNeededNationalities() {
+        return this.childService.getMostNededNationalities();
+    }
 }
