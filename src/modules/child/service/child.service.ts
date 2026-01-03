@@ -86,7 +86,48 @@ export class ChildService {
             return { message: 'Error inserting some or all children', errorDetails: error };
         }
     }
+    async getAvailableChildrenCount() {
+        try {
+            const count = await this.ChildModel.countDocuments({ Status__c: 'Available' });
+            return { availableChildrenCount: count };
+        } catch (error) {
+            console.error('Error getting available children count:', error);
+            throw new InternalServerErrorException(error);
+        }
+    }
+    async getMostNededNationalities() {
+        try {
+            const result = await this.ChildModel.aggregate([
+                {
+                    $match: { Status__c: 'Available' }
+                },
+                {
+                    $group: {
+                        _id: '$NationalityList__c',
+                        count: { $sum: 1 }
+                    }
+                },
+                {
+                    $sort: { count: -1 }
+                },
+                {
+                    $limit: 1
+                },
+                {
+                    $project: {
+                        nationality: '$_id',
+                        availableCount: '$count',
+                        _id: 0
+                    }
+                }
+            ]);
 
+            return result.length > 0 ? result[0] : null;
+        } catch (error) {
+            console.error('Error getting most needed nationalities:', error);
+            throw new InternalServerErrorException(error);
+        }
+    }
     async getAvailableChildrenByNationality(childToreserve: ChildToreserve[]) {
         try {
             const nationalityCounts = await this.ChildModel.aggregate([
@@ -204,7 +245,13 @@ export class ChildService {
 
                 var reservedIDs: string[] = [];
                 for (const req of childmap.childToreserve) {
-                    const nat = req.nationality;
+                    var nat = req.nationality;
+                    if (nat == 'whereMostNeeded') {
+                        console.log('where most needed requested');
+                        const mostNeeded = await this.getMostNededNationalities();
+                        nat = mostNeeded.nationality
+
+                    }
                     const count = Number((req as any).Requestedcount) || 0;
                     const availableChildren = await this.ChildModel.find({ NationalityList__c: nat, Status__c: 'Available' }).limit(count)//.session(session);
                     const reservedIds = availableChildren.map(child => String(child.SalesforceID));
@@ -224,6 +271,7 @@ export class ChildService {
                         );
                         reservationResults.push({ message: reservedIds.length + ' ' + nat + ' children has been sponsored', nationality: nat, reservedCount: reservedIds.length });
                     }
+
                 }
 
                 if (reservedIDs.length > 0) {

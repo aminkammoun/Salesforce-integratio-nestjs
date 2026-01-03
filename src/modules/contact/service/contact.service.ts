@@ -149,7 +149,7 @@ export class ContactService {
             console.log('Searching for exact phone number:', phone);
 
             // Do an exact match search first
-            const contacts = await this.ContactModel.find({ Phone: phone });
+            const contacts = await this.ContactModel.find({ Phone: '+1' + phone });
             if (contacts.length === 0) {
                 // If no exact match, try searching after cleaning the phone number
 
