@@ -64,5 +64,7 @@ export class Donation extends Document {
     timeToProcessDonationMs: number
     @Prop({ required: false })
     transactionDetails: TransactionDetailDto
+    @Prop({ required: false })
+    campaignId: string
 }
 export const DonationSchema = SchemaFactory.createForClass(Donation);
