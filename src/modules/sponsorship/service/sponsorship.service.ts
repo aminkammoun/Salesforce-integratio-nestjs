@@ -243,17 +243,16 @@ export class SponsorshipService {
                             const availableChild = await this.ChildModel.find({ Status__c: 'Available', NationalityList__c: childData.NationalityList__c }).limit(1);
                             sponsor.child = sponsor.child.filter(sc => sc !== childData.SalesforceID);
                             sponsor.child.push(availableChild[0].SalesforceID);
-                            sponsor.Status = 'Active';
                             availableChild[0].Status__c = 'Sponsored';
                             await availableChild[0].save();
-                            await sponsor.save();
+
                         }
                     }
                     console.log('sponsor.child : ', sponsor.child);
                     const RecurringPayload = {
                         donorType: 'Open',
                         frequency: sponsor.frequency,
-                        donation: sponsor.donation,
+                        donations: sponsor.donation,
                         donor: sponsor.donor,
                         sponsorships: sponsor._id,
                         amount: sponsor.Amount,
@@ -264,6 +263,8 @@ export class SponsorshipService {
                     }
                     const recurringCreated = new this.RecurringModel(RecurringPayload);
                     await recurringCreated.save();
+                    sponsor.Status = 'Active';
+                    await sponsor.save();
                 }
 
             }
