@@ -6,12 +6,14 @@ import { SponsorshipService } from './service/sponsorship.service';
 import { RecurringModule } from '../recurring/recurring.module';
 import { SponsorshipCreatedListener } from './listeners/sponsorship-created.listener';
 import { DonationModule } from '../donation/donation.module';
+import { ChildModule } from '../child/child.module';
 @Module({
     imports: [
 
         forwardRef(() => DonationModule),
         forwardRef(() => SponsorshipModule),
         forwardRef(() => RecurringModule),
+        forwardRef(() => ChildModule),
         MongooseModule.forFeature([{ name: Sponsorship.name, schema: SponsorshipSchema }]),
     ],
     controllers: [SponsorshipController],

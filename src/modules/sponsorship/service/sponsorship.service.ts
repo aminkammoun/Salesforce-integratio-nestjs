@@ -9,6 +9,8 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { SponsorshipCreatedEvent } from '../events/sponsprship-created.events';
 import { UpdateSponsorshipDto } from '../dto/update-sponsorship';
 import { authenticateSalesforce, handleInsertQuery, handleQuery } from 'src/config/utils';
+import { Child } from 'src/modules/child/entities/child.entity';
+import { Donation } from 'src/modules/donation/entities/donation.entity';
 
 
 @Injectable()
@@ -17,7 +19,9 @@ export class SponsorshipService {
         private eventEmitter: EventEmitter2,
 
         @InjectModel(Sponsorship.name) private readonly SponsorshipModel: Model<Sponsorship>,
+        @InjectModel(Donation.name) private readonly DonationModel: Model<Donation>,
         @InjectModel(Recurring.name) private readonly RecurringModel: Model<Recurring>,
+        @InjectModel(Child.name) private readonly ChildModel: Model<Child>,
     ) { }
 
     async create(createSponsorshipDto: CreateSponsorshipDto) {
@@ -221,6 +225,50 @@ export class SponsorshipService {
             const token = await authenticateSalesforce();
             const res = await handleQuery('/services/data/v65.0/query/?q=', query, token);
             return res.records;
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
+    }
+
+    async checkIfChiledIsSponsored() {
+        try {
+            const sponsorship = await this.SponsorshipModel.find({ Status: 'Expired' });
+            for (const sponsor of sponsorship) {
+                const checkDonation = await this.DonationModel.findOne({ _id: sponsor.donation });
+                if (checkDonation && checkDonation.StageName === 'Closed Won') {
+                    for (const child of sponsor.child) {
+                        const childData = await this.ChildModel.findOne({ SalesforceID: child });
+                        if (childData?.Status__c === 'Sponsored') {
+                            console.log('Child is sponsored:', childData.SalesforceID);
+                            const availableChild = await this.ChildModel.find({ Status__c: 'Available', NationalityList__c: childData.NationalityList__c }).limit(1);
+                            sponsor.child = sponsor.child.filter(sc => sc !== childData.SalesforceID);
+                            sponsor.child.push(availableChild[0].SalesforceID);
+                            availableChild[0].Status__c = 'Sponsored';
+                            await availableChild[0].save();
+
+                        }
+                    }
+                    console.log('sponsor.child : ', sponsor.child);
+                    const RecurringPayload = {
+                        donorType: 'Open',
+                        frequency: sponsor.frequency,
+                        donations: sponsor.donation,
+                        donor: sponsor.donor,
+                        sponsorships: sponsor._id,
+                        amount: sponsor.Amount,
+                        dateEstablished: sponsor.Start_Date__c,
+                        DayOfMonth: sponsor.Start_Date__c.getDate(),
+                        status: 'Active',
+                        synchedWithSalesforce: false,
+                    }
+                    const recurringCreated = new this.RecurringModel(RecurringPayload);
+                    await recurringCreated.save();
+                    sponsor.Status = 'Active';
+                    await sponsor.save();
+                }
+
+            }
+            return sponsorship ? true : false;
         } catch (error) {
             throw new InternalServerErrorException(error);
         }
