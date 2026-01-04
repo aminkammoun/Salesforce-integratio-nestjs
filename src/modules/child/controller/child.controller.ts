@@ -9,7 +9,7 @@ import { CreateChildDto } from '../dto/create-child.dto';
 @Controller('child')
 export class ChildController {
     constructor(private readonly childService: ChildService) { }
-    @Get('/findAll/:q')
+    @Get('/synchsalesforce/:q')
     findAll(@Param('q') q: string) {
         console.log('Controller received query param:', q);
         return this.childService.insertFromSalesforce(q);

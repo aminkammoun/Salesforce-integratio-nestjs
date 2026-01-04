@@ -19,13 +19,13 @@ export class ChildCronService {
     // Run every minute
     @Cron(CronExpression.EVERY_MINUTE)
     async releaseExpiredReservations() {
-        const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000);
+        const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
 
         // Step 1: Find expired reserved children
         const expiredChildren = await this.childModel.find({
             SalesforceID: { $exists: true },
             Status__c: 'Reserved',
-            reservedAt: { $lt: twoMinutesAgo },
+            reservedAt: { $lt: fiveMinutesAgo },
         });
 
         if (expiredChildren.length === 0) return;

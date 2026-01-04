@@ -39,4 +39,8 @@ export class SponsorshipController {
     getSalesforceDonations(@Param('cnid') cnid: string) {
         return this.sponsorshipService.findDonationsFromSalesforceByContactId(cnid);
     }
+    @Post('/checkChild')
+    async syncChildrenWithSponsorships() {
+        return this.sponsorshipService.checkIfChiledIsSponsored();
+    }
 }

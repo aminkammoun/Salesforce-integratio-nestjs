@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { ChildService } from './service/child.service';
 import { ChildController } from './controller/child.controller';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -8,11 +8,11 @@ import { ChildCronService } from './service/child-cron.service';
 
 @Module({
   imports: [
-    SponsorshipModule,
+    forwardRef(() => SponsorshipModule),
     MongooseModule.forFeature([{ name: Child.name, schema: ChildSchema }]),
   ],
   controllers: [ChildController],
   providers: [ChildService,ChildCronService],
-  exports: [ChildService],
+  exports: [MongooseModule,ChildService],
 })
 export class ChildModule { }
