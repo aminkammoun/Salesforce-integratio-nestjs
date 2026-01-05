@@ -41,6 +41,6 @@ export class SponsorshipController {
     }
     @Post('/checkChild')
     async syncChildrenWithSponsorships() {
-        return this.sponsorshipService.checkIfChiledIsSponsored();
+        return this.sponsorshipService.checkIfChildIsSponsored();
     }
 }
