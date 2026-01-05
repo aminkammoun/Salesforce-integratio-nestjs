@@ -230,26 +230,54 @@ export class SponsorshipService {
         }
     }
 
-    async checkIfChiledIsSponsored() {
+    async checkIfChildIsSponsored(): Promise<boolean> {
         try {
-            const sponsorship = await this.SponsorshipModel.find({ Status: 'Expired' });
-            for (const sponsor of sponsorship) {
-                const checkDonation = await this.DonationModel.findOne({ _id: sponsor.donation });
-                if (checkDonation && checkDonation.StageName === 'Closed Won') {
-                    for (const child of sponsor.child) {
-                        const childData = await this.ChildModel.findOne({ SalesforceID: child });
-                        if (childData?.Status__c === 'Sponsored') {
-                            console.log('Child is sponsored:', childData.SalesforceID);
-                            const availableChild = await this.ChildModel.find({ Status__c: 'Available', NationalityList__c: childData.NationalityList__c }).limit(1);
-                            sponsor.child = sponsor.child.filter(sc => sc !== childData.SalesforceID);
-                            sponsor.child.push(availableChild[0].SalesforceID);
-                            availableChild[0].Status__c = 'Sponsored';
-                            await availableChild[0].save();
+            const sponsorships = await this.SponsorshipModel.find({ Status: 'Expired' }).lean(false);
+            if (!sponsorships.length) return false;
 
-                        }
+            for (const sponsor of sponsorships) {
+                const donation = await this.DonationModel.findById(sponsor.donation).lean();
+                if (!donation || donation.StageName !== 'Closed Won') continue;
+
+                // Fetch all children at once
+                const children = await this.ChildModel.find({
+                    SalesforceID: { $in: sponsor.child },
+                });
+
+                const updatedChildren: string[] = [];
+
+                for (const child of children) {
+                    if (child.Status__c === 'Sponsored') {
+                        const availableChild = await this.ChildModel.findOne({
+                            Status__c: 'Available',
+                            NationalityList__c: child.NationalityList__c,
+                        });
+
+                        if (!availableChild) continue;
+
+                        availableChild.Status__c = 'Sponsored';
+                        await availableChild.save();
+
+                        updatedChildren.push(availableChild.SalesforceID);
                     }
-                    console.log('sponsor.child : ', sponsor.child);
-                    const RecurringPayload = {
+
+                    if (child.Status__c === 'Available') {
+                        child.Status__c = 'Sponsored';
+                        await child.save();
+                        updatedChildren.push(child.SalesforceID);
+                    }
+                }
+
+                // Replace only if updates happened
+                if (updatedChildren.length) {
+                    sponsor.child = sponsor.child
+                        .filter(id => !children.some(c => c.SalesforceID === id))
+                        .concat(updatedChildren);
+                }
+
+                // Create recurring donation if missing
+                if (!sponsor.Current_Recurring_Donation__c) {
+                    await this.RecurringModel.create({
                         donorType: 'Open',
                         frequency: sponsor.frequency,
                         donations: sponsor.donation,
@@ -260,17 +288,17 @@ export class SponsorshipService {
                         DayOfMonth: sponsor.Start_Date__c.getDate(),
                         status: 'Active',
                         synchedWithSalesforce: false,
-                    }
-                    const recurringCreated = new this.RecurringModel(RecurringPayload);
-                    await recurringCreated.save();
-                    sponsor.Status = 'Active';
-                    await sponsor.save();
+                    });
                 }
 
+                sponsor.Status = 'Active';
+                await sponsor.save();
             }
-            return sponsorship ? true : false;
+
+            return true;
         } catch (error) {
             throw new InternalServerErrorException(error);
         }
     }
+
 }
