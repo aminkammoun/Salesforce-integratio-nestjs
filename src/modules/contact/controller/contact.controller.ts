@@ -16,7 +16,6 @@ export class ContactController {
     create(@Body() createContactleDto: CreateContactDto) {
         return this.contactService.create(createContactleDto);
     }
-    @UseGuards(JwtAuthGuard)
     @Get('/phone/:phone')
     @ApiOperation({ summary: 'Find contact by phone', description: 'Finds a contact by their phone number.' })
     @ApiResponse({ status: 200, description: 'Contact found successfully' })
