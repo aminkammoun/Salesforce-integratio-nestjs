@@ -1,10 +1,10 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CreateRecurringDto } from '../dto/create-recurring.dto';
 import { RecurringModule } from '../recurring.module';
 import { Recurring } from '../entities/recurring.entity';
 import { Model, Types as MongooseTypes } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { authenticateSalesforce, handleInsertQuery } from 'src/config/utils';
+import { authenticateSalesforce, handleInsertQuery, handleQuery } from 'src/config/utils';
 import { DonationService } from 'src/modules/donation/service/donation.service';
 import { SponsorshipService } from 'src/modules/sponsorship/service/sponsorship.service';
 
@@ -86,5 +86,15 @@ export class RecurringService {
     }
     async findAllBySalesforceID(salesforceID: string[]) {
         return this.RecurringModel.find({ salesforceID });
+    }
+    async findRecurringFromSalesforceByWordpressId(wordpressid: string) {
+        try {
+            const query = `SELECT Id, Name, npe03__Amount__c, npsp__Status__c, npe03__Contact__c,  npe03__Contact__r.Word_Press_Id__c FROM npe03__Recurring_Donation__c WHERE npe03__Contact__c= '${wordpressid}'`;
+            const token = await authenticateSalesforce();
+            const res = await handleQuery('/services/data/v65.0/query/?q=', query, token);
+            return res.records;
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
     }
 }

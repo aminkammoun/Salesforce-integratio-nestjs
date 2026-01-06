@@ -1,6 +1,7 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { SponsorshipService } from '../service/sponsorship.service';
 import { CreateSponsorshipDto } from '../dto/create-sponsorship';
+import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 
 @Controller('sponsorship')
 export class SponsorshipController {
@@ -35,12 +36,13 @@ export class SponsorshipController {
         console.log('Marking children as expired:', childIds);
         return this.sponsorshipService.updateToExpired(childIds);
     }
-    @Get('/getsf/:cnid')
-    getSalesforceDonations(@Param('cnid') cnid: string) {
-        return this.sponsorshipService.findDonationsFromSalesforceByContactId(cnid);
-    }
     @Post('/checkChild')
     async syncChildrenWithSponsorships() {
         return this.sponsorshipService.checkIfChildIsSponsored();
+    }
+    @UseGuards(JwtAuthGuard)
+    @Get('/getsf/:cnid')
+    getSalesforcesp(@Param('cnid') cnid: string) {
+        return this.sponsorshipService.findSpFromSalesforceByWordpressId(cnid);
     }
 }
