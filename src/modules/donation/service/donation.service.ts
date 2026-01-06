@@ -313,7 +313,7 @@ export class DonationService {
     }
     async findDonationsFromSalesforceByWorksheetId(wordpressid: string) {
         try {
-            const query = `SELECT Id, Name, Amount, CloseDate, StageName, npsp__Acknowledgment_Status__c, Donation_Source__c FROM Opportunity WHERE npsp__Primary_Contact__c = '${wordpressid}'`;
+            const query = `SELECT Id, Name, Amount, CloseDate, StageName, npsp__Acknowledgment_Status__c, Donation_Source__c,npsp__Primary_Contact__r.Word_Press_Id__c FROM Opportunity WHERE npsp__Primary_Contact__c= '${wordpressid}'`;
             const token = await authenticateSalesforce();
             const res = await handleQuery('/services/data/v65.0/query/?q=', query, token);
             return res.records;

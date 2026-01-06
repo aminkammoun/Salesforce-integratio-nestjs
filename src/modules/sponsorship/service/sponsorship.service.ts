@@ -219,17 +219,6 @@ export class SponsorshipService {
             throw new InternalServerErrorException(error);
         }
     }
-    async findDonationsFromSalesforceByContactId(contactId: string) {
-        try {
-            const query = `SELECT Id, Child_Name__c, Start_Date__c, End_Date__c, Status__c, Name, Child_Profile_Picture__c FROM Sponsorship__c WHERE Donor__c = '${contactId}'`;
-            const token = await authenticateSalesforce();
-            const res = await handleQuery('/services/data/v65.0/query/?q=', query, token);
-            return res.records;
-        } catch (error) {
-            throw new InternalServerErrorException(error);
-        }
-    }
-
     async checkIfChildIsSponsored(): Promise<boolean> {
         try {
             const sponsorships = await this.SponsorshipModel.find({ Status: 'Expired' }).lean(false);
@@ -300,5 +289,14 @@ export class SponsorshipService {
             throw new InternalServerErrorException(error);
         }
     }
-
+    async findSpFromSalesforceByWordpressId(wordpressid: string) {
+        try {
+            const query = `SELECT Id, Child__c, Child__r.Name, Child__r.Nationality__c, Child__r.First_Name__c, Child__r.Last_Name__c,Child__r.Profile_Picture_Image__c, Status__c, Donor__c, Donor__r.Word_Press_Id__c FROM Sponsorship__c  WHERE Donor__c= '${wordpressid}'`;
+            const token = await authenticateSalesforce();
+            const res = await handleQuery('/services/data/v65.0/query/?q=', query, token);
+            return res.records;
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
+    }
 }
