@@ -258,7 +258,7 @@ export class ChildService {
                     reservedIDs.push(...reservedIds);
                     console.log(reservedIDs);
 
-                    if (reservedIds.length == 0) {
+                    if (reservedIds.length == 0 || availableChildren.length < count) {
                         const sp = await this.sponsorshipService.create({
                             donation: childmap.donationId,
                             donor: childmap.donorId,
@@ -266,7 +266,7 @@ export class ChildService {
                             Status: 'pending',
                             frequency: childmap.frequency,
                             Amount: childmap.Amount,
-                            metadata: 'No available children to be sponsored for nationality ' + nat + ' nationality: ' + nat + ', reservedCount: ' + count
+                            metadata: 'No available children to be sponsored for nationality ' + nat + ', reservedCount: ' + count
                         })
                         finalResult.push(sp)
                         /*reservationResults.push({ message: 'No available children to be sponsored for nationality ' + nat, nationality: nat, reservedCount: reservedIds.length });

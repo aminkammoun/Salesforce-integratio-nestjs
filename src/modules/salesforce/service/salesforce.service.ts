@@ -393,7 +393,7 @@ export class SalesforceService {
         const map = {
             monthly: { interval: 'month', interval_count: 1 },
             quarterly: { interval: 'month', interval_count: 3 },
-            yearly: { interval: 'year', interval_count: 1 },
+            Yearly: { interval: 'year', interval_count: 1 },
         };
         return map[interval] || { interval: 'month', interval_count: 1 };
     }
@@ -403,7 +403,7 @@ export class SalesforceService {
         const days = {
             monthly: 30,
             quarterly: 90,
-            yearly: 365,
+            Yearly: 365,
         };
         const daysToAdd = days[interval] || 30;
         return now + (daysToAdd * 24 * 60 * 60);
