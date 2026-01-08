@@ -259,8 +259,19 @@ export class ChildService {
                     console.log(reservedIDs);
 
                     if (reservedIds.length == 0) {
-                        reservationResults.push({ message: 'No available children to be sponsored for nationality ' + nat, nationality: nat, reservedCount: reservedIds.length });
+                        const sp = await this.sponsorshipService.create({
+                            donation: childmap.donationId,
+                            donor: childmap.donorId,
+                            child: [],
+                            Status: 'pending',
+                            frequency: childmap.frequency,
+                            Amount: childmap.Amount,
+                            metadata: 'No available children to be sponsored for nationality ' + nat + ' nationality: ' + nat + ', reservedCount: ' + reservedIds.length
+                        })
+                        finalResult.push(sp)
+                        /*reservationResults.push({ message: 'No available children to be sponsored for nationality ' + nat, nationality: nat, reservedCount: reservedIds.length });
                         return { message: 'No available children to be sponsored for nationality ' + nat, nationality: nat, reservedCount: reservedIds.length };
+                    */
                     } else if (availableChildren.length < count) {
                         reservationResults.push({ message: 'Not enought available children to be sponsored for nationality ' + nat, nationality: nat, reservedCount: reservedIds.length });
                         return { message: 'Not enought available children to be sponsored for nationality ' + nat, nationality: nat, reservedCount: reservedIds.length };

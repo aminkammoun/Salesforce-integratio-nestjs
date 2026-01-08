@@ -57,6 +57,8 @@ export class Sponsorship extends Document {
     frequency: string;
     @Prop({ required: false })
     Amount: number;
+    @Prop({ required: false })
+    metadata: String;
 }
 
 export const SponsorshipSchema = SchemaFactory.createForClass(Sponsorship);

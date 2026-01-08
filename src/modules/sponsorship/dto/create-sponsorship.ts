@@ -59,5 +59,8 @@ export class CreateSponsorshipDto {
     @ApiPropertyOptional({ description: 'Amount', example: 100 })
     @IsOptional()
     Amount?: number;
+    @ApiPropertyOptional({ description: 'metadata', example: '{}' })
+    @IsOptional()
+    metadata?: String;
 }
 

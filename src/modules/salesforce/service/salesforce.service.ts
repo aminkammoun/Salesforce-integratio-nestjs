@@ -127,7 +127,7 @@ export class SalesforceService {
                     const donationId = object.metadata.donationID;
                     console.log("khal hna")
 
-                    if (item.type == "Recurring" || item.type == "Sponsorship") {
+                    if (item.type.toLowerCase() == "recurring" || item.type.toLowerCase() == "sponsorship") {
                         console.log('customer', customer);
                         await this.processCartItemAfterPayment({
                             item,
