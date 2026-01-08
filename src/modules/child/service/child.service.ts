@@ -266,7 +266,7 @@ export class ChildService {
                             Status: 'pending',
                             frequency: childmap.frequency,
                             Amount: childmap.Amount,
-                            metadata: 'No available children to be sponsored for nationality ' + nat + ' nationality: ' + nat + ', reservedCount: ' + reservedIds.length
+                            metadata: 'No available children to be sponsored for nationality ' + nat + ' nationality: ' + nat + ', reservedCount: ' + count
                         })
                         finalResult.push(sp)
                         /*reservationResults.push({ message: 'No available children to be sponsored for nationality ' + nat, nationality: nat, reservedCount: reservedIds.length });
