@@ -110,18 +110,18 @@ export class SalesforceService {
                 const cartItems = JSON.parse(object.metadata.cart_items);
                 const recurringItem = cartItems.find(item => item.type === 'Recurring' || item.type === 'Sponsorship');
                 console.log("recurringItem " + recurringItem)
-                if (recurringItem) {
-                    const checkCustomer = await this.stripe.customers.search({
-                        query: `metadata['customer_phone']:'${contact.Phone}'`,
-                    });
-                    customer = checkCustomer.data.length > 0 ? checkCustomer.data[0] : this.createStripeCustomer({
-                        email: contact.email,
-                        name: contact.Name,
-                        phone: contact.Phone,
-                    });
 
-                    // customer = await 
-                }
+                const checkCustomer = await this.stripe.customers.search({
+                    query: `metadata['customer_phone']:'${contact.Phone}'`,
+                });
+                customer = checkCustomer.data.length > 0 ? checkCustomer.data[0] : this.createStripeCustomer({
+                    email: contact.email,
+                    name: contact.Name,
+                    phone: contact.Phone,
+                });
+
+                // customer = await 
+
                 for (let i = 0; i < cartItems.length; i++) {
                     const item = cartItems[i];
                     const donationId = object.metadata.donationID;
