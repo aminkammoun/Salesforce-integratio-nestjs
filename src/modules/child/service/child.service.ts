@@ -258,7 +258,7 @@ export class ChildService {
                     reservedIDs.push(...reservedIds);
                     console.log(reservedIDs);
 
-                    if (reservedIds.length == 0) {
+                    if (reservedIds.length == 0 || availableChildren.length < count) {
                         const sp = await this.sponsorshipService.create({
                             donation: childmap.donationId,
                             donor: childmap.donorId,
