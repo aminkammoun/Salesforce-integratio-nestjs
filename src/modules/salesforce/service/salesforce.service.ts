@@ -451,7 +451,7 @@ export class SalesforceService {
         const interval = this.mapIntervalToStripeInterval(item.interval);
 
         const priceCheck = await this.stripe.prices.search({
-            query: `product:"prod_TYxTnm0rvxuSWn" AND metadata['price']:'${item.amount}'`,
+            query: `product:"prod_TYxTnm0rvxuSWn" AND metadata['price']:'${item.amount}' AND metadata['interval']:'${item.interval}'`,
         });
         let price;
         if (priceCheck.data.length > 0) {
