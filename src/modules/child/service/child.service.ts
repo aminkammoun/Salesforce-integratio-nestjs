@@ -253,7 +253,7 @@ export class ChildService {
 
                     }
                     const count = Number((req as any).Requestedcount) || 0;
-                    const availableChildren = await this.ChildModel.find({ NationalityList__c: nat, Status__c: 'Available' }).limit(count)//.session(session);
+                    const availableChildren = await this.ChildModel.find({ NationalityList__c: "Syrian", Status__c: 'Available' }).limit(count)//.session(session);
                     const reservedIds = availableChildren.map(child => String(child.SalesforceID));
                     reservedIDs.push(...reservedIds);
                     console.log(reservedIDs);
