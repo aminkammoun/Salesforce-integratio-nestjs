@@ -320,4 +320,30 @@ export class SponsorshipService {
             throw new InternalServerErrorException(error);
         }
     }
+    async repaireSp() {
+        const sponsorships = await this.SponsorshipModel.find({
+            Status: "Active",
+            Start_Date__c: {
+                $gt: new Date("2026-01-11T23:00:00.000Z"),
+                $lt: new Date("2026-01-12T00:00:00.000Z")
+            }
+        });
+        for (const sponsorship of sponsorships) {
+            const recurring = await this.RecurringModel.create({
+                donorType: 'Open',
+                frequency: sponsorship.frequency,
+                donations: sponsorship.donation,
+                donor: sponsorship.donor,
+                sponsorships: sponsorship._id,
+                amount: sponsorship.Amount,
+                dateEstablished: sponsorship.Start_Date__c,
+                DayOfMonth: sponsorship.Start_Date__c.getDate(),
+                status: 'Active',
+                synchedWithSalesforce: false,
+            });
+            sponsorship.Recurring = recurring._id as string;
+            await sponsorship.save();
+        }
+        return sponsorships;
+    }
 }
