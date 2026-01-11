@@ -263,7 +263,7 @@ export class ChildService {
                             donation: childmap.donationId,
                             donor: childmap.donorId,
                             child: [],
-                            Status: 'pending',
+                            Status: 'Active',
                             frequency: childmap.frequency,
                             Amount: childmap.Amount,
                             metadata: 'No available children to be sponsored for nationality ' + nat + ', reservedCount: ' + count
@@ -278,7 +278,7 @@ export class ChildService {
                     } else {
                         await this.ChildModel.updateMany(
                             { SalesforceID: { $in: reservedIds } },
-                            { $set: { Status__c: 'Reserved', reservedAt: new Date() } }
+                            { $set: { Status__c: 'Sponsored', reservedAt: new Date() } }
                         );
                         reservationResults.push({ message: reservedIds.length + ' ' + nat + ' children has been sponsored', nationality: nat, reservedCount: reservedIds.length });
                     }
@@ -293,7 +293,7 @@ export class ChildService {
                         donation: childmap.donationId,
                         donor: childmap.donorId,
                         child: reservedIDs,
-                        Status: 'pending',
+                        Status: 'Active',
                         frequency: childmap.frequency,
                         Amount: childmap.Amount
                     })

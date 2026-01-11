@@ -365,6 +365,8 @@ export class DonationService {
                 console.log(don);
                 return don;
             })
+            console.log(donations.length);
+            return donations;
         } catch (error) {
             throw new InternalServerErrorException(error);
         }
