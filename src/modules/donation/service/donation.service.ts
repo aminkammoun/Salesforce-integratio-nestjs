@@ -348,20 +348,20 @@ export class DonationService {
                     ...item,
                     interval: don.Amount >= 720 ? "yearly" : "monthly",
                     type: "sponsorship",
-                    nationality: "Syrian",
+                    nationality: "Bangladeshi",
                     childrenCount: don.Amount >= 720 ? (don.Amount / 720) : don.Amount / 60,
                 }));
                 const payloadSp: SponsorshipChilds[] = [{
                     donationId: don._id as string,
                     donorId: don.contact as string,
                     childToreserve: [
-                        { nationality: "Syrian", Requestedcount: don.Amount >= 720 ? (don.Amount / 720) : don.Amount / 60 },
+                        { nationality: "Bangladeshi", Requestedcount: don.Amount >= 720 ? (don.Amount / 720) : don.Amount / 60 },
                     ],
                     frequency: don.frequency,
                     Amount: don.Amount
                 }]
-                //await this.ChildService.reserveChildren(payloadSp);
-                //await don.save();
+                await this.ChildService.reserveChildren(payloadSp);
+                await don.save();
                 console.log(don);
                 return don;
             })
