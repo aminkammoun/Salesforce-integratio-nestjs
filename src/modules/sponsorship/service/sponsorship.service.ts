@@ -221,7 +221,9 @@ export class SponsorshipService {
     }
     async checkIfChildIsSponsored(): Promise<boolean> {
         try {
-            const sponsorships = await this.SponsorshipModel.find({ Status: 'Expired' }).lean(false);
+            const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+
+            const sponsorships = await this.SponsorshipModel.find({ Status: 'Expired', Start_Date__c: { $lte: oneHourAgo } }).lean(false);
             if (!sponsorships.length) return false;
 
             for (const sponsor of sponsorships) {
