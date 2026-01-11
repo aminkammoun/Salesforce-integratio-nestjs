@@ -6,12 +6,14 @@ import { DonationService } from './service/donation.service';
 import { RecurringModule } from '../recurring/recurring.module';
 import { RecurringService } from '../recurring/service/recurring.service';
 import { ContactModule } from '../contact/contact.module';
+import { ChildModule } from '../child/child.module';
 
 @Module({
     imports: [
         forwardRef(() => RecurringModule),
         MongooseModule.forFeature([{ name: Donation.name, schema: DonationSchema }]),
-        forwardRef(() => ContactModule)
+        forwardRef(() => ContactModule),
+        forwardRef(() => ChildModule)
     ],
     controllers: [DonationController],
     providers: [DonationService],
