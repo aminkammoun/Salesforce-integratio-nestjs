@@ -331,7 +331,7 @@ export class DonationService {
         try {
             let donations = await this.DonationModel.find({
                 StageName: 'Closed Won',
-                'cartItems.type': { $in: ['OneTime', 'one-time'] },
+                'cartItems.type': { $in: ['OneTime', 'One-time'] },
                 CloseDate: { $gte: new Date("2026-01-02T00:00:00Z"), $lt: new Date("2026-01-03T00:00:00Z") }
             });
             console.log(donations);
@@ -348,14 +348,14 @@ export class DonationService {
                     ...item,
                     interval: don.Amount >= 720 ? "yearly" : "monthly",
                     type: "sponsorship",
-                    nationality: "Bangladeshi",
+                    nationality: "Syrian",
                     childrenCount: don.Amount >= 720 ? (don.Amount / 720) : don.Amount / 60,
                 }));
                 const payloadSp: SponsorshipChilds[] = [{
                     donationId: don._id as string,
                     donorId: don.contact as string,
                     childToreserve: [
-                        { nationality: "Bangladeshi", Requestedcount: don.Amount >= 720 ? (don.Amount / 720) : don.Amount / 60 },
+                        { nationality: "Syrian", Requestedcount: don.Amount >= 720 ? (don.Amount / 720) : don.Amount / 60 },
                     ],
                     frequency: don.frequency,
                     Amount: don.Amount
