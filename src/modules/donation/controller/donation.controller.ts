@@ -48,6 +48,7 @@ export class DonationController {
     @ApiResponse({ status: 200, description: 'Donation found' })
     @ApiResponse({ status: 404, description: 'Donation not found' })
     findOne(@Param('id') id: string) {
+        console.log('Get donation by ID called with ID:', id);
         return this.donationService.findOneId(id);
     }
 
@@ -70,5 +71,9 @@ export class DonationController {
     @Get('/getsf/:cnid')
     getSalesforceDonations(@Param('cnid') cnid: string) {
         return this.donationService.findDonationsFromSalesforceByWorksheetId(cnid);
+    }
+    @Post('/repaireDon')
+    async repaireDonations() {
+        return this.donationService.repaireDonations();
     }
 }

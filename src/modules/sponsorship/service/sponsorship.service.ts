@@ -234,35 +234,42 @@ export class SponsorshipService {
                 });
 
                 const updatedChildren: string[] = [];
+                const failedReplacements: string[] = [];
 
                 for (const child of children) {
                     if (child.Status__c === 'Sponsored') {
-                        const availableChild = await this.ChildModel.findOne({
-                            Status__c: 'Available',
-                            NationalityList__c: child.NationalityList__c,
-                        });
+                        // Atomically find and update an available child to prevent race conditions
+                        const availableChild = await this.ChildModel.findOneAndUpdate(
+                            {
+                                Status__c: 'Available',
+                                NationalityList__c: child.NationalityList__c,
+                            },
+                            { Status__c: 'Sponsored' },
+                            { new: true }
+                        );
 
-                        if (!availableChild) continue;
-
-                        availableChild.Status__c = 'Sponsored';
-                        await availableChild.save();
-
-                        updatedChildren.push(availableChild.SalesforceID);
+                        if (availableChild) {
+                            updatedChildren.push(availableChild.SalesforceID);
+                        } else {
+                            // No replacement found - keep original child and track failure
+                            updatedChildren.push(child.SalesforceID);
+                            failedReplacements.push(child.SalesforceID);
+                        }
                     }
 
                     if (child.Status__c === 'Available') {
-                        child.Status__c = 'Sponsored';
-                        await child.save();
+                        // Atomically update available child to sponsored
+                        await this.ChildModel.findOneAndUpdate(
+                            { SalesforceID: child.SalesforceID },
+                            { Status__c: 'Sponsored' },
+                            { new: true }
+                        );
                         updatedChildren.push(child.SalesforceID);
                     }
                 }
 
-                // Replace only if updates happened
-                if (updatedChildren.length) {
-                    sponsor.child = sponsor.child
-                        .filter(id => !children.some(c => c.SalesforceID === id))
-                        .concat(updatedChildren);
-                }
+                // Update sponsor with all children (including those without replacements)
+                sponsor.child = updatedChildren;
 
                 // Create recurring donation if missing
                 if (!sponsor.Current_Recurring_Donation__c) {
@@ -278,6 +285,11 @@ export class SponsorshipService {
                         status: 'Active',
                         synchedWithSalesforce: false,
                     });
+                }
+
+                // Set metadata only if some children could not be replaced
+                if (failedReplacements.length > 0) {
+                    sponsor.metadata = `No available children for replacement: [${failedReplacements.join(', ')}]. Check Amount and Reserved Children`;
                 }
 
                 sponsor.Status = 'Active';

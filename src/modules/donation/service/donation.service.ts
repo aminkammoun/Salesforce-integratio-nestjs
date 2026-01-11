@@ -10,6 +10,8 @@ import { authenticateSalesforce, handleInsertQuery, handleQuery } from 'src/conf
 import { Sponsorship } from 'src/modules/sponsorship/entities/sponsorship.entity';
 import { RecurringService } from 'src/modules/recurring/service/recurring.service';
 import { ContactService } from 'src/modules/contact/service/contact.service';
+import { ChildService } from 'src/modules/child/service/child.service';
+import { SponsorshipChilds } from 'src/config/types';
 @Injectable()
 export class DonationService {
     constructor(
@@ -17,6 +19,8 @@ export class DonationService {
         @InjectModel(Recurring.name) private readonly RecurringModel: Model<Recurring>,
         @Inject(forwardRef(() => ContactService)) private readonly contactService: ContactService,
         @Inject(forwardRef(() => RecurringService)) private readonly recurringService: RecurringService,
+        @Inject(forwardRef(() => ChildService)) private readonly ChildService: ChildService,
+
         //@Inject() private readonly recurringService: RecurringService,
         //@Inject() private readonly contactService: ContactService,
 
@@ -103,9 +107,11 @@ export class DonationService {
     }
 
 
-    findOneId(id: string) {
+    async findOneId(id: string) {
         try {
-            const donation = this.DonationModel.findById(new MongooseTypes.ObjectId(id));
+            console.log('Finding donation by ID:', id);
+            const donation = await this.DonationModel.findById(new MongooseTypes.ObjectId(id));
+            console.log('Found donation:', donation);
             return donation;
         } catch (error) {
             throw new InternalServerErrorException(error);
@@ -317,6 +323,48 @@ export class DonationService {
             const token = await authenticateSalesforce();
             const res = await handleQuery('/services/data/v65.0/query/?q=', query, token);
             return res.records;
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
+    }
+    async repaireDonations() {
+        try {
+            let donations = await this.DonationModel.find({
+                StageName: 'Closed Won',
+                'cartItems.type': { $in: ['OneTime', 'one-time'] },
+                CloseDate: { $gte: new Date("2026-01-02T00:00:00Z"), $lt: new Date("2026-01-03T00:00:00Z") }
+            });
+            console.log(donations);
+            //const donations = await this.DonationModel.find({ syncedWithSalesforce: false, StageName: 'Closed Won', frequency : "One-time", });
+            if (!donations) {
+                throw new NotFoundException('donation not found');
+            }
+            donations.map(async (don) => {
+                if (don.Amount % 60 !== 0) {
+                    return don;
+                }
+                don.frequency = don.Amount >= 720 ? "yearly" : "monthly";
+                don.cartItems = don.cartItems.map(item => ({
+                    ...item,
+                    interval: don.Amount >= 720 ? "yearly" : "monthly",
+                    type: "sponsorship",
+                    nationality: "Syrian",
+                    childrenCount: don.Amount >= 720 ? (don.Amount / 720) : don.Amount / 60,
+                }));
+                const payloadSp: SponsorshipChilds[] = [{
+                    donationId: don._id as string,
+                    donorId: don.contact as string,
+                    childToreserve: [
+                        { nationality: "Syrian", Requestedcount: don.Amount >= 720 ? (don.Amount / 720) : don.Amount / 60 },
+                    ],
+                    frequency: don.frequency,
+                    Amount: don.Amount
+                }]
+                //await this.ChildService.reserveChildren(payloadSp);
+                //await don.save();
+                console.log(don);
+                return don;
+            })
         } catch (error) {
             throw new InternalServerErrorException(error);
         }
