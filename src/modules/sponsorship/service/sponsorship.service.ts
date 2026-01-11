@@ -223,7 +223,7 @@ export class SponsorshipService {
         try {
             const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
 
-            const sponsorships = await this.SponsorshipModel.find({ Status: 'Expired', Start_Date__c: { $lte: oneHourAgo } }).lean(false);
+            const sponsorships = await this.SponsorshipModel.find({ Status: 'Expired', Start_Date__c: { $gte: oneHourAgo } }).lean(false);
             if (!sponsorships.length) return false;
 
             for (const sponsor of sponsorships) {
