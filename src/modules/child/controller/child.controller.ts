@@ -43,4 +43,8 @@ export class ChildController {
     async getMostNeededNationalities() {
         return this.childService.getMostNededNationalities();
     }
+    @Post('/markasAvailable')
+    async markAsAvailable() {
+        return this.childService.markAsAvailable();
+    }
 }
