@@ -253,7 +253,7 @@ export class ChildService {
 
                     }
                     const count = Number((req as any).Requestedcount) || 0;
-                    const availableChildren = await this.ChildModel.find({ NationalityList__c: "Bangladeshi", Status__c: 'Available' }).limit(count)//.session(session);
+                    const availableChildren = await this.ChildModel.find({ NationalityList__c: "Syrian", Status__c: 'Available' }).limit(count)//.session(session);
                     const reservedIds = availableChildren.map(child => String(child.SalesforceID));
                     reservedIDs.push(...reservedIds);
                     console.log(reservedIDs);
@@ -269,6 +269,7 @@ export class ChildService {
                             metadata: 'No available children to be sponsored for nationality ' + nat + ', reservedCount: ' + count
                         })
                         finalResult.push(sp)
+                        continue;
                         /*reservationResults.push({ message: 'No available children to be sponsored for nationality ' + nat, nationality: nat, reservedCount: reservedIds.length });
                         return { message: 'No available children to be sponsored for nationality ' + nat, nationality: nat, reservedCount: reservedIds.length };
                     */
