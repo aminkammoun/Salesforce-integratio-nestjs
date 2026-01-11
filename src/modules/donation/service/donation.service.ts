@@ -332,7 +332,7 @@ export class DonationService {
             let donations = await this.DonationModel.find({
                 StageName: 'Closed Won',
                 'cartItems.type': { $in: ['OneTime', 'One-time'] },
-                CloseDate: { $gte: new Date("2026-01-02T00:00:00Z"), $lt: new Date("2026-01-03T00:00:00Z") }
+                CloseDate: { $gte: new Date("2026-01-09T00:00:00Z"), $lt: new Date("2026-01-10T00:00:00Z") }
             });
             console.log(donations);
             //const donations = await this.DonationModel.find({ syncedWithSalesforce: false, StageName: 'Closed Won', frequency : "One-time", });

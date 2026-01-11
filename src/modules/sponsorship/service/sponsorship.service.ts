@@ -279,8 +279,8 @@ export class SponsorshipService {
                 sponsor.child = updatedChildren;
 
                 // Create recurring donation if missing
-                if (!sponsor.Current_Recurring_Donation__c) {
-                    await this.RecurringModel.create({
+                if (!sponsor.Recurring) {
+                    const recurring = await this.RecurringModel.create({
                         donorType: 'Open',
                         frequency: sponsor.frequency,
                         donations: sponsor.donation,
@@ -292,15 +292,17 @@ export class SponsorshipService {
                         status: 'Active',
                         synchedWithSalesforce: false,
                     });
+                    // Set metadata only if some children could not be replaced
+                    if (failedReplacements.length > 0) {
+                        sponsor.metadata = `No available children for replacement: [${failedReplacements.join(', ')}]. Check Amount and Reserved Children`;
+                    }
+
+                    sponsor.Status = 'Active';
+                    sponsor.Recurring = recurring._id as string;
+                    await sponsor.save();
                 }
 
-                // Set metadata only if some children could not be replaced
-                if (failedReplacements.length > 0) {
-                    sponsor.metadata = `No available children for replacement: [${failedReplacements.join(', ')}]. Check Amount and Reserved Children`;
-                }
 
-                sponsor.Status = 'Active';
-                await sponsor.save();
             }
 
             return true;
