@@ -421,7 +421,8 @@ export class SalesforceService {
         donationId: string;
         contact: any;
         customer: any;
-        object: any;
+        object?: any;
+        paymentMethod?: any;
     }) {
         const { item, donationId, contact, customer, object } = params;
 
@@ -485,7 +486,7 @@ export class SalesforceService {
             priceId: price.id,
             trial_end: billingCycleAnchor, // Don't charge until next period
             billing_cycle_anchor: billingCycleAnchor,
-            default_payment_method: object.payment_method,
+            default_payment_method: object.payment_method|| params.paymentMethod,
             metadata: {
                 donationId: donationId,
                 contactId: contact._id.toString(),
@@ -527,5 +528,37 @@ export class SalesforceService {
          }
  
          await donation.save();*/
+    }
+    async createRecurringOnStripe() {
+        //const customer = await this.stripe.customers.retrieve(req.customerId);
+        //console.log('Customer retrieved:', customer);
+        //const interval = this.mapIntervalToStripeInterval(req.interval);
+        const recurring = await this.recurringService.findOneId("69642c1d09d0916d36e9ed3a");
+        if (!recurring) {
+            throw new Error('Recurring donation not found');
+        }
+        const donationId = recurring?.donations?.toString();
+        const donation = await this.donationService.findOneId(donationId);
+        const contact = await this.contactService.findOne(recurring?.donor?.toString());
+        if (!contact) {
+            throw new Error(`Contact ${recurring?.donor?.toString()} not found`);
+        }
+        let customer: any
+        const checkCustomer = await this.stripe.customers.search({
+                    query: `metadata['customer_phone']:'${contact.Phone}'`,
+                });
+                customer = checkCustomer.data.length > 0 ? checkCustomer.data[0] : this.createStripeCustomer({
+                    email: contact.email,
+                    name: contact.Name,
+                    phone: contact.Phone,
+                });
+
+        if (!donation) {
+            throw new Error(`Donation ${donationId} not found`);
+        }
+        const transaction = await this.transactionService.findByDonationId(donationId);
+        if (!transaction) {
+            throw new Error(`Transaction for donation ${donationId} not found`);
+        }
     }
 }

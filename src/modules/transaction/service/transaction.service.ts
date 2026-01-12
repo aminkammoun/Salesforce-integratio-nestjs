@@ -99,4 +99,12 @@ export class TransactionService {
 
         this.logger.log(`✅ Completed. Total updated transactions: ${updatedCount}`);
     }
+    async findByDonationId(donationId: string) {
+        try {
+            const transactions = await this.TransactionModel.find({ donation: new MongooseTypes.ObjectId(donationId) });
+            return transactions;
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
+    }
 }
