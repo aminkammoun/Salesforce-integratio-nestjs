@@ -46,7 +46,9 @@ export class RecurringService {
         });
         return recurring;
     }
-
+    async findOneId(id: string) {
+        return this.RecurringModel.findById(id);
+    }
     async uploadRecurringsToSalesforce() {
         const recurrings = await this.RecurringModel.find({ syncedWithSalesforce: false });
         if (recurrings.length === 0) {
