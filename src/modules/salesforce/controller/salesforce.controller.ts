@@ -68,7 +68,7 @@ export class SalesforceController {
         return await this.salesforceService.setupIntents(body, res);
     }
     @Post('/createSubOnStripe')
-    async createSubOnStripe(@Body() body: any, @Res() res: any) {
-        return await this.salesforceService.createStripeSubscription(body, res);
+    async createSubOnStripe() {
+        return await this.salesforceService.createRecurringOnStripe();
     }
 }
