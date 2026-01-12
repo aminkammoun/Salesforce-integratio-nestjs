@@ -450,8 +450,8 @@ export class SalesforceService {
 
         // Create Stripe price
         const interval = this.mapIntervalToStripeInterval(item.interval);
-
-        const priceCheck = await this.stripe.prices.search({
+        console.log('interval', interval);
+        /*const priceCheck = await this.stripe.prices.search({
             query: `product:"prod_TYxTnm0rvxuSWn" AND metadata['price']:'${item.amount}' AND metadata['interval']:'${item.interval}'`,
         });
         let price;
@@ -545,13 +545,13 @@ export class SalesforceService {
         }
         let customer: any
         const checkCustomer = await this.stripe.customers.search({
-                    query: `metadata['customer_phone']:'${contact.Phone}'`,
-                });
-                customer = checkCustomer.data.length > 0 ? checkCustomer.data[0] : this.createStripeCustomer({
-                    email: contact.email,
-                    name: contact.Name,
-                    phone: contact.Phone,
-                });
+            query: `metadata['customer_phone']:'${contact.Phone}'`,
+        });
+        customer = checkCustomer.data.length > 0 ? checkCustomer.data[0] : this.createStripeCustomer({
+            email: contact.email,
+            name: contact.Name,
+            phone: contact.Phone,
+        });
 
         if (!donation) {
             throw new Error(`Donation ${donationId} not found`);
@@ -562,6 +562,12 @@ export class SalesforceService {
         }
         const stripeGetChargeEvent = await this.stripe.charges.retrieve(transaction[0].transactionID);
         console.log('stripeGetChargeEvent', stripeGetChargeEvent);
-        
+        this.processCartItemAfterPayment({
+            item: donation.cartItems[0],
+            donationId: donationId,
+            contact: contact,
+            customer: customer,
+            object: stripeGetChargeEvent,
+        });
     }
 }
