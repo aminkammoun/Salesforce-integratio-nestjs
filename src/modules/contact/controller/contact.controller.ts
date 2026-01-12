@@ -93,4 +93,10 @@ export class ContactController {
     getSalesforcesp(@Param('cnid') cnid: string) {
         return this.contactService.findcontactFromSalesforceBysfId(cnid);
     }
+    @UseGuards(JwtAuthGuard)
+    @Get('/getsfemail/:email')
+    getcontactSfByEmail(@Param('email') email: string) {
+        console.log('Getting contact from Salesforce by email for email:', email);
+        return this.contactService.findcontactFromSalesforceByEmail(email);
+    }
 }
