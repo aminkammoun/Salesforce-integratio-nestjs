@@ -560,5 +560,8 @@ export class SalesforceService {
         if (!transaction) {
             throw new Error(`Transaction for donation ${donationId} not found`);
         }
+        const stripeGetChargeEvent = await this.stripe.charges.retrieve(transaction[0].transactionID);
+        console.log('stripeGetChargeEvent', stripeGetChargeEvent);
+        
     }
 }
