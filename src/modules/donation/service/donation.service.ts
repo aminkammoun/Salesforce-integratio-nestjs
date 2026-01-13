@@ -160,7 +160,11 @@ export class DonationService {
 
     async uploadDonationsToSalesforce() {
         try {
-            const donations = await this.DonationModel.find({ syncedWithSalesforce: false, Donation_Source__c: 'Fundraising App'});
+            const donations = await this.DonationModel.find({
+                syncedWithSalesforce: false, Donation_Source__c: 'Fundraising App', CloseDate: {
+                    $gt: new Date("2026-01-09T00:00:00.000Z")
+                }
+            });
             if (donations.length === 0) {
                 console.log('No donations to upload to Salesforce');
                 return [];
