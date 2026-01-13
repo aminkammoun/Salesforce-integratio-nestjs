@@ -176,7 +176,7 @@ export class DonationService {
                 const recurringItems = await this.recurringService.findAllBySalesforceID(donation.npe03__Recurring_Donation__c);
                 donation.cartItems.map(async (item, index) => {
                     console.log('index:', index);
-                    console.log('index:', !item.Name.toLowerCase().includes('orphan'));
+                    console.log('Name:', !item.Name.toLowerCase().includes('orphan'));
                     if (item.type.toLowerCase() === 'sponsorship' && !item.sfId) {
                         console.log(item.Name.toLowerCase().includes('orphan') && item.type.toLowerCase() === 'recurring', item)
                         recurringItems.forEach(async recurring => {
@@ -253,7 +253,7 @@ export class DonationService {
                             donation.syncedWithSalesforce = true;
                             await this.update(donation._id as string, { syncedWithSalesforce: donation.syncedWithSalesforce, cartItems: donation.cartItems });
                         }
-                    } else if (item.type.toLowerCase() == 'One-time' && !item.sfId) {
+                    } else if (item.type.toLowerCase() == 'one-time' && !item.sfId) {
                         // Process one-time item immediately and synchronously (no setTimeout)
                         try {
                             console.log('Processing one-time donation item:', item);
@@ -307,16 +307,9 @@ export class DonationService {
                             console.error('Error processing one-time donation item:', err);
                         }
                     }
-
-
                 })
-
-
                 return donation;
-
             })
-
-
         } catch (error) {
             throw new InternalServerErrorException(error);
         }
