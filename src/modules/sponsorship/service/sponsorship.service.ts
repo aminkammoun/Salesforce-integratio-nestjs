@@ -166,7 +166,7 @@ export class SponsorshipService {
     }
 
     async uploadSponsorshipsToSalesforce() {
-        const sponsorships = await this.SponsorshipModel.find({ syncedWithSalesforce: false});
+        const sponsorships = await this.SponsorshipModel.find({ syncedWithSalesforce: false });
         console.log(`Uploading ${sponsorships.length} sponsorships to Salesforce`);
         const sponsorshipDevidedChild: any[] = [];
         //const recurringCreated = await this.recurringService.createRecurring(recurring);
@@ -255,7 +255,8 @@ export class SponsorshipService {
 
             const sponsorships = await this.SponsorshipModel.find({
                 Status: { $in: ['Expired', 'Active'] }, Start_Date__c: {
-                    $gt: new Date("2026-01-09T00:00:00.000Z")                }
+                    $gt: new Date("2026-01-09T00:00:00.000Z")
+                }
             }).lean(false);
             if (!sponsorships.length) return false;
 
@@ -379,6 +380,17 @@ export class SponsorshipService {
             const result = await this.SponsorshipModel.updateMany(
                 { metadata: { $ne: null } },
                 { $set: { child: [] } }
+            );
+            return result;
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
+    }
+    async updateSpBycontactSfId(donorId: string, contactSfId: string) {
+        try {
+            const result = await this.SponsorshipModel.updateMany(
+                { donor: donorId },
+                { $set: { contactSfId } }
             );
             return result;
         } catch (error) {
