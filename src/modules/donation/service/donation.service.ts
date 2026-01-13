@@ -160,7 +160,7 @@ export class DonationService {
 
     async uploadDonationsToSalesforce() {
         try {
-            const donations = await this.DonationModel.find({ syncedWithSalesforce: false, Donation_Source__c: 'Fundraising App' });
+            const donations = await this.DonationModel.find({ syncedWithSalesforce: false, Donation_Source__c: 'Fundraising App'});
             if (donations.length === 0) {
                 console.log('No donations to upload to Salesforce');
                 return [];
@@ -249,7 +249,7 @@ export class DonationService {
                             donation.syncedWithSalesforce = true;
                             await this.update(donation._id as string, { syncedWithSalesforce: donation.syncedWithSalesforce, cartItems: donation.cartItems });
                         }
-                    } else if (item.type.toLowerCase() === 'One-time' && !item.sfId) {
+                    } else if (item.type.toLowerCase() == 'One-time' && !item.sfId) {
                         // Process one-time item immediately and synchronously (no setTimeout)
                         try {
                             console.log('Processing one-time donation item:', item);
