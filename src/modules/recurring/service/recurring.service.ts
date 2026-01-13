@@ -85,7 +85,7 @@ export class RecurringService {
                 await this.donationService.updateDonationWithRecurringSalesforceID(recurring.donations.toString(), result.salesforceId);
                 await this.sponsorshipService.updateDonationWithRecurringSalesforceID(recurring.sponsorships.toString(), result.salesforceId);
                 const GAUPayload = {
-                    npsp__Opportunity__c: result.salesforceId,
+                    npsp__Recurring_Donation__c: result.salesforceId,
                     npsp__General_Accounting_Unit__c: "a0e8W00000il33MQAQ",
                     npsp__Amount__c: recurring.amount,
                 };
