@@ -495,7 +495,7 @@ export class SalesforceService {
         }, {});
 
         this.logger.log(`Created subscription ${subscription.id} for ${item.type}`);
-
+        return {subs : subscription.id, customer : customer.id};
         /* // Create recurring donation record
          const recurringDonation = await this.recurringService.createRecurring({
              donorType: "Contact",
@@ -533,7 +533,7 @@ export class SalesforceService {
         //const customer = await this.stripe.customers.retrieve(req.customerId);
         //console.log('Customer retrieved:', customer);
         //const interval = this.mapIntervalToStripeInterval(req.interval);
-        const recurring = await this.recurringService.findOneId("69642c1d09d0916d36e9ed4c");
+        const recurring = await this.recurringService.findOneId("69642c1d09d0916d36e9ed3a");
         if (!recurring) {
             throw new Error('Recurring donation not found');
         }
@@ -562,12 +562,24 @@ export class SalesforceService {
         }
         const stripeGetChargeEvent = await this.stripe.charges.retrieve(transaction[0].transactionID);
         console.log('stripeGetChargeEvent', stripeGetChargeEvent);
-        this.processCartItemAfterPayment({
+        const processCartItemAfterPayment = await this.processCartItemAfterPayment({
             item: donation.cartItems[0],
             donationId: donationId,
             contact: contact,
             customer: customer,
             object: stripeGetChargeEvent,
         });
+        recurring.customerStripe = processCartItemAfterPayment?.customer || '';
+        recurring.subscriptionStripe = processCartItemAfterPayment?.subs || '';
+        donation.transactionDetails = {
+            captured : "yes",
+            currency : stripeGetChargeEvent.currency,   
+            intent_id : stripeGetChargeEvent.payment_intent?.toString() || '',
+            source_id : stripeGetChargeEvent.payment_method?.toString() || '',
+            customer_id : stripeGetChargeEvent.customer?.toString() || '',
+        }
+        await donation.save();
+        await recurring.save();
+        return recurring;
     }
 }

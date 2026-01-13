@@ -95,6 +95,9 @@ export class TransactionDetailDto {
 
     @ApiPropertyOptional({ description: 'Payment method type', example: 'card' })
     payment_type?: string;
+    @ApiPropertyOptional({ description: 'if subscription_id', example: 'syb_xxxxxxx' })
+
+    subscription_id?: string;
 }
 export class CreateDonationDto {
     @ApiPropertyOptional({

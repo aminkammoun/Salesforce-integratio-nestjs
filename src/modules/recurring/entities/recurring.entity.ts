@@ -49,7 +49,9 @@ export class Recurring extends Document {
     @Prop({ required: false, default: false })
     syncedWithSalesforce: boolean;
     @Prop({ required: false })
-    customerStipe: string
+    customerStripe: string
+    @Prop({ required: false })
+    subscriptionStripe: string
 }
 
 export const RecurringSchema = SchemaFactory.createForClass(Recurring);
