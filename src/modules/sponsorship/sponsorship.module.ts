@@ -9,9 +9,7 @@ import { DonationModule } from '../donation/donation.module';
 import { ChildModule } from '../child/child.module';
 @Module({
     imports: [
-
         forwardRef(() => DonationModule),
-        forwardRef(() => SponsorshipModule),
         forwardRef(() => RecurringModule),
         forwardRef(() => ChildModule),
         MongooseModule.forFeature([{ name: Sponsorship.name, schema: SponsorshipSchema }]),

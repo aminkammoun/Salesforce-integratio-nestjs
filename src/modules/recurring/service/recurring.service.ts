@@ -2,11 +2,12 @@ import { forwardRef, Inject, Injectable, InternalServerErrorException } from '@n
 import { CreateRecurringDto } from '../dto/create-recurring.dto';
 import { RecurringModule } from '../recurring.module';
 import { Recurring } from '../entities/recurring.entity';
-import { Model, Types as MongooseTypes } from 'mongoose';
+import { Model, Types as MongooseTypes, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { authenticateSalesforce, handleInsertQuery, handleQuery } from 'src/config/utils';
 import { DonationService } from 'src/modules/donation/service/donation.service';
 import { SponsorshipService } from 'src/modules/sponsorship/service/sponsorship.service';
+import { TransactionService } from 'src/modules/transaction/service/transaction.service';
 
 
 @Injectable()
@@ -14,6 +15,8 @@ export class RecurringService {
     constructor(
         @Inject(forwardRef(() => DonationService)) private readonly donationService: DonationService,
         @Inject(forwardRef(() => SponsorshipService)) private readonly sponsorshipService: SponsorshipService,
+        @Inject(forwardRef(() => TransactionService)) private readonly TransactionService: TransactionService,
+
         @InjectModel(Recurring.name) private readonly RecurringModel: Model<Recurring>
 
     ) { }
@@ -113,7 +116,33 @@ export class RecurringService {
             throw new InternalServerErrorException(error);
         }
     }
-    async findRecurringIds() {
-        return this.RecurringModel.find({}, { _id: 1 });
+    async updateRecurringsWithPaymentData() {
+        try {
+            const recurrings = await this.RecurringModel.find({
+                status: "Active",
+                syncedWithSalesforce: false,
+                _id: new Types.ObjectId("696012dc0332fcf2361375e0")
+            });
+            const transactionData = await this.TransactionService.findOne(recurrings[0].donations.toString());
+            const donationData = await this.donationService.findOneId(recurrings[0].donations.toString());
+
+            if (transactionData) {
+                recurrings[0].npsp__PaymentMethod__c = transactionData.Payment__Credit_Card_Type__c;
+            }
+            recurrings[0].npe03__Recurring_Donation_Campaign__c = donationData?.campaignId || '';
+            await recurrings[0].save();
+
+            return recurrings;
+            /*for(const recurring of recurrings) {
+                // Assume we have a method to fetch payment data from Stripe
+               const transactionData = await this.TransactionService.findOne(recurring.donations.toString());
+               const donationData = await this.donationService.findOneId(recurring.donations.toString());
+               if(!transactionData) continue;
+               recurring.npsp__PaymentMethod__c = transactionData.Payment__Credit_Card_Type__c;
+               recurring.npe03__Recurring_Donation_Campaign__c = donationData?.campaignId || '';
+            }*/
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
     }
 }
