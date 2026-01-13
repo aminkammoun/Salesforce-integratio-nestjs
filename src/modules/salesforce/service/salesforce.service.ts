@@ -606,7 +606,7 @@ export class SalesforceService {
                         donation.npsp__Primary_Contact__c = contact.salesforceID;
                         await donation.save();
                     }
-                    const sponsorship = await this.sponsorshipService.updateSpBycontactSfId((contact._id as string).toString(), contact?.salesforceID.toString());
+                    //const sponsorship = await this.sponsorshipService.updateSpBycontactSfId((contact._id as string).toString(), contact?.salesforceID.toString());
 
                     this.logger.log(`Updated recurring ${rec._id} with Contact Salesforce ID ${contact.salesforceID}`);
                 }
