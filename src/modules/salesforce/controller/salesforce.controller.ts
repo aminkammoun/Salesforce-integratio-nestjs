@@ -71,4 +71,8 @@ export class SalesforceController {
     async createSubOnStripe() {
         return await this.salesforceService.createRecurringOnStripe();
     }
+    @Post('/updateBycontactSfId')
+    async updateBycontactSfId() {
+        return await this.salesforceService.updateRecurringsWithContactSalesforceID();
+    }
 }
