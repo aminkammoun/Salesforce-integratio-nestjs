@@ -106,7 +106,7 @@ export class RecurringService {
                 effectiveDate: {
                     $gt: new Date("2026-01-09T00:00:00.000Z")
                 },
-                customerStripe: null
+                customerStipe: null
             });
             return recurrings;
         } catch (error) {
