@@ -49,4 +49,8 @@ export class SponsorshipController {
     async repaireSp() {
         return this.sponsorshipService.repaireSp();
     }
+    @Post('/deleteChild')
+    async deleteChild() {
+        return this.sponsorshipService.deleteChildFromSponsorships();
+    }
 }

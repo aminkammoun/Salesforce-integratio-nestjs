@@ -51,6 +51,8 @@ export class Recurring extends Document {
     @Prop({ required: false })
     customerStripe: string
     @Prop({ required: false })
+    customerStipe: string
+    @Prop({ required: false })
     subscriptionStripe: string
     @Prop({ required: false })
     npsp__PaymentMethod__c: string

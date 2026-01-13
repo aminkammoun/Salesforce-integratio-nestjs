@@ -376,4 +376,15 @@ export class SponsorshipService {
         }
         return sponsorships;
     }
+    async deleteChildFromSponsorships() {
+        try {
+            const result = await this.SponsorshipModel.updateMany(
+                { metadata: { $ne: null } },
+                { $set: { child: [] } }
+            );
+            return result;
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
+    }
 }
