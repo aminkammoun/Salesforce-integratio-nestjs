@@ -255,9 +255,7 @@ export class SponsorshipService {
 
             const sponsorships = await this.SponsorshipModel.find({
                 Status: { $in: ['Expired', 'Active'] }, Start_Date__c: {
-                    $gt: new Date("2026-01-09T00:00:00.000Z"),
-                    $lt: new Date("2026-01-10T00:00:00.000Z")
-                }
+                    $gt: new Date("2026-01-09T00:00:00.000Z")                }
             }).lean(false);
             if (!sponsorships.length) return false;
 
