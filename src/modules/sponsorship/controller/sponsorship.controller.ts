@@ -53,4 +53,8 @@ export class SponsorshipController {
     async deleteChild() {
         return this.sponsorshipService.deleteChildFromSponsorships();
     }
+    @Post('/updateBycontactSfId')
+    async updateBycontactSfId() {
+        return await this.sponsorshipService.updateSpBycontactSfId();
+    }
 }

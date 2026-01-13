@@ -149,5 +149,7 @@ export class RecurringService {
         } catch (error) {
             throw new InternalServerErrorException(error);
         }
+        
     }
+     
 }

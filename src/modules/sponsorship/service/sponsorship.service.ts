@@ -386,12 +386,16 @@ export class SponsorshipService {
             throw new InternalServerErrorException(error);
         }
     }
-    async updateSpBycontactSfId(donorId: string, contactSfId: string) {
+    async updateSpBycontactSfId() {
         try {
-            const result = await this.SponsorshipModel.updateMany(
-                { donor: donorId },
-                { $set: { contactSfId } }
-            );
+            const result = await this.SponsorshipModel.find();
+            for (const sponsorship of result) {
+                const donation = await this.DonationModel.findById(sponsorship.donation);
+                if (donation) {
+                    sponsorship.Donor__c = donation.npsp__Primary_Contact__c;
+                    await sponsorship.save();
+                }
+            }
             return result;
         } catch (error) {
             throw new InternalServerErrorException(error);
