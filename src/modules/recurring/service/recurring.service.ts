@@ -2,7 +2,7 @@ import { forwardRef, Inject, Injectable, InternalServerErrorException } from '@n
 import { CreateRecurringDto } from '../dto/create-recurring.dto';
 import { RecurringModule } from '../recurring.module';
 import { Recurring } from '../entities/recurring.entity';
-import { Model, Types as MongooseTypes, Types } from 'mongoose';
+import { Model, Types as MongooseTypes, Types, ObjectId } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { authenticateSalesforce, handleInsertQuery, handleQuery } from 'src/config/utils';
 import { DonationService } from 'src/modules/donation/service/donation.service';
@@ -53,11 +53,12 @@ export class RecurringService {
         return this.RecurringModel.findById(id);
     }
     async uploadRecurringsToSalesforce() {
-        const recurrings = await this.RecurringModel.find({ syncedWithSalesforce: false });
+        const recurrings = await this.RecurringModel.find({ syncedWithSalesforce: false, _id : new MongooseTypes.ObjectId('696012dc0332fcf2361375e0') });
         if (recurrings.length === 0) {
             console.log('No donations to upload to Salesforce');
             return [];
         }
+        console.log(`Uploading ${recurrings.length} recurrings to Salesforce`);
         const token = await authenticateSalesforce();
         const salesforcePayloads = recurrings.map(async recurring => {
 
@@ -83,6 +84,12 @@ export class RecurringService {
                 await recurring.save();
                 await this.donationService.updateDonationWithRecurringSalesforceID(recurring.donations.toString(), result.salesforceId);
                 await this.sponsorshipService.updateDonationWithRecurringSalesforceID(recurring.sponsorships.toString(), result.salesforceId);
+                const GAUPayload = {
+                    npsp__Opportunity__c: result.salesforceId,
+                    npsp__General_Accounting_Unit__c: "a0e8W00000il33MQAQ",
+                    npsp__Amount__c: recurring.amount,
+                };
+                await handleInsertQuery('/services/data/v65.0/sobjects/', 'npsp__Allocation__c/', GAUPayload, token);
             }
 
         })
@@ -124,13 +131,13 @@ export class RecurringService {
                 status: "Active",
                 syncedWithSalesforce: false,
             });
-            for(const recurring of recurrings) {
+            for (const recurring of recurrings) {
                 // Assume we have a method to fetch payment data from Stripe
-               const transactionData = await this.TransactionService.findByDonationId(recurring.donations.toString());
-               const donationData = await this.donationService.findOneId(recurring.donations.toString());
-               if(!transactionData) continue;
-               recurring.npsp__PaymentMethod__c = transactionData[0].Payment__Credit_Card_Type__c;
-               recurring.npe03__Recurring_Donation_Campaign__c = donationData?.campaignId || '';
+                const transactionData = await this.TransactionService.findByDonationId(recurring.donations.toString());
+                const donationData = await this.donationService.findOneId(recurring.donations.toString());
+                if (!transactionData) continue;
+                recurring.npsp__PaymentMethod__c = transactionData[0].Payment__Credit_Card_Type__c;
+                recurring.npe03__Recurring_Donation_Campaign__c = donationData?.campaignId || '';
                 await recurring.save();
 
             }
