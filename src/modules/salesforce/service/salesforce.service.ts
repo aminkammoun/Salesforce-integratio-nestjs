@@ -451,7 +451,7 @@ export class SalesforceService {
         // Create Stripe price
         const interval = this.mapIntervalToStripeInterval(item.interval);
         console.log('interval', interval);
-        /*const priceCheck = await this.stripe.prices.search({
+        const priceCheck = await this.stripe.prices.search({
             query: `product:"prod_TYxTnm0rvxuSWn" AND metadata['price']:'${item.amount}' AND metadata['interval']:'${item.interval}'`,
         });
         let price;
