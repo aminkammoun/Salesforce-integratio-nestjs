@@ -593,4 +593,27 @@ export class SalesforceService {
         }
 
     }
+    async updateRecurringsWithContactSalesforceID() {
+        const recurrings = await this.recurringService.findAll();
+        for (const rec of recurrings) {
+            try {
+                const donation = await this.donationService.findOneId(rec?.donations?.toString());
+                const contact = await this.contactService.findOne(rec?.donor?.toString());
+                if (contact && contact.salesforceID && !rec.npe03__Contact__c) {
+                    rec.npe03__Contact__c = contact.salesforceID;
+                    await rec.save();
+                    if (donation) {
+                        donation.npsp__Primary_Contact__c = contact.salesforceID;
+                        await donation.save();
+                    }
+                    const sponsorship = await this.sponsorshipService.updateSpBycontactSfId((contact._id as string).toString(), contact?.salesforceID.toString());
+
+                    this.logger.log(`Updated recurring ${rec._id} with Contact Salesforce ID ${contact.salesforceID}`);
+                }
+            } catch (error) {
+                this.logger.error(`Error updating recurring ${rec._id}:`, error.message);
+                continue; // Continue with next recurring donation instead of failing entire process
+            }
+        }
+    }
 }
