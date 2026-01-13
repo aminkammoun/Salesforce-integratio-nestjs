@@ -71,6 +71,8 @@ export class RecurringService {
                 npe03__Date_Established__c: recurring.dateEstablished,
                 npsp__Day_of_Month__c: recurring.DayOfMonth,
                 npsp__Status__c: recurring.status,
+                npsp__PaymentMethod__c: recurring.npsp__PaymentMethod__c,
+                npe03__Recurring_Donation_Campaign__c: recurring.npe03__Recurring_Donation_Campaign__c,
                 //RecordTypeId: donation.RecordTypeId,
             };
             const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'npe03__Recurring_Donation__c/', payload, token);
