@@ -249,7 +249,7 @@ export class DonationService {
                             donation.syncedWithSalesforce = true;
                             await this.update(donation._id as string, { syncedWithSalesforce: donation.syncedWithSalesforce, cartItems: donation.cartItems });
                         }
-                    } else if (item.type.toLowerCase() === 'onetime' && !item.sfId) {
+                    } else if (item.type.toLowerCase() === 'One-time' && !item.sfId) {
                         // Process one-time item immediately and synchronously (no setTimeout)
                         try {
                             console.log('Processing one-time donation item:', item);
