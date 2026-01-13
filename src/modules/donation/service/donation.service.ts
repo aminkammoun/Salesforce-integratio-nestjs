@@ -327,6 +327,7 @@ export class DonationService {
     async repaireDonations() {
         try {
             let donations = await this.DonationModel.find({
+                syncedWithSalesforce : false,
                 StageName: 'Closed Won',
                 'cartItems.type': { $in: ['sponsorship'] },
                 CloseDate: { $gte: new Date("2026-01-09T00:00:00Z") }
