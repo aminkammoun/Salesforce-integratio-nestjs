@@ -166,7 +166,7 @@ export class SponsorshipService {
     }
 
     async uploadSponsorshipsToSalesforce() {
-        const sponsorships = await this.SponsorshipModel.find({ syncedWithSalesforce: false, _id : new MongooseTypes.ObjectId('696012d40332fcf2361375da') });
+        const sponsorships = await this.SponsorshipModel.find({ syncedWithSalesforce: false, _id: new MongooseTypes.ObjectId('696012d40332fcf2361375da') });
         console.log(`Uploading ${sponsorships.length} sponsorships to Salesforce`);
         const sponsorshipDevidedChild: any[] = [];
         //const recurringCreated = await this.recurringService.createRecurring(recurring);
@@ -174,7 +174,36 @@ export class SponsorshipService {
             const token = await authenticateSalesforce();
             console.log('Using Bearer Token for sponsorship upload:', token);
             for (const sponsorship of sponsorships) {
-                for (const child of sponsorship.child) {
+                if (sponsorship.child && sponsorship.child.length > 0) {
+                    for (const child of sponsorship.child) {
+                        const timestamp = new Date().getTime();
+                        const random = Math.floor(Math.random() * 1000);
+
+                        /* sponsorshipDevidedChild.push({
+                            sponsorshipID: `SP${timestamp}${random}`,
+                            child: child,
+        
+        
+                            Status: sponsorship.Status,
+                            Donor__c: sponsorship.Donor__c,
+                            Start_Date__c: sponsorship.Start_Date__c,
+                            Current_Recurring_Donation__c: sponsorship.Current_Recurring_Donation__c,
+                        }) */
+                        let payload: any
+                        payload = {
+                            //sponsorshipID: `SP${timestamp}${random}`,
+                            Child__c: child,
+                            Status__c: sponsorship.Status,
+                            Donor__c: sponsorship.Donor__c,
+                            Start_Date__c: sponsorship.Start_Date__c,
+                            Current_Recurring_Donation__c: sponsorship.Current_Recurring_Donation__c,
+                        };
+                        const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Sponsorship__c/', payload, token);
+                        sponsorship.salesforceID = result.salesforceId;
+                        sponsorship.syncedWithSalesforce = true;
+                        await sponsorship.save();
+                    }
+                } else {
                     const timestamp = new Date().getTime();
                     const random = Math.floor(Math.random() * 1000);
 
@@ -191,7 +220,7 @@ export class SponsorshipService {
                     let payload: any
                     payload = {
                         //sponsorshipID: `SP${timestamp}${random}`,
-                        Child__c: child,
+                        //Child__c: child,
                         Status__c: sponsorship.Status,
                         Donor__c: sponsorship.Donor__c,
                         Start_Date__c: sponsorship.Start_Date__c,
