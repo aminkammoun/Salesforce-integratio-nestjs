@@ -5,12 +5,13 @@ import { RecurringController } from './controller/recurring.controller';
 import { RecurringService } from './service/recurring.service';
 import { DonationModule } from '../donation/donation.module';
 import { SponsorshipModule } from '../sponsorship/sponsorship.module';
+import { TransactionModule } from '../transaction/transaction.module';
 
 @Module({
     imports: [
         forwardRef(() => DonationModule),
         forwardRef(() => SponsorshipModule),
-
+        forwardRef(() => TransactionModule),
         MongooseModule.forFeature([{ name: Recurring.name, schema: RecurringSchema }]),
     ],
     controllers: [RecurringController],
