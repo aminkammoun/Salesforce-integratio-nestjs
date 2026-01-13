@@ -533,7 +533,7 @@ export class SalesforceService {
         //const customer = await this.stripe.customers.retrieve(req.customerId);
         //console.log('Customer retrieved:', customer);
         //const interval = this.mapIntervalToStripeInterval(req.interval);
-        const recurring = await this.recurringService.findOneId("69642c1d09d0916d36e9ed3a");
+        const recurring = await this.recurringService.findOneId("69642c1d09d0916d36e9ed4c");
         if (!recurring) {
             throw new Error('Recurring donation not found');
         }
