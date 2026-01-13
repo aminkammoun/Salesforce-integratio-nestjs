@@ -45,5 +45,8 @@ export class CreateRecurringDto {
     salesforceID?: string
     @ApiPropertyOptional({ description: 'Stripe customer id', example: 1 })
     @IsOptional()
-    customerStipe?: string;
+    customerStripe?: string;
+    @ApiPropertyOptional({ description: 'Stripe subscription id', example: 1 })
+    @IsOptional()
+    subscriptionStripe?: string;
 }
