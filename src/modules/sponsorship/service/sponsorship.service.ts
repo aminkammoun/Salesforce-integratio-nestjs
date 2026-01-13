@@ -166,7 +166,7 @@ export class SponsorshipService {
     }
 
     async uploadSponsorshipsToSalesforce() {
-        const sponsorships = await this.SponsorshipModel.find({ syncedWithSalesforce: false, _id: new MongooseTypes.ObjectId('696012d40332fcf2361375da') });
+        const sponsorships = await this.SponsorshipModel.find({ syncedWithSalesforce: false});
         console.log(`Uploading ${sponsorships.length} sponsorships to Salesforce`);
         const sponsorshipDevidedChild: any[] = [];
         //const recurringCreated = await this.recurringService.createRecurring(recurring);

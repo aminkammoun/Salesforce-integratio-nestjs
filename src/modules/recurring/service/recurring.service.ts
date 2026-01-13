@@ -53,7 +53,7 @@ export class RecurringService {
         return this.RecurringModel.findById(id);
     }
     async uploadRecurringsToSalesforce() {
-        const recurrings = await this.RecurringModel.find({ syncedWithSalesforce: false, _id: new MongooseTypes.ObjectId('69642c1d09d0916d36e9ed3a') });
+        const recurrings = await this.RecurringModel.find({ syncedWithSalesforce: false });
         if (recurrings.length === 0) {
             console.log('No donations to upload to Salesforce');
             return [];
