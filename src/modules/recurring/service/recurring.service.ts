@@ -126,21 +126,18 @@ export class RecurringService {
             const transactionData = await this.TransactionService.findByDonationId(recurrings[0].donations.toString());
             const donationData = await this.donationService.findOneId(recurrings[0].donations.toString());
 
-            if (transactionData) {
-                recurrings[0].npsp__PaymentMethod__c = transactionData[0].Payment__Credit_Card_Type__c;
-            }
-            recurrings[0].npe03__Recurring_Donation_Campaign__c = donationData?.campaignId || '';
-            await recurrings[0].save();
-
-            return recurrings;
-            /*for(const recurring of recurrings) {
+            
+            for(const recurring of recurrings) {
                 // Assume we have a method to fetch payment data from Stripe
-               const transactionData = await this.TransactionService.findOne(recurring.donations.toString());
+               const transactionData = await this.TransactionService.findByDonationId(recurring.donations.toString());
                const donationData = await this.donationService.findOneId(recurring.donations.toString());
                if(!transactionData) continue;
-               recurring.npsp__PaymentMethod__c = transactionData.Payment__Credit_Card_Type__c;
+               recurring.npsp__PaymentMethod__c = transactionData[0].Payment__Credit_Card_Type__c;
                recurring.npe03__Recurring_Donation_Campaign__c = donationData?.campaignId || '';
-            }*/
+                await recurring.save();
+
+            }
+            return recurrings;
         } catch (error) {
             throw new InternalServerErrorException(error);
         }
