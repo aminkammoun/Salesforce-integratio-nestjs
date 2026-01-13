@@ -388,7 +388,7 @@ export class SponsorshipService {
     }
     async updateSpBycontactSfId() {
         try {
-            const result = await this.SponsorshipModel.find();
+            const result = await this.SponsorshipModel.find({syncedWithSalesforce :false});
             for (const sponsorship of result) {
                 const donation = await this.DonationModel.findById(sponsorship.donation);
                 if (donation) {
