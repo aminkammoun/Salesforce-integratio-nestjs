@@ -99,4 +99,21 @@ export class RecurringService {
             throw new InternalServerErrorException(error);
         }
     }
+    async findAll() {
+        try {
+            const recurrings = await this.RecurringModel.find({
+                status: "Active",
+                effectiveDate: {
+                    $gt: new Date("2026-01-09T00:00:00.000Z")
+                },
+                customerStripe: null
+            });
+            return recurrings;
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
+    }
+    async findRecurringIds() {
+        return this.RecurringModel.find({}, { _id: 1 });
+    }
 }
