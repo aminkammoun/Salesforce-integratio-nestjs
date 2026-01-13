@@ -121,12 +121,7 @@ export class RecurringService {
             const recurrings = await this.RecurringModel.find({
                 status: "Active",
                 syncedWithSalesforce: false,
-                _id: new Types.ObjectId("696012dc0332fcf2361375e0")
             });
-            const transactionData = await this.TransactionService.findByDonationId(recurrings[0].donations.toString());
-            const donationData = await this.donationService.findOneId(recurrings[0].donations.toString());
-
-            
             for(const recurring of recurrings) {
                 // Assume we have a method to fetch payment data from Stripe
                const transactionData = await this.TransactionService.findByDonationId(recurring.donations.toString());
