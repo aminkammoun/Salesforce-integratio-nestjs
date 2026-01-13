@@ -123,11 +123,11 @@ export class RecurringService {
                 syncedWithSalesforce: false,
                 _id: new Types.ObjectId("696012dc0332fcf2361375e0")
             });
-            const transactionData = await this.TransactionService.findOne(recurrings[0].donations.toString());
+            const transactionData = await this.TransactionService.findByDonationId(recurrings[0].donations.toString());
             const donationData = await this.donationService.findOneId(recurrings[0].donations.toString());
 
             if (transactionData) {
-                recurrings[0].npsp__PaymentMethod__c = transactionData.Payment__Credit_Card_Type__c;
+                recurrings[0].npsp__PaymentMethod__c = transactionData[0].Payment__Credit_Card_Type__c;
             }
             recurrings[0].npe03__Recurring_Donation_Campaign__c = donationData?.campaignId || '';
             await recurrings[0].save();
