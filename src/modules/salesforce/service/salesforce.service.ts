@@ -486,7 +486,7 @@ export class SalesforceService {
             priceId: price.id,
             trial_end: billingCycleAnchor, // Don't charge until next period
             billing_cycle_anchor: billingCycleAnchor,
-            default_payment_method: object.payment_method|| params.paymentMethod,
+            default_payment_method: object.payment_method || params.paymentMethod,
             metadata: {
                 donationId: donationId,
                 contactId: contact._id.toString(),
@@ -495,7 +495,7 @@ export class SalesforceService {
         }, {});
 
         this.logger.log(`Created subscription ${subscription.id} for ${item.type}`);
-        return {subs : subscription.id, customer : customer.id};
+        return { subs: subscription.id, customer: customer.id };
         /* // Create recurring donation record
          const recurringDonation = await this.recurringService.createRecurring({
              donorType: "Contact",
@@ -533,53 +533,64 @@ export class SalesforceService {
         //const customer = await this.stripe.customers.retrieve(req.customerId);
         //console.log('Customer retrieved:', customer);
         //const interval = this.mapIntervalToStripeInterval(req.interval);
-        const recurring = await this.recurringService.findOneId("69642c1d09d0916d36e9ed3a");
+        const recurring = await this.recurringService.findAll();
         if (!recurring) {
             throw new Error('Recurring donation not found');
         }
-        const donationId = recurring?.donations?.toString();
-        const donation = await this.donationService.findOneId(donationId);
-        const contact = await this.contactService.findOne(recurring?.donor?.toString());
-        if (!contact) {
-            throw new Error(`Contact ${recurring?.donor?.toString()} not found`);
-        }
-        let customer: any
-        const checkCustomer = await this.stripe.customers.search({
-            query: `metadata['customer_phone']:'${contact.Phone}'`,
-        });
-        customer = checkCustomer.data.length > 0 ? checkCustomer.data[0] : this.createStripeCustomer({
-            email: contact.email,
-            name: contact.Name,
-            phone: contact.Phone,
-        });
+        for (const rec of recurring) {
+            try {
 
-        if (!donation) {
-            throw new Error(`Donation ${donationId} not found`);
+
+                const donationId = rec?.donations?.toString();
+                const donation = await this.donationService.findOneId(donationId);
+                const contact = await this.contactService.findOne(rec?.donor?.toString());
+                if (!contact) {
+                    throw new Error(`Contact ${rec?.donor?.toString()} not found`);
+                }
+                let customer: any
+                const checkCustomer = await this.stripe.customers.search({
+                    query: `metadata['customer_phone']:'${contact.Phone}'`,
+                });
+                customer = checkCustomer.data.length > 0 ? checkCustomer.data[0] : this.createStripeCustomer({
+                    email: contact.email,
+                    name: contact.Name,
+                    phone: contact.Phone,
+                });
+
+                if (!donation) {
+                    throw new Error(`Donation ${donationId} not found`);
+                }
+                const transaction = await this.transactionService.findByDonationId(donationId);
+                if (!transaction) {
+                    throw new Error(`Transaction for donation ${donationId} not found`);
+                }
+                const stripeGetChargeEvent = await this.stripe.charges.retrieve(transaction[0].transactionID);
+                console.log('stripeGetChargeEvent', stripeGetChargeEvent);
+                const processCartItemAfterPayment = await this.processCartItemAfterPayment({
+                    item: donation.cartItems[0],
+                    donationId: donationId,
+                    contact: contact,
+                    customer: customer,
+                    object: stripeGetChargeEvent,
+                });
+                rec.customerStripe = processCartItemAfterPayment?.customer || '';
+                rec.subscriptionStripe = processCartItemAfterPayment?.subs || '';
+                donation.transactionDetails = {
+                    captured: "yes",
+                    currency: stripeGetChargeEvent.currency,
+                    intent_id: stripeGetChargeEvent.payment_intent?.toString() || '',
+                    source_id: stripeGetChargeEvent.payment_method?.toString() || '',
+                    customer_id: stripeGetChargeEvent.customer?.toString() || '',
+                }
+                await donation.save();
+                await rec.save();
+                this.logger.log(`Successfully processed recurring donation ${rec._id}`);
+
+            } catch (error) {
+                this.logger.error(`Error processing recurring ${rec._id}:`, error.message);
+                continue; // Continue with next recurring donation instead of failing entire process
+            }
         }
-        const transaction = await this.transactionService.findByDonationId(donationId);
-        if (!transaction) {
-            throw new Error(`Transaction for donation ${donationId} not found`);
-        }
-        const stripeGetChargeEvent = await this.stripe.charges.retrieve(transaction[0].transactionID);
-        console.log('stripeGetChargeEvent', stripeGetChargeEvent);
-        const processCartItemAfterPayment = await this.processCartItemAfterPayment({
-            item: donation.cartItems[0],
-            donationId: donationId,
-            contact: contact,
-            customer: customer,
-            object: stripeGetChargeEvent,
-        });
-        recurring.customerStripe = processCartItemAfterPayment?.customer || '';
-        recurring.subscriptionStripe = processCartItemAfterPayment?.subs || '';
-        donation.transactionDetails = {
-            captured : "yes",
-            currency : stripeGetChargeEvent.currency,   
-            intent_id : stripeGetChargeEvent.payment_intent?.toString() || '',
-            source_id : stripeGetChargeEvent.payment_method?.toString() || '',
-            customer_id : stripeGetChargeEvent.customer?.toString() || '',
-        }
-        await donation.save();
-        await recurring.save();
-        return recurring;
+
     }
 }
