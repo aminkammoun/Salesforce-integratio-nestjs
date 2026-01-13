@@ -53,7 +53,7 @@ export class RecurringService {
         return this.RecurringModel.findById(id);
     }
     async uploadRecurringsToSalesforce() {
-        const recurrings = await this.RecurringModel.find({ syncedWithSalesforce: false, _id : new MongooseTypes.ObjectId('696012dc0332fcf2361375e0') });
+        const recurrings = await this.RecurringModel.find({ syncedWithSalesforce: false, _id: new MongooseTypes.ObjectId('69642c1d09d0916d36e9ed3a') });
         if (recurrings.length === 0) {
             console.log('No donations to upload to Salesforce');
             return [];
@@ -74,7 +74,9 @@ export class RecurringService {
                 npsp__Status__c: recurring.status,
                 npsp__PaymentMethod__c: recurring.npsp__PaymentMethod__c,
                 npe03__Recurring_Donation_Campaign__c: recurring.npe03__Recurring_Donation_Campaign__c,
-                Donation_Source__c : 'Fundraising App'
+                Donation_Source__c : 'Fundraising App',
+                Stripe_Customer__c : recurring.customerStripe || recurring.customerStipe,
+                Stripe_Subscription__c : recurring.subscriptionStripe,
                 //RecordTypeId: donation.RecordTypeId,
             };
             const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'npe03__Recurring_Donation__c/', payload, token);
