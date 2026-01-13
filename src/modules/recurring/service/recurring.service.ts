@@ -121,7 +121,8 @@ export class RecurringService {
                 effectiveDate: {
                     $gt: new Date("2026-01-09T00:00:00.000Z")
                 },
-                customerStipe: null
+                customerStipe: null,
+                syncedWithSalesforce: false,
             });
             return recurrings;
         } catch (error) {
