@@ -584,14 +584,14 @@ export class SalesforceService {
                 });
                 rec.customerStripe = processCartItemAfterPayment?.customer || '';
                 rec.subscriptionStripe = processCartItemAfterPayment?.subs || '';
-                donation.transactionDetails = {
+                /*donation.transactionDetails = {
                     captured: "yes",
                     currency: stripeGetChargeEvent.currency,
                     intent_id: stripeGetChargeEvent.payment_intent?.toString() || '',
                     source_id: stripeGetChargeEvent.payment_method?.toString() || '',
                     customer_id: stripeGetChargeEvent.customer?.toString() || '',
                 }
-                await donation.save();
+                await donation.save();*/
                 await rec.save();
                 this.logger.log(`Successfully processed recurring donation ${rec._id}`);
 

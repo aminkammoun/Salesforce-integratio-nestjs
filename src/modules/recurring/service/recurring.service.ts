@@ -119,6 +119,7 @@ export class RecurringService {
             const recurrings = await this.RecurringModel.find({
                 status: "Active",
                 syncedWithSalesforce: false,
+                subscriptionStripe: null,
             });
             return recurrings;
         } catch (error) {
