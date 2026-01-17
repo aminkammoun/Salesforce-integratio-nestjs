@@ -139,9 +139,9 @@ export class SalesforceService {
                     }
                 }
 
-                const sponsorshipId = await JSON.parse(event.data.object.metadata.sponsorshipId);
-                console.log(sponsorshipId)
-                const sponsorship = await this.sponsorshipService.findByIds(sponsorshipId);
+                //const sponsorshipId = await JSON.parse(event.data.object.metadata.sponsorshipId);
+                //console.log(sponsorshipId)
+                const sponsorship = await this.sponsorshipService.findByDonationId(object.metadata.donationID);
                 console.log('sponsorship ', sponsorship)
                 for (const sp of sponsorship) {
                     console.log(sp)
@@ -167,10 +167,19 @@ export class SalesforceService {
                     donation.Recurring.push(new mongoose.Types.ObjectId(recurring._id as string) as unknown as any);
                     sp.Recurring = recurring._id ? (new mongoose.Types.ObjectId(recurring._id as string) as unknown as any) : '';
                     sp.save();
-                    this.childService.updateToSponsored(sp.child);
+                    if (sp.child && sp.child.length > 0) {
+                        this.childService.updateToSponsored(sp.child);
+                    }
                 }
                 donation.StageName = 'Closed Won';
-                donation.customerStipe = object.payment_intent;
+                donation.transactionDetails = {
+                    captured: "yes",
+                    currency: object.currency,
+                    intent_id: object.payment_intent?.toString() || '',
+                    source_id: object.payment_method?.toString() || '',
+                    customer_id: object.customer?.toString() || '',
+                }
+                donation.customerStripe = object.payment_intent;
                 console.log(new Date(donation.CloseDate).getTime());
                 console.log(object.created * 1000);
                 const timeOfProcess = (new Date(donation.CloseDate).getTime() - object.created * 1000) / 1000;
@@ -446,7 +455,7 @@ export class SalesforceService {
             throw new Error('Stripe customer required for recurring donations');
         }
 
-        donation.customerStipe = customer.id;
+        donation.customerStripe = customer.id;
 
         // Create Stripe price
         const interval = this.mapIntervalToStripeInterval(item.interval);

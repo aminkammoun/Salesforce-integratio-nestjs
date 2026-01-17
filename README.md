@@ -2,97 +2,324 @@
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+# Fundraising Backend - Salesforce Integration
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+A progressive [Node.js](http://nodejs.org) backend application built with [NestJS](https://github.com/nestjs/nest) for managing fundraising operations with seamless Salesforce integration.
 
-## Description
+## Overview
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+This project is a comprehensive fundraising backend system that integrates with Salesforce to manage donations, recurring contributions, sponsorships, and related financial transactions. It provides secure authentication, role-based access control, and real-time event handling.
 
-## Project setup
+## Key Features
 
-```bash
-$ npm install
+- **Salesforce Integration**: Direct integration with Salesforce CRM for data synchronization
+- **Authentication & Authorization**: JWT-based authentication with role-based access control
+- **Multi-Module Architecture**: Modular design with dedicated modules for different domains
+- **MongoDB Database**: Document-based storage for flexible data modeling
+- **Real-Time Events**: Event-driven architecture using NestJS Event Emitter
+- **Cron Jobs**: Scheduled tasks for recurring operations
+- **Stripe Integration**: Payment processing support
+- **Comprehensive Validation**: Data validation using class-validator and DTOs
+- **API Documentation**: Swagger integration for API documentation
+- **Docker Support**: Containerized deployment with Docker Compose
+
+## Project Structure
+
+```
+src/
+├── config/                 # Application configuration
+│   ├── database.config.ts
+│   ├── salesforce.config.ts
+│   ├── server.config.ts
+│   └── types.ts
+├── modules/               # Feature modules
+│   ├── app/              # Root application module
+│   ├── auth/             # Authentication & Authorization
+│   │   ├── controllers/
+│   │   ├── guards/
+│   │   ├── services/
+│   │   └── strategies/
+│   ├── user/             # User management
+│   ├── contact/          # Contact information
+│   ├── donation/         # Donation management
+│   ├── recurring/        # Recurring donations
+│   ├── sponsorship/      # Sponsorship program
+│   ├── transaction/      # Transaction tracking
+│   ├── child/            # Child/beneficiary management
+│   ├── orders/           # Order management
+│   ├── errors/           # Error handling
+│   └── salesforce/       # Salesforce integration
+├── main.ts              # Application entry point
+└── test/                # End-to-end tests
 ```
 
-## Compile and run the project
+## Module Descriptions
+
+### Auth Module
+Handles authentication and authorization with JWT tokens and multiple authentication strategies.
+- **Guards**: JWT, Local, and Role-based authentication guards
+- **Strategies**: JWT and Local authentication strategies
+- **Features**: Token generation, validation, and user authentication
+
+### User Module
+Manages user profiles and account information.
+
+### Contact Module
+Manages contact information for donors and sponsors.
+
+### Donation Module
+Handles individual donation records and donation management.
+- Events-based architecture for donation tracking
+- Integration with recurring donations and sponsorships
+
+### Recurring Module
+Manages recurring donation subscriptions and schedules.
+- Cron-based job scheduling for recurring transactions
+- Automatic payment processing
+- Subscription lifecycle management
+
+### Sponsorship Module
+Manages sponsorship programs and beneficiary relationships.
+- Event listeners for sponsorship lifecycle
+- Integration with child module for beneficiary tracking
+- Link to recurring donations and transactions
+
+### Transaction Module
+Tracks all financial transactions and payment records.
+- Integration with Stripe for payment processing
+- Transaction history and reporting
+
+### Child Module
+Manages child/beneficiary records associated with sponsorships.
+- Demographic information
+- Sponsorship tracking
+
+### Salesforce Module
+Direct integration with Salesforce CRM.
+- Data synchronization
+- Record management
+- API communication
+
+## Prerequisites
+
+- **Node.js**: v18+ 
+- **npm** or **yarn**: Latest version
+- **MongoDB**: v5.0+ (or MongoDB Atlas)
+- **Docker** & **Docker Compose**: For containerized deployment
+- **Salesforce Account**: For CRM integration
+- **Stripe Account**: For payment processing (optional)
+
+## Installation
+
+### 1. Clone the Repository
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+git clone <repository-url>
+cd Salesforce-integratio-nestjs
 ```
 
-## Run tests
+### 2. Install Dependencies
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+npm install
 ```
+
+### 3. Environment Configuration
+
+Create a `.env` file in the root directory with the following variables:
+
+```bash
+# Server
+PORT=3000
+NODE_ENV=development
+
+# Database
+MONGODB_URI=mongodb://localhost:27017/fundraising
+
+# Salesforce
+SALESFORCE_CLIENT_ID=your_client_id
+SALESFORCE_CLIENT_SECRET=your_client_secret
+SALESFORCE_USERNAME=your_username
+SALESFORCE_PASSWORD=your_password
+SALESFORCE_SECURITY_TOKEN=your_security_token
+
+# JWT
+JWT_SECRET=your_jwt_secret
+JWT_EXPIRATION=7d
+
+# Stripe
+STRIPE_API_KEY=your_stripe_key
+STRIPE_WEBHOOK_SECRET=your_webhook_secret
+```
+
+## Getting Started
+
+### Development Mode
+
+```bash
+# Start with watch mode
+npm run start:dev
+
+# Application will be available at http://localhost:3000
+```
+
+### Using Docker Compose
+
+```bash
+# Start all services (API + MongoDB)
+docker-compose up -d
+
+# Stop services
+docker-compose down
+
+# View logs
+docker-compose logs -f nest-api
+```
+
+### Testing
+
+```bash
+# Run unit tests
+npm run test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run tests with coverage
+npm run test:cov
+
+# Run end-to-end tests
+npm run test:e2e
+```
+
+### Production Build
+
+```bash
+# Build the application
+npm run build
+
+# Start production server
+npm run start:prod
+```
+
+## API Documentation
+
+Once the application is running, access the Swagger API documentation at:
+
+```
+http://localhost:3000/api
+```
+
+This provides interactive API exploration and testing capabilities.
+
+## Database Schema
+
+The application uses MongoDB with the following main collections:
+
+- **users**: User account information
+- **contacts**: Contact details for donors
+- **donations**: Individual donation records
+- **recurrings**: Recurring donation subscriptions
+- **sponsorships**: Sponsorship program records
+- **transactions**: All financial transactions
+- **children**: Child/beneficiary records
+
+## Authentication
+
+The application uses JWT (JSON Web Tokens) for API authentication.
+
+### Getting an Auth Token
+
+1. Register a new user or login with existing credentials
+2. The API returns a JWT token in the response
+3. Include the token in all subsequent requests:
+
+```bash
+Authorization: Bearer <your_jwt_token>
+```
+
+## Key Technologies
+
+- **Framework**: NestJS 11.x
+- **Language**: TypeScript
+- **Database**: MongoDB with Mongoose
+- **Authentication**: JWT, Passport.js
+- **CRM Integration**: Salesforce (jsforce)
+- **Payments**: Stripe
+- **Task Scheduling**: @nestjs/schedule
+- **Event Handling**: @nestjs/event-emitter
+- **Validation**: class-validator, class-transformer
+- **API Docs**: Swagger/OpenAPI
+- **Testing**: Jest
+
+## Error Handling
+
+The application includes comprehensive error handling with custom error module:
+- Validation errors with detailed messages
+- Circular dependency resolution
+- Proper HTTP status codes
+- Error logging and tracking
 
 ## Deployment
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+### Deploy to Production
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+1. **Build the application**:
+   ```bash
+   npm run build
+   ```
+
+2. **Set production environment variables**
+
+3. **Run the application**:
+   ```bash
+   npm run start:prod
+   ```
+
+### Docker Deployment
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+docker build -t fundraising-backend .
+docker run -d \
+  -e MONGODB_URI=<mongo-uri> \
+  -e JWT_SECRET=<secret> \
+  -p 3000:3000 \
+  fundraising-backend
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## Contributing
 
-## Resources
+1. Create a feature branch: `git checkout -b feature/feature-name`
+2. Commit your changes: `git commit -am 'Add feature'`
+3. Push to the branch: `git push origin feature/feature-name`
+4. Submit a pull request
 
-Check out a few resources that may come in handy when working with NestJS:
+## Code Style
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+The project uses ESLint and Prettier for code consistency.
 
-## Support
+```bash
+# Lint code
+npm run lint
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+# Format code
+npm run format
+```
 
-## Stay in touch
+## Troubleshooting
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+### Common Issues
+
+**Circular Dependency Error**: The application uses `forwardRef()` to handle circular dependencies between modules. If you encounter circular dependency issues, ensure modules are properly decorated with `forwardRef()`.
+
+**MongoDB Connection**: Ensure MongoDB is running and the connection string in `.env` is correct.
+
+**Salesforce Integration**: Verify that Salesforce credentials are correctly configured and the security token is current.
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+UNLICENSED
+
+## Support & Contact
+
+For issues, questions, or contributions, please refer to the project repository or contact the development team.
