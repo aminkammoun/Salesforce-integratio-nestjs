@@ -352,10 +352,7 @@ export class SponsorshipService {
     async repaireSp() {
         const sponsorships = await this.SponsorshipModel.find({
             Status: "Active",
-            Start_Date__c: {
-                $gt: new Date("2026-01-11T23:00:00.000Z"),
-                $lt: new Date("2026-01-12T00:00:00.000Z")
-            }
+            syncedWithSalesforce: false,
         });
         for (const sponsorship of sponsorships) {
             const recurring = await this.RecurringModel.create({
@@ -388,7 +385,7 @@ export class SponsorshipService {
     }
     async updateSpBycontactSfId() {
         try {
-            const result = await this.SponsorshipModel.find({syncedWithSalesforce :false});
+            const result = await this.SponsorshipModel.find({ syncedWithSalesforce: false });
             for (const sponsorship of result) {
                 const donation = await this.DonationModel.findById(sponsorship.donation);
                 if (donation) {
@@ -397,6 +394,14 @@ export class SponsorshipService {
                 }
             }
             return result;
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
+    }
+    async findByDonationId(donationId: string) {
+        try {
+            const sponsorships = await this.SponsorshipModel.find({ donation: donationId });
+            return sponsorships;
         } catch (error) {
             throw new InternalServerErrorException(error);
         }

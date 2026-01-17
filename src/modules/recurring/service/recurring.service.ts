@@ -74,9 +74,9 @@ export class RecurringService {
                 npsp__Status__c: recurring.status,
                 npsp__PaymentMethod__c: recurring.npsp__PaymentMethod__c,
                 npe03__Recurring_Donation_Campaign__c: recurring.npe03__Recurring_Donation_Campaign__c,
-                Donation_Source__c : 'Fundraising App',
-                Stripe_Customer__c : recurring.customerStripe || recurring.customerStipe,
-                Stripe_subscription_url__c : 'https://dashboard.stripe.com/acct_1S5xcLPK7Mt7pUeD/subscriptions/' + recurring.subscriptionStripe,
+                Donation_Source__c: 'Fundraising App',
+                Stripe_Customer__c: recurring.customerStripe || recurring.customerStipe,
+                Stripe_subscription_url__c: 'https://dashboard.stripe.com/acct_1S5xcLPK7Mt7pUeD/subscriptions/' + recurring.subscriptionStripe,
                 //RecordTypeId: donation.RecordTypeId,
             };
             const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'npe03__Recurring_Donation__c/', payload, token);
@@ -118,10 +118,6 @@ export class RecurringService {
         try {
             const recurrings = await this.RecurringModel.find({
                 status: "Active",
-                effectiveDate: {
-                    $gt: new Date("2026-01-09T00:00:00.000Z")
-                },
-                customerStipe: null,
                 syncedWithSalesforce: false,
             });
             return recurrings;
@@ -149,7 +145,7 @@ export class RecurringService {
         } catch (error) {
             throw new InternalServerErrorException(error);
         }
-        
+
     }
-     
+
 }

@@ -57,7 +57,7 @@ export class Donation extends Document {
     @Prop({ required: false })
     macAddress: string
     @Prop({ required: false })
-    customerStipe: string
+    customerStripe: string
     @Prop({ required: false })
     cartItems: CartItemDto[]
     @Prop({ required: false })
