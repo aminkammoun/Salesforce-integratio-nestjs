@@ -316,7 +316,20 @@ export class DonationService {
     }
     async findDonationsFromSalesforceByWorksheetId(wordpressid: string) {
         try {
-            const query = `SELECT Id, Name, Amount, CloseDate, StageName, npsp__Acknowledgment_Status__c, Donation_Source__c,npsp__Primary_Contact__r.Word_Press_Id__c FROM Opportunity WHERE npsp__Primary_Contact__c= '${wordpressid}'`;
+            const query = `SELECT 
+                                Id, 
+                                Name, 
+                                Opportunity__r.Amount,
+                                Opportunity__r.Id, 
+                                Opportunity__r.Name, 
+                                Opportunity__r.CloseDate, 
+                                Opportunity__r.StageName, 
+                                Opportunity__r.npsp__Acknowledgment_Status__c, 
+                                Program_Cohort__r.Name,
+                                Opportunity__r.npe03__Recurring_Donation__c, 
+                                Opportunity__r.Donation_Source__c
+                                FROM Program_Allocation_Unit__c 
+                                WHERE Opportunity__c = '${wordpressid}'`;
             const token = await authenticateSalesforce();
             const res = await handleQuery('/services/data/v65.0/query/?q=', query, token);
             return res.records;
@@ -327,7 +340,7 @@ export class DonationService {
     async repaireDonations() {
         try {
             let donations = await this.DonationModel.find({
-                syncedWithSalesforce : false,
+                syncedWithSalesforce: false,
                 StageName: 'Closed Won',
                 'cartItems.type': { $in: ['sponsorship'] },
                 CloseDate: { $gte: new Date("2026-01-09T00:00:00Z") }
