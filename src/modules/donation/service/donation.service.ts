@@ -266,7 +266,7 @@ export class DonationService {
                                 npsp__Acknowledgment_Status__c: donation.Acknowledgment_Status__c,
                                 Donation_Source__c: donation.Donation_Source__c || 'Fundraising App',
                                 npsp__Primary_Contact__c: donation.npsp__Primary_Contact__c,
-                                recordType: donation.Donation_Source__c == "Fundraising App" ? 'donation' : donation.recordType || recordType.DONATION,
+                                recordType: donation.recordType || recordType.DONATION,
                             };
 
                             const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Opportunity/', payload, token);
