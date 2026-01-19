@@ -9,3 +9,10 @@ export interface SponsorshipChilds {
     frequency : string;
     Amount : number
 }
+export interface childAttachment {
+    Child__c : string;
+    Name : string;
+    Type__c : string;
+    Youtube_Link__c : string;
+    File_URL__c : string;    
+}

@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { ChildService } from '../service/child.service';
-import type { ChildToreserve, SponsorshipChilds } from 'src/config/types';
+import type { childAttachment, ChildToreserve, SponsorshipChilds } from 'src/config/types';
 import { UpdateChildDto } from '../dto/update-child.dto';
 import { CreateChildDto } from '../dto/create-child.dto';
 
@@ -46,5 +46,9 @@ export class ChildController {
     @Post('/markasAvailable')
     async markAsAvailable() {
         return this.childService.markAsAvailable();
+    }
+    @Post('/uploadAttachments')
+    async uploadAttachmentsToSalesforce(@Body() body: childAttachment) {
+        return this.childService.uploadChildAttachmentsToSalesforce(body);
     }
 }
