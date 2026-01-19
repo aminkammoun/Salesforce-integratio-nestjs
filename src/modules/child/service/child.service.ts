@@ -4,7 +4,7 @@ import { Child } from '../entities/child.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { ClientSession, Model, Types as MongooseTypes } from 'mongoose';
 import { CreateChildDto } from '../dto/create-child.dto';
-import type { ChildToreserve, SponsorshipChilds,childAttachment } from 'src/config/types';
+import type { ChildToreserve, SponsorshipChilds, childAttachment } from 'src/config/types';
 import { Sponsorship } from 'src/modules/sponsorship/entities/sponsorship.entity';
 import { SponsorshipService } from 'src/modules/sponsorship/service/sponsorship.service';
 
@@ -380,7 +380,7 @@ export class ChildService {
             console.log('Salesforce upload result for child attachment:', result);
             return result;
 
-        }catch (error) {
+        } catch (error) {
             throw new InternalServerErrorException(error);
         }
     }
