@@ -4,7 +4,7 @@ import { Model, Types as MongooseTypes, set, Types } from 'mongoose';
 import { Donation } from '../entities/donation.entity';
 import { Recurring } from 'src/modules/recurring/entities/recurring.entity';
 import { InternalServerErrorException, NotFoundException } from '@nestjs/common';
-import { CreateDonationDto } from '../dto/create-donation.dto';
+import { CreateDonationDto, recordType } from '../dto/create-donation.dto';
 import { UpdateDonationDto } from '../dto/update-donation.dto';
 import { authenticateSalesforce, handleInsertQuery, handleQuery } from 'src/config/utils';
 import { Sponsorship } from 'src/modules/sponsorship/entities/sponsorship.entity';
@@ -191,7 +191,7 @@ export class DonationService {
                                     Donation_Source__c: donation.Donation_Source__c,
                                     npsp__Primary_Contact__c: donation.npsp__Primary_Contact__c,
                                     npe03__Recurring_Donation__c: recurring.salesforceID,
-                                    //RecordTypeId: donation.RecordTypeId,
+                                    recordType: donation.Donation_Source__c == "Fundraising App" ? 'donation' : donation.recordType || recordType.DONATION,
                                 };
                                 item.npe03__Recurring_Donation__c = recurring.salesforceID;
                                 //item.sfId = recurring.donationSf;
@@ -227,7 +227,6 @@ export class DonationService {
                             npe03__Date_Established__c: donation.CloseDate,
                             npsp__Day_of_Month__c: donation.CloseDate.getDate(),
                             npsp__Status__c: 'Active',
-                            //RecordTypeId: donation.RecordTypeId,
                         };
                         const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'npe03__Recurring_Donation__c/', createRecPay, token);
                         if (result.salesforceId) {
@@ -244,6 +243,7 @@ export class DonationService {
                                 Donation_Source__c: donation.Donation_Source__c,
                                 npsp__Primary_Contact__c: donation.npsp__Primary_Contact__c,
                                 npe03__Recurring_Donation__c: result.salesforceId,
+                                recordType: donation.Donation_Source__c == "Fundraising App" ? 'donation' : donation.recordType || recordType.DONATION,
                             }
 
                             const oppResult = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Opportunity/', createOppPay, token);
@@ -266,6 +266,7 @@ export class DonationService {
                                 npsp__Acknowledgment_Status__c: donation.Acknowledgment_Status__c,
                                 Donation_Source__c: donation.Donation_Source__c || 'Fundraising App',
                                 npsp__Primary_Contact__c: donation.npsp__Primary_Contact__c,
+                                recordType: donation.Donation_Source__c == "Fundraising App" ? 'donation' : donation.recordType || recordType.DONATION,
                             };
 
                             const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Opportunity/', payload, token);
