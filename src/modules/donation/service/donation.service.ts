@@ -170,7 +170,7 @@ export class DonationService {
                 return [];
             }
             const token = await authenticateSalesforce();
-            console.log('Using Bearer Token for upload:', token);
+            console.log('donations:', donations);
             const salesforcePayloads = donations.map(async donation => {
                 let payload: any
                 const recurringItems = await this.recurringService.findAllBySalesforceID(donation.npe03__Recurring_Donation__c);
@@ -191,7 +191,7 @@ export class DonationService {
                                     Donation_Source__c: donation.Donation_Source__c,
                                     npsp__Primary_Contact__c: donation.npsp__Primary_Contact__c,
                                     npe03__Recurring_Donation__c: recurring.salesforceID,
-                                    recordType: donation.Donation_Source__c == "Fundraising App" ? 'donation' : donation.recordType || recordType.DONATION,
+                                    RecordTypeId: donation.recordType,
                                 };
                                 item.npe03__Recurring_Donation__c = recurring.salesforceID;
                                 //item.sfId = recurring.donationSf;
@@ -243,7 +243,7 @@ export class DonationService {
                                 Donation_Source__c: donation.Donation_Source__c,
                                 npsp__Primary_Contact__c: donation.npsp__Primary_Contact__c,
                                 npe03__Recurring_Donation__c: result.salesforceId,
-                                recordType: donation.Donation_Source__c == "Fundraising App" ? 'donation' : donation.recordType || recordType.DONATION,
+                                RecordTypeId: donation.recordType,
                             }
 
                             const oppResult = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Opportunity/', createOppPay, token);
@@ -266,7 +266,7 @@ export class DonationService {
                                 npsp__Acknowledgment_Status__c: donation.Acknowledgment_Status__c,
                                 Donation_Source__c: donation.Donation_Source__c || 'Fundraising App',
                                 npsp__Primary_Contact__c: donation.npsp__Primary_Contact__c,
-                                recordType: donation.recordType || recordType.DONATION,
+                                RecordTypeId: donation.recordType || recordType.DONATION,
                             };
 
                             const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Opportunity/', payload, token);
