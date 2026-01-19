@@ -163,7 +163,7 @@ export class DonationService {
             const donations = await this.DonationModel.find({
                 syncedWithSalesforce: false,
                 Donation_Source__c: 'Fundraising App',
-                recordType: { $eq: 'Sponsorship Gift' }
+                _id: new MongooseTypes.ObjectId("696ea2e51d9beb9d0daddb87"), // For testing specific donation
             });
             if (donations.length === 0) {
                 console.log('No donations to upload to Salesforce');
