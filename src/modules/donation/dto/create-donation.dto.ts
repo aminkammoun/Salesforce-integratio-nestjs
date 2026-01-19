@@ -28,7 +28,11 @@ export enum Frequency {
     ONETIME = 'One time',
     MONTHLY = 'Monthly',
     YEARLY = 'Yearly',
-
+}
+export enum recordType {
+    DONATION = 'Donation',
+    SPONSORSHIPGIFT = 'Sponsorship Gift',
+    PROGRAMDONATION = 'Program Donation',
 }
 /**
  * DTO used to create a Donation record.
@@ -210,6 +214,11 @@ export class CreateDonationDto {
     @ApiPropertyOptional({ description: 'Detailed transaction information from payment processor', type: TransactionDetailDto })
     @IsOptional()
     transactionDetails?: TransactionDetailDto;
+    @ApiPropertyOptional({ enum: recordType, example: recordType.DONATION })
+    @IsOptional()
+    @IsString()
+    @IsEnum(recordType)
+    recordType?: recordType;
 }
 
 export default CreateDonationDto;

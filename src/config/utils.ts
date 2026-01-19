@@ -50,6 +50,9 @@ export async function handleInsertQuery(query: string,
         if (object.includes('Sponsorship__c') && json.success) {
             return { message: 'Sponsorship created successfully in Salesforce', salesforceId: json.id };
         }
+        if (object.includes('Child_Attachment__c') && json.success) {
+            return { message: 'Child Attachment created successfully in Salesforce', salesforceId: json.id };
+        }
         return json.data;
     } catch (err) {
         console.error(err);

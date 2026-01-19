@@ -1,10 +1,10 @@
 import { Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
-import { authenticateSalesforce, fetchAllSalesforceContacts, handleQuery } from 'src/config/utils';
+import { authenticateSalesforce, fetchAllSalesforceContacts, handleInsertQuery, handleQuery } from 'src/config/utils';
 import { Child } from '../entities/child.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { ClientSession, Model, Types as MongooseTypes } from 'mongoose';
 import { CreateChildDto } from '../dto/create-child.dto';
-import type { ChildToreserve, SponsorshipChilds } from 'src/config/types';
+import type { ChildToreserve, SponsorshipChilds,childAttachment } from 'src/config/types';
 import { Sponsorship } from 'src/modules/sponsorship/entities/sponsorship.entity';
 import { SponsorshipService } from 'src/modules/sponsorship/service/sponsorship.service';
 
@@ -363,6 +363,24 @@ export class ChildService {
             );
             return result;
         } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
+    }
+    async uploadChildAttachmentsToSalesforce(childAttachment: childAttachment) {
+        try {
+            const token = await authenticateSalesforce();
+            const payload: any = {
+                Child__c: childAttachment.Child__c,
+                Name: childAttachment.Name,
+                Type__c: childAttachment.Type__c,
+                Youtube_Link__c: childAttachment.Youtube_Link__c,
+                File_URL__c: childAttachment.File_URL__c,
+            };
+            const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Child_Attachment__c/', payload, token);
+            console.log('Salesforce upload result for child attachment:', result);
+            return result;
+
+        }catch (error) {
             throw new InternalServerErrorException(error);
         }
     }
