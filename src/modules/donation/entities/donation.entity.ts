@@ -68,5 +68,7 @@ export class Donation extends Document {
     campaignId: string
     @Prop({ required: false })
     recordType : string
+    @Prop({ required: false })
+    child__c : string
 }
 export const DonationSchema = SchemaFactory.createForClass(Donation);
