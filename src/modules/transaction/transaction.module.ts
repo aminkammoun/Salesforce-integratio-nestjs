@@ -9,11 +9,11 @@ import { ContactModule } from '../contact/contact.module';
 @Module({
     imports: [
         forwardRef(() => DonationModule),
-        ContactModule,
+        forwardRef(() => ContactModule),
         MongooseModule.forFeature([{ name: Transaction.name, schema: TransactionSchema }]),
     ],
     controllers: [TransactionController],
     providers: [TransactionService],
-    exports: [TransactionService],
+    exports: [TransactionService, MongooseModule],
 })
 export class TransactionModule { }
