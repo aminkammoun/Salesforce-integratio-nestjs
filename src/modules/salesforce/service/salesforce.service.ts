@@ -229,14 +229,18 @@ export class SalesforceService {
     async createPaymentIntent(req: any, res: any) {
         try {
             this.logger.log(`Creating payment intent for amount: ${req.amount}, currency: ${req.currency}`);
-
+            const customer = await this.createStripeCustomer({
+                email: req.email,
+                name: req.name,
+                phone: req.phone,
+            });
             const paymentIntent = await this.stripe.paymentIntents.create({
                 amount: req.amount,
                 currency: req.currency,
                 //setup_future_usage: 'off_session',
                 payment_method_types: ['card_present'],
                 capture_method: 'automatic',
-                //customer: req.customerId,
+                customer: customer.id,
                 //payment_method_types: ['card'],
                 metadata: req.metadata || {},
             });
@@ -381,6 +385,7 @@ export class SalesforceService {
     }
     async setupIntents(req: any, res: any) {
         console.log(req.customerId)
+
         const setupIntent = await this.stripe.setupIntents.create({
             customer: req.customerId,
             payment_method_types: ['card_present'],
