@@ -16,6 +16,6 @@ import { RecurringModule } from '../recurring/recurring.module';
   ],
   controllers: [ContactController],
   providers: [ContactService],
-  exports: [ContactService],
+  exports: [ContactService, MongooseModule],
 })
 export class ContactModule { }
