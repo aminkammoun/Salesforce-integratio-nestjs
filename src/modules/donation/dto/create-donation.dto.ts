@@ -219,6 +219,9 @@ export class CreateDonationDto {
     @IsString()
     @IsEnum(recordType)
     recordType?: recordType;
+    @ApiPropertyOptional({ description: 'Child ID associated with the donation', example: '0031t00000XyZzAAB' })
+    @IsOptional()
+    Child__c?: string;
 }
 
 export default CreateDonationDto;
