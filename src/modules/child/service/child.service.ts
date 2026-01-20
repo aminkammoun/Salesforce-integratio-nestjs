@@ -384,4 +384,14 @@ export class ChildService {
             throw new InternalServerErrorException(error);
         }
     }
+    async retrieveAttachmentsFromSalesforce(childId: string) {
+        try {
+            const query = `SELECT Id, Name, Type__c, Youtube_Link__c, File_URL__c FROM Child_Attachment__c WHERE Child__c= '${childId}' AND Send_to_Web__c= true`;
+            const token = await authenticateSalesforce();
+            const res = await handleQuery('/services/data/v65.0/query/?q=', query, token);
+            return res.records;
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
+    }
 }
