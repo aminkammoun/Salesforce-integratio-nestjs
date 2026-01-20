@@ -28,6 +28,7 @@ export enum Frequency {
     ONETIME = 'One time',
     MONTHLY = 'Monthly',
     YEARLY = 'Yearly',
+    GIFT = 'Gift',
 }
 export enum recordType {
     DONATION = 'Donation',
