@@ -112,7 +112,7 @@ export class TransactionService {
     }
     async updateTransactionWithContactSalesforceID() {
         try {
-            const result = await this.TransactionModel.find({ contact : null, IATSPayment__Contact__c : null,_id: new MongooseTypes.ObjectId("694eb18aa43997581d205772") })
+            const result = await this.TransactionModel.find({ contact : null, IATSPayment__Contact__c : null })
             for (const tran of result) {
                 const contact = await this.contactModel.findOne({ _id: tran.Payment__Contact__c });
                 if (contact && contact.salesforceID) {
