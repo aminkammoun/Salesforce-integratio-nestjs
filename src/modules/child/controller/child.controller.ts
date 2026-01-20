@@ -51,4 +51,8 @@ export class ChildController {
     async uploadAttachmentsToSalesforce(@Body() body: childAttachment) {
         return this.childService.uploadChildAttachmentsToSalesforce(body);
     }
+    @Get('/attachments/:childId')
+    async getAttachmentsFromSalesforce(@Param('childId') childId: string) {
+        return this.childService.retrieveAttachmentsFromSalesforce(childId);
+    }
 }
