@@ -112,9 +112,9 @@ export class TransactionService {
     }
     async updateTransactionWithContactSalesforceID() {
         try {
-            const result = await this.TransactionModel.find({ contact : null, IATSPayment__Contact__c : null })
+            const result = await this.TransactionModel.find({ contact : null, Payment__Contact__c : null })
             for (const tran of result) {
-                const contact = await this.contactModel.findOne({ _id: tran.Payment__Contact__c });
+                const contact = await this.contactModel.findOne({ _id: tran.IATSPayment__Contact__c });
                 if (contact && contact.salesforceID) {
                     tran.contact = contact.salesforceID;
                     //tran.Payment__Contact__c = contact.salesforceID;
