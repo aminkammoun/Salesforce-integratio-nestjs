@@ -36,4 +36,8 @@ export class TransactionController {
     async syncSalesforceDonations() {
         return this.transactionService.updateTransactionsWithSalesforceDonation();
     }
+    @Post('/sync-contact-salesforceid')
+    async syncContactSalesforceID() {
+        return this.transactionService.updateTransactionWithContactSalesforceID();
+    }
 }

@@ -5,12 +5,15 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types as MongooseTypes, Types } from 'mongoose';
 import { Transaction } from '../entities/transaction.entity';
 import { Donation } from 'src/modules/donation/entities/donation.entity';
+import { Contact } from 'src/modules/contact/entities/contact.entity';
 @Injectable()
 export class TransactionService {
     private readonly logger = new Logger(TransactionService.name);
     constructor(
         @InjectModel(Donation.name) private donationModel: Model<Donation>,
+        @InjectModel(Contact.name) private contactModel: Model<Contact>,
         @InjectModel(Transaction.name) private readonly TransactionModel: Model<Transaction>,
+
     ) { }
     // This service would typically contain methods to handle business logic related to transactions
     // For example, methods to create, update, delete, and retrieve transactions
@@ -103,6 +106,22 @@ export class TransactionService {
         try {
             const transactions = await this.TransactionModel.find({ donation: new MongooseTypes.ObjectId(donationId) });
             return transactions;
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
+    }
+    async updateTransactionWithContactSalesforceID() {
+        try {
+            const result = await this.TransactionModel.find({ contact : null, IATSPayment__Contact__c : null})
+            for (const tran of result) {
+                const contact = await this.contactModel.findOne({ _id: tran.Payment__Contact__c });
+                if (contact && contact.salesforceID) {
+                    tran.contact = contact.salesforceID;
+                    //tran.Payment__Contact__c = contact.salesforceID;
+                    await tran.save();
+                    this.logger.log(`Updated transaction ${tran._id} with contact Salesforce ID ${contact.salesforceID}`);
+                }
+            }
         } catch (error) {
             throw new InternalServerErrorException(error);
         }
