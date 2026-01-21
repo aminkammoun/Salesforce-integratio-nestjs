@@ -59,7 +59,13 @@ export class DonationController {
         // Pass the actual DTO instance to the service (not a string literal)
         return this.donationService.uploadDonationsToSalesforce();
     }
-
+    @Post('/insertOneToSalesforce/:id')
+    @ApiOperation({ summary: 'Upload one donation to Salesforce', description: 'Syncs a specific unsynced donation to Salesforce CRM by its ID' })
+    @ApiResponse({ status: 200, description: 'Donation uploaded to Salesforce' })
+    insertOne(@Param('id') id: string) {
+        // Pass the actual DTO instance to the service (not a string literal)
+        return this.donationService.uploadOneDonationsToSalesforce(id);
+    }
     @Post('/delete')
     @ApiOperation({ summary: 'Delete donations', description: 'Deletes one or more donations by their IDs' })
     @ApiBody({ type: [String], description: 'Array of donation IDs to delete' })
