@@ -72,6 +72,10 @@ export class CartItemDto {
 
     @ApiPropertyOptional({ description: 'Donation made on behalf of another person', example: 'John Smith' })
     on_behalf_of?: string;
+    @ApiPropertyOptional({ description: 'Special instructions for the donation', example: 'Please allocate to education fund' })
+    recordType?: string;
+    @ApiPropertyOptional({ description: 'Child ID associated with the cart item', example: '0031t00000XyZzAAB' })
+    Child__c?: string;
 }
 export class TransactionDetailDto {
     @ApiPropertyOptional({ description: 'Whether transaction was captured', example: 'true' })
