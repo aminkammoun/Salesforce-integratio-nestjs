@@ -12,6 +12,7 @@ import { RecurringService } from 'src/modules/recurring/service/recurring.servic
 import { ContactService } from 'src/modules/contact/service/contact.service';
 import { ChildService } from 'src/modules/child/service/child.service';
 import { SponsorshipChilds } from 'src/config/types';
+import { SponsorshipService } from 'src/modules/sponsorship/service/sponsorship.service';
 @Injectable()
 export class DonationService {
     constructor(
@@ -20,6 +21,7 @@ export class DonationService {
         @Inject(forwardRef(() => ContactService)) private readonly contactService: ContactService,
         @Inject(forwardRef(() => RecurringService)) private readonly recurringService: RecurringService,
         @Inject(forwardRef(() => ChildService)) private readonly ChildService: ChildService,
+        @Inject(forwardRef(() => SponsorshipService)) private readonly SponsorshipService: SponsorshipService,
 
         //@Inject() private readonly recurringService: RecurringService,
         //@Inject() private readonly contactService: ContactService,
@@ -321,7 +323,7 @@ export class DonationService {
         try {
             const donations = await this.DonationModel.find({
                 syncedWithSalesforce: false,
-                Donation_Source__c: 'Fundraising App',
+                Donation_Source__c: 'Website',
                 _id: new MongooseTypes.ObjectId(id), // For testing specific donation
             });
             if (donations.length === 0) {
@@ -482,14 +484,18 @@ export class DonationService {
             const query = `SELECT 
                             Id, 
                             Name, 
-                            Amount,
-                            CloseDate, 
-                            StageName, 
-                            npsp__Acknowledgment_Status__c, 
-                            npe03__Recurring_Donation__c, 
-                            Donation_Source__c
-                            FROM Opportunity 
-                            WHERE npsp__Primary_Contact__c = '${wordpressid}'`;
+                            Opportunity__r.Amount,
+                            Opportunity__r.Id, 
+                            Opportunity__r.Name, 
+                            Opportunity__r.CloseDate, 
+                            Opportunity__r.StageName, 
+                            Opportunity__r.npsp__Acknowledgment_Status__c, 
+                            Program_Cohort__r.Name,
+                            Opportunity__r.npe03__Recurring_Donation__c, 
+                            Opportunity__r.Donation_Source__c,
+                            Opportunity__r.npsp__Primary_Contact__c
+                            FROM Program_Allocation_Unit__c
+                            WHERE Opportunity__r.npsp__Primary_Contact__c = '${wordpressid}'`;
             const token = await authenticateSalesforce();
             const res = await handleQuery('/services/data/v65.0/query/?q=', query, token);
             return res.records;
@@ -502,8 +508,8 @@ export class DonationService {
             let donations = await this.DonationModel.find({
                 syncedWithSalesforce: false,
                 StageName: 'Closed Won',
-                'cartItems.type': { $in: ['sponsorship'] },
-                CloseDate: { $gte: new Date("2026-01-09T00:00:00Z") }
+                Donation_Source__c: 'Fundraising App',
+                _id: new MongooseTypes.ObjectId('69637c7169d793f774d6483a')// Exclude specific donation by its ID
             });
             console.log(donations);
             //const donations = await this.DonationModel.find({ syncedWithSalesforce: false, StageName: 'Closed Won', frequency : "One-time", });
@@ -514,29 +520,33 @@ export class DonationService {
                 if (don.Amount % 60 !== 0) {
                     return don;
                 }
+                //const contact = await this.contactService.findOne(don.contact as string);
                 don.frequency = don.Amount >= 720 ? "yearly" : "monthly";
                 don.cartItems = don.cartItems.map(item => ({
                     ...item,
                     interval: don.Amount >= 720 ? "yearly" : "monthly",
                     type: "sponsorship",
-                    nationality: "Syrian",
+                    nationality: item.nationality || "Syrian",
                     childrenCount: don.Amount >= 720 ? (don.Amount / 720) : don.Amount / 60,
                 }));
                 const payloadSp: SponsorshipChilds[] = [{
                     donationId: don._id as string,
                     donorId: don.contact as string,
                     childToreserve: [
-                        { nationality: "Syrian", Requestedcount: don.Amount >= 720 ? (don.Amount / 720) : don.Amount / 60 },
+                        { nationality: don.cartItems[0].nationality || "Syrian", Requestedcount: don.Amount >= 720 ? (don.Amount / 720) : don.Amount / 60 },
                     ],
                     frequency: don.frequency,
-                    Amount: don.Amount
+                    Amount: don.Amount,
+                    donor__c: don?.npsp__Primary_Contact__c || '',
                 }]
-                await this.ChildService.reserveChildren(payloadSp);
+                const result = await this.ChildService.reserveChildren(payloadSp);
+                if (result) {
+                    console.log(result);
+                    this.SponsorshipService.repaireSp(result[0]._id as string);
+                }
                 await don.save();
-                console.log(don);
                 return don;
             })
-            console.log(donations.length);
             return donations;
         } catch (error) {
             throw new InternalServerErrorException(error);

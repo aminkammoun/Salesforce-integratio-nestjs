@@ -45,10 +45,10 @@ export class SponsorshipController {
     getSalesforcesp(@Param('cnid') cnid: string) {
         return this.sponsorshipService.findSpFromSalesforceByWordpressId(cnid);
     }
-    @Post('/rp')
+   /* @Post('/rp')
     async repaireSp() {
         return this.sponsorshipService.repaireSp();
-    }
+    }*/
     @Post('/deleteChild')
     async deleteChild() {
         return this.sponsorshipService.deleteChildFromSponsorships();

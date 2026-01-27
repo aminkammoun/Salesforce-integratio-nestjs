@@ -349,10 +349,11 @@ export class SponsorshipService {
             throw new InternalServerErrorException(error);
         }
     }
-    async repaireSp() {
+    async repaireSp(idsp: string) {
         const sponsorships = await this.SponsorshipModel.find({
             Status: "Active",
             syncedWithSalesforce: false,
+            _id: new MongooseTypes.ObjectId(idsp)
         });
         for (const sponsorship of sponsorships) {
             const recurring = await this.RecurringModel.create({
@@ -365,6 +366,7 @@ export class SponsorshipService {
                 dateEstablished: sponsorship.Start_Date__c,
                 DayOfMonth: sponsorship.Start_Date__c.getDate(),
                 status: 'Active',
+                npe03__Contact__c: sponsorship.Donor__c,
                 synchedWithSalesforce: false,
             });
             sponsorship.Recurring = recurring._id as string;
