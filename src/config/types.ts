@@ -7,7 +7,8 @@ export interface SponsorshipChilds {
     donorId: string;
     childToreserve: ChildToreserve[];
     frequency : string;
-    Amount : number
+    Amount : number,
+    donor__c : string
 }
 export interface childAttachment {
     Child__c : string;

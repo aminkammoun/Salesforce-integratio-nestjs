@@ -63,10 +63,6 @@ export class SalesforceController {
     async linkPaymentMethodToCustomer(@Body() body: any) {
         return await this.salesforceService.linkPaymentMethodToCustomer(body);
     }
-    @Post('/setupIntent')
-    async setupIntents(@Body() body: any, @Res() res: any) {
-        return await this.salesforceService.setupIntents(body, res);
-    }
     @Post('/createSubOnStripe')
     async createSubOnStripe() {
         return await this.salesforceService.createRecurringOnStripe();

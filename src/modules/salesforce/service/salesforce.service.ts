@@ -127,7 +127,7 @@ export class SalesforceService {
                     const donationId = object.metadata.donationID;
                     console.log("khal hna")
 
-                    if (item.type.toLowerCase() == "recurring" || item.type.toLowerCase() == "sponsorship") {
+                    if (item.type.toLowerCase() == "recurring" || item.type.toLowerCase() == "sponsorship" ) {
                         console.log('customer', customer);
                         await this.processCartItemAfterPayment({
                             item,
@@ -383,33 +383,13 @@ export class SalesforceService {
             throw error;
         }
     }
-    async setupIntents(req: any, res: any) {
-        console.log(req.customerId)
-
-        const setupIntent = await this.stripe.setupIntents.create({
-            customer: req.customerId,
-            payment_method_types: ['card_present'],
-            usage: 'off_session'
-        });
-        console.log(setupIntent)
-        return setupIntent
-        // 2. Collect via terminal (just saves card, no charge)
-        //await this.stripe.terminal.readers.processSetupIntent(readerId, setupIntent.id);
-
-        // 3. Create subscription (first charge happens automatically)
-        /* const subscription = await this.stripe.subscriptions.create({
-            customer: req.customerId,
-            items: [{ price: req.priceId }],
-            default_payment_method: setupIntent.payment_method
-        }); */
-    }
     private mapIntervalToStripeInterval(interval: string) {
         const map = {
             monthly: { interval: 'month', interval_count: 1 },
             quarterly: { interval: 'month', interval_count: 3 },
-            Yearly: { interval: 'year', interval_count: 1 },
+            yearly: { interval: 'year', interval_count: 1 },
         };
-        return map[interval] || { interval: 'month', interval_count: 1 };
+        return map[interval.toLowerCase()] || { interval: 'month', interval_count: 1 };
     }
 
     private calculateNextBillingDate(interval: string): number {
@@ -417,9 +397,9 @@ export class SalesforceService {
         const days = {
             monthly: 30,
             quarterly: 90,
-            Yearly: 365,
+            yearly: 365,
         };
-        const daysToAdd = days[interval] || 30;
+        const daysToAdd = days[interval.toLowerCase()] || 30;
         return now + (daysToAdd * 24 * 60 * 60);
     }
     private mapIntervalToFrequency(interval: string): string {
@@ -510,38 +490,7 @@ export class SalesforceService {
 
         this.logger.log(`Created subscription ${subscription.id} for ${item.type}`);
         return { subs: subscription.id, customer: customer.id };
-        /* // Create recurring donation record
-         const recurringDonation = await this.recurringService.createRecurring({
-             donorType: "Contact",
-             frequency: donation.frequency || "Monthly",
-             customerStipe: stripeCustomer.id,
-             amount: donation.Amount || 0,
-             DayOfMonth: new Date(billingCycleAnchor * 1000).getDate(),
-             donations: new mongoose.Types.ObjectId(donation._id as string),
-             sponsorships: sponsorshipId
-                 ? new mongoose.Types.ObjectId(sponsorshipId)
-                 : null,
-             donor: new mongoose.Types.ObjectId(contact._id as string),
-             status: "Active",
-             stripeSubscriptionId: subscription.id,
-             nextBillingDate: new Date(billingCycleAnchor * 1000),
-         });
- 
-         // Link recurring to donation
-         donation.Recurring = new mongoose.Types.ObjectId(recurringDonation._id as string);
- 
-         // Update sponsorship if exists
-         if (sponsorshipId) {
-             const sponsorship = await this.sponsorshipService.findById(sponsorshipId);
-             if (sponsorship) {
-                 sponsorship.Status = 'Active';
-                 sponsorship.Recurring = new mongoose.Types.ObjectId(recurringDonation._id as string);
-                 sponsorship.stripeSubscriptionId = subscription.id;
-                 await sponsorship.save();
-             }
-         }
- 
-         await donation.save();*/
+
     }
     async createRecurringOnStripe() {
         //const customer = await this.stripe.customers.retrieve(req.customerId);

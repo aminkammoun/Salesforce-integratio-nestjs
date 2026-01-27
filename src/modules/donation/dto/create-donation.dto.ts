@@ -35,6 +35,11 @@ export enum recordType {
     SPONSORSHIPGIFT = 'Sponsorship Gift',
     PROGRAMDONATION = 'Program Donation',
 }
+export enum DonationType {
+    ONETIME = 'one-time',
+    RECURRING = 'recurring',
+    SPONSORSHIP = 'sponsorship',
+}
 /**
  * DTO used to create a Donation record.
  * Mirrors the Donation entity fields and includes Swagger metadata + validation.
@@ -43,8 +48,9 @@ export class CartItemDto {
     @ApiProperty({ description: 'Item name', example: 'Child Sponsorship Package' })
     Name: string;
 
-    @ApiProperty({ description: 'Type of donation', enum: ['one-time', 'recurring', 'sponsorship'], example: 'sponsorship' })
-    type: 'one-time' | 'recurring' | 'sponsorship';
+    @ApiProperty({ description: 'Type of donation', enum: DonationType, example: DonationType.SPONSORSHIP })
+    @IsEnum(DonationType)
+    type: string;
 
     @ApiProperty({ description: 'Billing interval for recurring donations', enum: ['monthly', 'quarterly', 'yearly'], example: 'monthly' })
     interval: 'monthly' | 'quarterly' | 'yearly';
@@ -104,8 +110,8 @@ export class TransactionDetailDto {
 
     @ApiPropertyOptional({ description: 'Payment method type', example: 'card' })
     payment_type?: string;
-    @ApiPropertyOptional({ description: 'if subscription_id', example: 'syb_xxxxxxx' })
 
+    @ApiPropertyOptional({ description: 'if subscription_id', example: 'syb_xxxxxxx' })
     subscription_id?: string;
 }
 export class CreateDonationDto {

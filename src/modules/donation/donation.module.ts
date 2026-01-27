@@ -7,13 +7,15 @@ import { RecurringModule } from '../recurring/recurring.module';
 import { RecurringService } from '../recurring/service/recurring.service';
 import { ContactModule } from '../contact/contact.module';
 import { ChildModule } from '../child/child.module';
+import { SponsorshipModule } from '../sponsorship/sponsorship.module';
 
 @Module({
     imports: [
         forwardRef(() => RecurringModule),
         MongooseModule.forFeature([{ name: Donation.name, schema: DonationSchema }]),
         forwardRef(() => ContactModule),
-        forwardRef(() => ChildModule)
+        forwardRef(() => ChildModule),
+        forwardRef(() => SponsorshipModule)
     ],
     controllers: [DonationController],
     providers: [DonationService],
