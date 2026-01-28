@@ -120,7 +120,7 @@ export class RecurringService {
                 status: "Active",
                 syncedWithSalesforce: false,
                 subscriptionStripe: null,
-                createOnStripe: { $eq: true }
+                createOnStripe: null
             });
             return recurrings;
         } catch (error) {
