@@ -164,7 +164,8 @@ export class DonationService {
         try {
             const donations = await this.DonationModel.find({
                 syncedWithSalesforce: false,
-                Donation_Source__c: 'Fundraising App'
+                Donation_Source__c: 'Website',
+                StageName : "Closed Won"
             });
             if (donations.length === 0) {
                 console.log('No donations to upload to Salesforce');
@@ -323,7 +324,6 @@ export class DonationService {
         try {
             const donations = await this.DonationModel.find({
                 syncedWithSalesforce: false,
-                Donation_Source__c: 'Website',
                 _id: new MongooseTypes.ObjectId(id), // For testing specific donation
             });
             if (donations.length === 0) {
@@ -503,13 +503,12 @@ export class DonationService {
             throw new InternalServerErrorException(error);
         }
     }
-    async repaireDonations() {
+    async repaireDonations(id:string) {
         try {
             let donations = await this.DonationModel.find({
                 syncedWithSalesforce: false,
                 StageName: 'Closed Won',
-                Donation_Source__c: 'Fundraising App',
-                _id: new MongooseTypes.ObjectId('69637c7169d793f774d6483a')// Exclude specific donation by its ID
+                _id: new MongooseTypes.ObjectId(id)// Exclude specific donation by its ID
             });
             console.log(donations);
             //const donations = await this.DonationModel.find({ syncedWithSalesforce: false, StageName: 'Closed Won', frequency : "One-time", });

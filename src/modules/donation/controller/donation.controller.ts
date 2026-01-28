@@ -79,7 +79,7 @@ export class DonationController {
         return this.donationService.findDonationsFromSalesforceByWorksheetId(cnid);
     }
     @Post('/repaireDon')
-    async repaireDonations() {
-        return this.donationService.repaireDonations();
+    async repaireDonations(@Param('id') id: string) {
+        return this.donationService.repaireDonations(id);
     }
 }
