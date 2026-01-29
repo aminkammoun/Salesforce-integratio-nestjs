@@ -8,7 +8,6 @@ export class Contact extends Document {
   @Prop({
     required: false,
     unique: false,
-
   })
   salesforceID: string;
 

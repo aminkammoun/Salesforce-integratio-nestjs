@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsString, IsNotEmpty, IsOptional, IsNumber, IsISO8601, IsEnum } from 'class-validator';
 import { ChildToreserve } from 'src/config/types';
+import { CreateContactDto } from 'src/modules/contact/dto/create-contact.dto';
 
 export enum DonationStageName {
     PENDING = 'pending',
@@ -233,6 +234,8 @@ export class CreateDonationDto {
     @ApiPropertyOptional({ description: 'Child ID associated with the donation', example: '0031t00000XyZzAAB' })
     @IsOptional()
     Child__c?: string;
+    @ApiPropertyOptional({ description: 'Additional contact details (optional)' })
+    Contact_details?: CreateContactDto;
 }
 
 export default CreateDonationDto;
