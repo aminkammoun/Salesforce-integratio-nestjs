@@ -121,7 +121,7 @@ export class CreateDonationDto {
         example: '64b8f9c2a2...'
     })
     @IsString()
-    @IsNotEmpty()
+    @IsOptional()
     contact?: string;
     @ApiPropertyOptional({
         description: 'ID of the donor (user) initiating the transaction in the sub database',

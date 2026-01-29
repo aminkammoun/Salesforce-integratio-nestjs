@@ -35,20 +35,19 @@ export class DonationService {
                 throw new InternalServerErrorException('Contact ID is required');
             }
             let contactDetails;
+            let contact
             if (createDonationDto[0].Contact_details) {
                 contactDetails = await this.contactService.create(createDonationDto[0].Contact_details);
             }
-            const contact = await this.contactService.findOne(createDonationDto[0].contact);
+             contact = contactDetails ? await this.contactService.findOne(contactDetails.id) : await this.contactService.findOne(createDonationDto[0].contact);
             const isContactSynced = contact?.syncedWithSalesforce ? true : false;
             createDonationDto = createDonationDto.map(donation => ({
                 ...donation,
+                contact: contactDetails.id,
                 npsp__Primary_Contact__c: isContactSynced ? contact?.salesforceID : undefined,
                 //syncedWithSalesforce: isContactSynced,
             }));
             const donation = await this.DonationModel.create(createDonationDto, { ordered: false });
-            //const response = await donation.save();
-            // If the donation is linked to a Recurring plan, add it to the Recurring.donations array
-
             return donation;
         } catch (error) {
             throw new InternalServerErrorException(error);
@@ -340,10 +339,7 @@ export class DonationService {
                 let payload: any
                 const recurringItems = await this.recurringService.findAllBySalesforceID(donation.npe03__Recurring_Donation__c);
                 donation.cartItems.map(async (item, index) => {
-                    console.log('index:', index);
-                    console.log('Name:', !item.Name.toLowerCase().includes('orphan'));
                     if (item.type.toLowerCase() === 'sponsorship' && !item.sfId) {
-                        console.log(item.Name.toLowerCase().includes('orphan') && item.type.toLowerCase() === 'recurring', item)
                         recurringItems.forEach(async recurring => {
                             if (recurring.amount === item.amount && recurring.frequency.toLowerCase() === item.interval.toLowerCase()) {
                                 payload = {
@@ -381,7 +377,6 @@ export class DonationService {
                             }
                         })
                     } else if (item.type.toLowerCase() === 'recurring' && !item.sfId) {
-                        console.log('Existing recurring donation item, skipping creation:', item);
                         let createRecPay: any;
                         let createOppPay: any;
                         createRecPay = {
