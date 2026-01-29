@@ -34,6 +34,10 @@ export class DonationService {
             if (!createDonationDto[0].contact) {
                 throw new InternalServerErrorException('Contact ID is required');
             }
+            let contactDetails;
+            if (createDonationDto[0].Contact_details) {
+                contactDetails = await this.contactService.create(createDonationDto[0].Contact_details);
+            }
             const contact = await this.contactService.findOne(createDonationDto[0].contact);
             const isContactSynced = contact?.syncedWithSalesforce ? true : false;
             createDonationDto = createDonationDto.map(donation => ({
@@ -164,8 +168,8 @@ export class DonationService {
         try {
             const donations = await this.DonationModel.find({
                 syncedWithSalesforce: false,
-                Donation_Source__c: 'Website',
-                StageName : "Closed Won"
+                Donation_Source__c: 'Fundraising App',
+                StageName: "Closed Won"
             });
             if (donations.length === 0) {
                 console.log('No donations to upload to Salesforce');
@@ -503,7 +507,7 @@ export class DonationService {
             throw new InternalServerErrorException(error);
         }
     }
-    async repaireDonations(id:string) {
+    async repaireDonations(id: string) {
         try {
             let donations = await this.DonationModel.find({
                 syncedWithSalesforce: false,

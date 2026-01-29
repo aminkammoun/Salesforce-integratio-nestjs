@@ -4,6 +4,7 @@ import { ChildToreserve } from 'src/config/types';
 import { Contact } from 'src/modules/contact/entities/contact.entity';
 import { CartItemDto, TransactionDetailDto } from '../dto/create-donation.dto';
 import { Transaction } from 'src/modules/transaction/entities/transaction.entity';
+import { CreateContactDto } from 'src/modules/contact/dto/create-contact.dto';
 
 @Schema()
 export class Donation extends Document {
@@ -70,5 +71,7 @@ export class Donation extends Document {
     recordType : string
     @Prop({ required: false })
     child__c : string*/
+    @Prop({ required: false })
+    Contact_details: CreateContactDto;
 }
 export const DonationSchema = SchemaFactory.createForClass(Donation);
