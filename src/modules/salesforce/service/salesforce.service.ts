@@ -230,9 +230,9 @@ export class SalesforceService {
         try {
             this.logger.log(`Creating payment intent for amount: ${req.amount}, currency: ${req.currency}`);
             const customer = await this.createStripeCustomer({
-                email: req.email,
-                name: req.name,
-                phone: req.phone,
+                email: req.metadata.email,
+                name: req.metadata?.name,
+                phone: req.metadata?.phone,
             });
             const paymentIntent = await this.stripe.paymentIntents.create({
                 amount: req.amount,
