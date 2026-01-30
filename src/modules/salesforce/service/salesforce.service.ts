@@ -127,7 +127,7 @@ export class SalesforceService {
                     const donationId = object.metadata.donationID;
                     console.log("khal hna")
 
-                    if (item.type.toLowerCase() == "recurring" || item.type.toLowerCase() == "sponsorship" ) {
+                    if (item.type.toLowerCase() == "recurring" || item.type.toLowerCase() == "sponsorship") {
                         console.log('customer', customer);
                         await this.processCartItemAfterPayment({
                             item,
@@ -232,7 +232,7 @@ export class SalesforceService {
             const customer = await this.createStripeCustomer({
                 email: req.metadata.email,
                 name: req.metadata?.name,
-                phone: req.metadata?.phone,
+                phone: req.metadata?.contactPhone,
             });
             const paymentIntent = await this.stripe.paymentIntents.create({
                 amount: req.amount,
