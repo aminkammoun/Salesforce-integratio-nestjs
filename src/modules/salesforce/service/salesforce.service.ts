@@ -232,7 +232,9 @@ export class SalesforceService {
             const donationId = req.metadata.donationID;
             this.logger.log(`Donation ID from metadata: ${donationId}`);
             const donation = await this.donationService.findOneId(req.metadata.donationID);
+
             const contact = await this.contactService.findOne(donation?.contact as string);
+            this.logger.log(`contact Name: ${contact?.Name}, contact Phone: ${contact?.Phone}`);
 
             const customer = await this.createStripeCustomer({
                 email: req.metadata.email,
