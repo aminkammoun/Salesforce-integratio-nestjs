@@ -261,7 +261,7 @@ export class ChildService {
                     if (reservedIds.length == 0 || availableChildren.length < count) {
                         const sp = await this.sponsorshipService.create({
                             donation: childmap.donationId,
-                            donor: childmap.donorId,
+                            donor: childmap.donor__c ? '6944640f71512ff7de282ddc' : childmap.donorId,
                             child: [],
                             Status: 'Active',
                             frequency: childmap.frequency,

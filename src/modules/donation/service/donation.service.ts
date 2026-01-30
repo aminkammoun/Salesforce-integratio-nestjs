@@ -39,11 +39,13 @@ export class DonationService {
             if (createDonationDto[0].Contact_details) {
                 contactDetails = await this.contactService.create(createDonationDto[0].Contact_details);
             }
-             contact = contactDetails ? await this.contactService.findOne(contactDetails.id) : await this.contactService.findOne(createDonationDto[0].contact);
+            console.log('Contact details for donation creation:', createDonationDto[0].contact);
+            contact = contactDetails ? await this.contactService.findOne(contactDetails.id) : await this.contactService.findOne(createDonationDto[0].contact);
+            console.log('Contact details for donation creation:', contactDetails, contact);
             const isContactSynced = contact?.syncedWithSalesforce ? true : false;
             createDonationDto = createDonationDto.map(donation => ({
                 ...donation,
-                contact: contactDetails.id,
+                contact: contact.id,
                 npsp__Primary_Contact__c: isContactSynced ? contact?.salesforceID : undefined,
                 //syncedWithSalesforce: isContactSynced,
             }));
@@ -503,7 +505,9 @@ export class DonationService {
         }
     }
     async repaireDonations(id: string) {
+
         try {
+            console.log('Reparing donations for id:', id);
             let donations = await this.DonationModel.find({
                 syncedWithSalesforce: false,
                 StageName: 'Closed Won',
@@ -515,33 +519,41 @@ export class DonationService {
                 throw new NotFoundException('donation not found');
             }
             donations.map(async (don) => {
-                if (don.Amount % 60 !== 0) {
+                if (don.frequency.toLocaleLowerCase() == "one-time") {
                     return don;
                 }
                 //const contact = await this.contactService.findOne(don.contact as string);
-                don.frequency = don.Amount >= 720 ? "yearly" : "monthly";
-                don.cartItems = don.cartItems.map(item => ({
-                    ...item,
-                    interval: don.Amount >= 720 ? "yearly" : "monthly",
-                    type: "sponsorship",
-                    nationality: item.nationality || "Syrian",
-                    childrenCount: don.Amount >= 720 ? (don.Amount / 720) : don.Amount / 60,
+                //don.frequency = don.Amount >= 720 ? "yearly" : "monthly";
+                don.cartItems = await Promise.all(don.cartItems.map(async item => {
+                    let payloadSp: SponsorshipChilds[] = [];
+
+                    if (item.amount % 60 !== 0 && item.type == "one-time") {
+                        return item;
+                    }
+                    payloadSp = [{
+                        donationId: don._id as string,
+                        donorId: don.contact as string,
+                        childToreserve: [
+                            { nationality: don.cartItems[0].nationality || "Syrian", Requestedcount: item.amount >= 720 ? (item.amount / 720) : item.amount / 60 },
+                        ],
+                        frequency: item.interval,
+                        Amount: item.amount,
+                        donor__c: don?.npsp__Primary_Contact__c || '',
+                    }]
+                    const result = await this.ChildService.reserveChildren(payloadSp);
+                    if (result) {
+                        console.log(result);
+                        this.SponsorshipService.repaireSp(result[0]._id as string);
+                    }
+                    return {
+                        ...item,
+                        interval: item.amount >= 720 ? "yearly" : "monthly",
+                        type: "sponsorship",
+                        nationality: item.nationality || "Syrian",
+                        childrenCount: item.amount >= 720 ? (item.amount / 720) : item.amount / 60,
+                    }
                 }));
-                const payloadSp: SponsorshipChilds[] = [{
-                    donationId: don._id as string,
-                    donorId: don.contact as string,
-                    childToreserve: [
-                        { nationality: don.cartItems[0].nationality || "Syrian", Requestedcount: don.Amount >= 720 ? (don.Amount / 720) : don.Amount / 60 },
-                    ],
-                    frequency: don.frequency,
-                    Amount: don.Amount,
-                    donor__c: don?.npsp__Primary_Contact__c || '',
-                }]
-                const result = await this.ChildService.reserveChildren(payloadSp);
-                if (result) {
-                    console.log(result);
-                    this.SponsorshipService.repaireSp(result[0]._id as string);
-                }
+
                 await don.save();
                 return don;
             })
