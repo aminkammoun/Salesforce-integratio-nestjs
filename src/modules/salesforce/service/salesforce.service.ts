@@ -119,58 +119,58 @@ export class SalesforceService {
                     name: contact.Name,
                     phone: contact.Phone,
                 });
-/*
-                // customer = await 
-
-                for (let i = 0; i < cartItems.length; i++) {
-                    const item = cartItems[i];
-                    const donationId = object.metadata.donationID;
-                    console.log("khal hna")
-
-                    if (item.type.toLowerCase() == "recurring" || item.type.toLowerCase() == "sponsorship") {
-                        console.log('customer', customer);
-                        await this.processCartItemAfterPayment({
-                            item,
-                            donationId,
-                            contact,
-                            customer,
-                            object,
-                        });
-                    }
-                }
-
-                //const sponsorshipId = await JSON.parse(event.data.object.metadata.sponsorshipId);
-                //console.log(sponsorshipId)
-                const sponsorship = await this.sponsorshipService.findByDonationId(object.metadata.donationID);
-                console.log('sponsorship ', sponsorship)
-                for (const sp of sponsorship) {
-                    console.log(sp)
-                    let recurringDonation = {
-                        donorType: "Open",
-                        frequency: sp?.frequency || "Monthly",
-                        customerStipe: (await customer).id,
-                        amount: sp?.Amount || 0,
-                        DayOfMonth: new Date().getDate(),
-                        donations: donation?._id ? (new mongoose.Types.ObjectId(donation._id as string) as unknown as any) : '',
-                        sponsorships: sp._id ? (new mongoose.Types.ObjectId(sp._id as string) as unknown as any) : '',
-                        donor: contact._id ? (new mongoose.Types.ObjectId(contact._id as string) as unknown as any) : '',
-                        status: "Active",
-                        npe03__Contact__c: contact.salesforceID ? contact.salesforceID : null,
-                    };
-                    sp.Status = 'Active';
-                    contact.salesforceID ? sp.Donor__c = contact.salesforceID : null;
-                    const recurring = await this.recurringService.createRecurring(recurringDonation);
-                    console.log('recurring', recurring);
-                    if (!Array.isArray(donation.Recurring)) {
-                        donation.Recurring = [];
-                    }
-                    donation.Recurring.push(new mongoose.Types.ObjectId(recurring._id as string) as unknown as any);
-                    sp.Recurring = recurring._id ? (new mongoose.Types.ObjectId(recurring._id as string) as unknown as any) : '';
-                    sp.save();
-                    if (sp.child && sp.child.length > 0) {
-                        this.childService.updateToSponsored(sp.child);
-                    }
-                }*/
+                /*
+                                // customer = await 
+                
+                                for (let i = 0; i < cartItems.length; i++) {
+                                    const item = cartItems[i];
+                                    const donationId = object.metadata.donationID;
+                                    console.log("khal hna")
+                
+                                    if (item.type.toLowerCase() == "recurring" || item.type.toLowerCase() == "sponsorship") {
+                                        console.log('customer', customer);
+                                        await this.processCartItemAfterPayment({
+                                            item,
+                                            donationId,
+                                            contact,
+                                            customer,
+                                            object,
+                                        });
+                                    }
+                                }
+                
+                                //const sponsorshipId = await JSON.parse(event.data.object.metadata.sponsorshipId);
+                                //console.log(sponsorshipId)
+                                const sponsorship = await this.sponsorshipService.findByDonationId(object.metadata.donationID);
+                                console.log('sponsorship ', sponsorship)
+                                for (const sp of sponsorship) {
+                                    console.log(sp)
+                                    let recurringDonation = {
+                                        donorType: "Open",
+                                        frequency: sp?.frequency || "Monthly",
+                                        customerStipe: (await customer).id,
+                                        amount: sp?.Amount || 0,
+                                        DayOfMonth: new Date().getDate(),
+                                        donations: donation?._id ? (new mongoose.Types.ObjectId(donation._id as string) as unknown as any) : '',
+                                        sponsorships: sp._id ? (new mongoose.Types.ObjectId(sp._id as string) as unknown as any) : '',
+                                        donor: contact._id ? (new mongoose.Types.ObjectId(contact._id as string) as unknown as any) : '',
+                                        status: "Active",
+                                        npe03__Contact__c: contact.salesforceID ? contact.salesforceID : null,
+                                    };
+                                    sp.Status = 'Active';
+                                    contact.salesforceID ? sp.Donor__c = contact.salesforceID : null;
+                                    const recurring = await this.recurringService.createRecurring(recurringDonation);
+                                    console.log('recurring', recurring);
+                                    if (!Array.isArray(donation.Recurring)) {
+                                        donation.Recurring = [];
+                                    }
+                                    donation.Recurring.push(new mongoose.Types.ObjectId(recurring._id as string) as unknown as any);
+                                    sp.Recurring = recurring._id ? (new mongoose.Types.ObjectId(recurring._id as string) as unknown as any) : '';
+                                    sp.save();
+                                    if (sp.child && sp.child.length > 0) {
+                                        this.childService.updateToSponsored(sp.child);
+                                    }
+                                }*/
                 donation.StageName = 'Closed Won';
                 donation.transactionDetails = {
                     captured: "yes",
@@ -229,10 +229,15 @@ export class SalesforceService {
     async createPaymentIntent(req: any, res: any) {
         try {
             this.logger.log(`Creating payment intent for amount: ${req.amount}, currency: ${req.currency}`);
+            const donationId = req.metadata.donationID;
+            this.logger.log(`Donation ID from metadata: ${donationId}`);
+            const donation = await this.donationService.findOneId(req.metadata.donationID);
+            const contact = await this.contactService.findOne(donation?.contact as string);
+
             const customer = await this.createStripeCustomer({
                 email: req.metadata.email,
-                name: req.metadata?.name,
-                phone: req.metadata?.contactPhone,
+                name: contact?.Name,
+                phone: contact?.Phone,
             });
             const paymentIntent = await this.stripe.paymentIntents.create({
                 amount: req.amount,
