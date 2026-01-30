@@ -119,7 +119,7 @@ export class SalesforceService {
                     name: contact.Name,
                     phone: contact.Phone,
                 });
-
+/*
                 // customer = await 
 
                 for (let i = 0; i < cartItems.length; i++) {
@@ -170,7 +170,7 @@ export class SalesforceService {
                     if (sp.child && sp.child.length > 0) {
                         this.childService.updateToSponsored(sp.child);
                     }
-                }
+                }*/
                 donation.StageName = 'Closed Won';
                 donation.transactionDetails = {
                     captured: "yes",
