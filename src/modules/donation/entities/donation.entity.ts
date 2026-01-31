@@ -73,5 +73,7 @@ export class Donation extends Document {
     child__c : string*/
     @Prop({ required: false })
     Contact_details: CreateContactDto;
+    @Prop({ default: Date.now })   
+    createdDate: Date;
 }
 export const DonationSchema = SchemaFactory.createForClass(Donation);
