@@ -406,9 +406,9 @@ export class SalesforceService {
     private calculateNextBillingDate(interval: string): number {
         const now = new Date();
         const nextBillingDate = new Date(now);
-        
+
         // Add interval to the current date
-        switch(interval.toLowerCase()) {
+        switch (interval.toLowerCase()) {
             case 'monthly':
                 nextBillingDate.setMonth(nextBillingDate.getMonth() + 1);
                 break;
@@ -421,7 +421,7 @@ export class SalesforceService {
             default:
                 nextBillingDate.setMonth(nextBillingDate.getMonth() + 1); // Default to monthly
         }
-        
+
         // Set to midnight UTC
         nextBillingDate.setHours(0, 0, 0, 0);
         return Math.floor(nextBillingDate.getTime() / 1000);
@@ -499,7 +499,7 @@ export class SalesforceService {
         const billingCycleAnchor = this.calculateNextBillingDate(item.interval);
         console.log(billingCycleAnchor)
         // Create Stripe subscription with trial to prevent immediate charge
-        const subscription = await this.createStripeSubscription({
+        /*const subscription = await this.createStripeSubscription({
             customerId: customer.id,
             priceId: price.id,
             trial_end: billingCycleAnchor, // Don't charge until next period
@@ -513,7 +513,7 @@ export class SalesforceService {
         }, {});
 
         this.logger.log(`Created subscription ${subscription.id} for ${item.type}`);
-        return { subs: subscription.id, customer: customer.id };
+        return { subs: subscription.id, customer: customer.id };*/
 
     }
     async createRecurringOnStripe() {
@@ -561,8 +561,8 @@ export class SalesforceService {
                     customer: customer,
                     object: stripeGetChargeEvent,
                 });
-                rec.customerStripe = processCartItemAfterPayment?.customer || '';
-                rec.subscriptionStripe = processCartItemAfterPayment?.subs || '';
+                //rec.customerStripe = processCartItemAfterPayment?.customer || '';
+                //rec.subscriptionStripe = processCartItemAfterPayment?.subs || '';
                 /*donation.transactionDetails = {
                     captured: "yes",
                     currency: stripeGetChargeEvent.currency,
