@@ -111,7 +111,7 @@ export class SalesforceService {
                 const recurringItem = cartItems.find(item => item.type === 'Recurring' || item.type === 'Sponsorship');
                 console.log("recurringItem " + recurringItem)
 
-                const checkCustomer = await this.stripe.customers.search({
+               /* const checkCustomer = await this.stripe.customers.search({
                     query: `metadata['customer_phone']:'${contact.Phone}'`,
                 });
                 customer = checkCustomer.data.length > 0 ? checkCustomer.data[0] : this.createStripeCustomer({
@@ -119,7 +119,7 @@ export class SalesforceService {
                     name: contact.Name,
                     phone: contact.Phone,
                 });
-                /*
+                
                                 // customer = await 
                 
                                 for (let i = 0; i < cartItems.length; i++) {
@@ -177,7 +177,7 @@ export class SalesforceService {
                     currency: object.currency,
                     intent_id: object.payment_intent?.toString() || '',
                     source_id: object.payment_method?.toString() || '',
-                    customer_id: customer.id || '',
+                    customer_id: object.customer?.toString() || '',
                 }
                 donation.customerStripe = object.payment_intent;
                 console.log(new Date(donation.CloseDate).getTime());
