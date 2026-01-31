@@ -489,7 +489,7 @@ export class SalesforceService {
         const subscription = await this.createStripeSubscription({
             customerId: customer.id,
             priceId: price.id,
-            trial_end: billingCycleAnchor, // Don't charge until next period
+            trial_end: now, // Don't charge until next period
             billing_cycle_anchor: now,
             default_payment_method: object.payment_method || params.paymentMethod,
             metadata: {
