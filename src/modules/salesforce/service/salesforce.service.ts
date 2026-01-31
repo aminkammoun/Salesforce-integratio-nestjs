@@ -410,7 +410,7 @@ export class SalesforceService {
         // Add interval to the current date
         switch (interval.toLowerCase()) {
             case 'monthly':
-                nextBillingDate.setMonth(nextBillingDate.getMonth() + 1);
+                nextBillingDate.setMonth(nextBillingDate.getMonth() + 2);
                 break;
             case 'quarterly':
                 nextBillingDate.setMonth(nextBillingDate.getMonth() + 3);
@@ -498,11 +498,13 @@ export class SalesforceService {
         // Calculate when subscription should start billing
         const billingCycleAnchor = this.calculateNextBillingDate(item.interval);
         console.log(billingCycleAnchor)
+        const currentDate = new Date();
         // Create Stripe subscription with trial to prevent immediate charge
         const subscription = await this.createStripeSubscription({
             customerId: customer.id,
             priceId: price.id,
-            billing_cycle_anchor: billingCycleAnchor, // Set next billing date as anchor
+            trial_end_date: billingCycleAnchor, // Don't charge until next period
+            billing_cycle_anchor: currentDate.getTime() / 1000, // Start billing cycle now
             default_payment_method: object.payment_method || params.paymentMethod,
             metadata: {
                 donationId: donationId,
