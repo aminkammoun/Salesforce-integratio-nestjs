@@ -404,29 +404,14 @@ export class SalesforceService {
     }
 
     private calculateNextBillingDate(interval: string): number {
-        const now = new Date();
-        const nextBillingDate = new Date(now);
-
-        // Add interval to the current date
-        switch (interval.toLowerCase()) {
-            case 'monthly':
-                nextBillingDate.setMonth(2); // March is month 2 (0-indexed)
-                nextBillingDate.setDate(30);
-                break;
-            case 'quarterly':
-                nextBillingDate.setMonth(nextBillingDate.getMonth() + 3);
-                break;
-            case 'yearly':
-                nextBillingDate.setFullYear(nextBillingDate.getFullYear() + 1);
-                break;
-            default:
-                nextBillingDate.setMonth(2); // March is month 2 (0-indexed)
-                nextBillingDate.setDate(30); // Default to monthly
-        }
-
-        // Set to midnight UTC
-        nextBillingDate.setHours(0, 0, 0, 0);
-        return Math.floor(nextBillingDate.getTime() / 1000);
+        const now = Math.floor(Date.now() / 1000);
+        const days = {
+            monthly: 30,
+            quarterly: 90,
+            yearly: 365,
+        };
+        const daysToAdd = days[interval.toLowerCase()] || 30;
+        return now + (daysToAdd * 24 * 60 * 60);
     }
     private mapIntervalToFrequency(interval: string): string {
         const map = {
@@ -497,18 +482,16 @@ export class SalesforceService {
                 }
             }, {});
         }
-        //this.linkPaymentMethodToCustomer(params.object.payment_method, customer.id);
         // Calculate when subscription should start billing
         const billingCycleAnchor = this.calculateNextBillingDate(item.interval);
         console.log(billingCycleAnchor)
-        const currentDate = new Date();
         // Create Stripe subscription with trial to prevent immediate charge
         const subscription = await this.createStripeSubscription({
             customerId: customer.id,
             priceId: price.id,
-            trial_end_date: billingCycleAnchor, // Don't charge until next period
-            billing_cycle_anchor: currentDate, // Start billing cycle now
-            //default_payment_method: object.payment_method || params.paymentMethod,
+            trial_end: billingCycleAnchor, // Don't charge until next period
+            billing_cycle_anchor: billingCycleAnchor,
+            default_payment_method: object.payment_method || params.paymentMethod,
             metadata: {
                 donationId: donationId,
                 contactId: contact._id.toString(),
