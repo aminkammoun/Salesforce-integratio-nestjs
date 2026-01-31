@@ -497,7 +497,7 @@ export class SalesforceService {
                 }
             }, {});
         }
-        this.linkPaymentMethodToCustomer(params.object.payment_method, customer.id);
+        //this.linkPaymentMethodToCustomer(params.object.payment_method, customer.id);
         // Calculate when subscription should start billing
         const billingCycleAnchor = this.calculateNextBillingDate(item.interval);
         console.log(billingCycleAnchor)
@@ -508,7 +508,7 @@ export class SalesforceService {
             priceId: price.id,
             trial_end_date: billingCycleAnchor, // Don't charge until next period
             billing_cycle_anchor: currentDate, // Start billing cycle now
-            default_payment_method: object.payment_method || params.paymentMethod,
+            //default_payment_method: object.payment_method || params.paymentMethod,
             metadata: {
                 donationId: donationId,
                 contactId: contact._id.toString(),
