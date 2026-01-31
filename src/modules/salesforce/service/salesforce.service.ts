@@ -327,6 +327,7 @@ export class SalesforceService {
                 items: [{ price: req.priceId }],
                 //trial_end: req.trial_end, // NEW: prevent immediate charge
                 billing_cycle_anchor: req.billing_cycle_anchor, // NEW: set billing date
+                backdate_start_date: req.backdate_start_date,
                 metadata: req.metadata || {},
                 proration_behavior: 'none',
                 expand: ['latest_invoice.payment_intent'],
@@ -432,13 +433,13 @@ export class SalesforceService {
     }
 
     private async processCartItemAfterPayment(params: {
-            item: CartItemDto;
-            donationId: string;
-            contact: any;
-            customer: any;
-            object?: any;
-            paymentMethod?: any;
-        }) {
+        item: CartItemDto;
+        donationId: string;
+        contact: any;
+        customer: any;
+        object?: any;
+        paymentMethod?: any;
+    }) {
         const { item, donationId, contact, customer, object } = params;
 
         const donation = await this.donationService.findOneId(donationId);
@@ -502,6 +503,7 @@ export class SalesforceService {
             priceId: price.id,
             trial_end: billingCycleAnchor, // Don't charge until next period
             //billing_cycle_anchor: now,
+            backdate_start_date: Math.floor(Date.now() / 1000),
             default_payment_method: object.payment_method || params.paymentMethod,
             metadata: {
                 donationId: donationId,
