@@ -299,7 +299,7 @@ export class ContactService {
 
                     const cleanedPhone = '+1' + contact.Phone.replace(/[^0-9]/g, '');
                     console.log(`Cleaned phone number for contact ${contact._id}: ${cleanedPhone}`);
-                    if (contact.Phone !== cleanedPhone && cleanedPhone.length == 12) {
+                    if (contact.Phone !== cleanedPhone) {
                         contact.Phone = cleanedPhone;
                         await contact.save();
                         console.log(`Cleaned phone number for contact ${contact._id}: ${cleanedPhone}`);
