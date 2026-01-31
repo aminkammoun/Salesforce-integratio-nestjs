@@ -509,7 +509,8 @@ export class DonationService {
         try {
             let donations = await this.DonationModel.find({
                 syncedWithSalesforce: false,
-                StageName: 'Closed Won'
+                StageName: 'Closed Won',
+                Donation_Source__c: 'Fundraising App',
             });
             //const donations = await this.DonationModel.find({ syncedWithSalesforce: false, StageName: 'Closed Won', frequency : "One-time", });
             if (!donations) {
@@ -536,7 +537,7 @@ export class DonationService {
                         Amount: item.amount,
                         donor__c: don?.npsp__Primary_Contact__c || '',
                     }]
-                    
+
                     // Call reserveChildren directly without setTimeout to ensure sequential execution
                     const result = await this.ChildService.reserveChildren(payloadSp);
                     if (result) {
