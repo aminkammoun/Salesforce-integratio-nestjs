@@ -59,10 +59,10 @@ export class SalesforceController {
     async createSubscription(@Body() body: any, @Res() res: any) {
         return await this.salesforceService.createStripeSubscription(body, res);
     }
-    @Post('/linkPayment')
-    async linkPaymentMethodToCustomer(@Body() body: any) {
-        return await this.salesforceService.linkPaymentMethodToCustomer(body);
-    }
+    // @Post('/linkPayment')
+    // async linkPaymentMethodToCustomer(@Body() body: any) {
+    //     return await this.salesforceService.linkPaymentMethodToCustomer(body);
+    // }
     @Post('/createSubOnStripe')
     async createSubOnStripe() {
         return await this.salesforceService.createRecurringOnStripe();
