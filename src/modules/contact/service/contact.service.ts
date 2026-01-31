@@ -297,9 +297,9 @@ export class ContactService {
                 if (contact.Phone) {
                     console.log(`Original phone number for contact ${contact._id}: ${contact.Phone}`);
 
-                    const cleanedPhone = '+1' + contact.Phone.replace(/[^0-9]/g, '');
+                    const cleanedPhone = '+' + contact.Phone.replace(/[^0-9]/g, '');
                     console.log(`Cleaned phone number for contact ${contact._id}: ${cleanedPhone}`);
-                    if (contact.Phone !== cleanedPhone) {
+                    if (contact.Phone !== cleanedPhone && cleanedPhone.length == 12) {
                         contact.Phone = cleanedPhone;
                         await contact.save();
                         console.log(`Cleaned phone number for contact ${contact._id}: ${cleanedPhone}`);
