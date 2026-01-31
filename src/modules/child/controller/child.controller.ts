@@ -55,4 +55,8 @@ export class ChildController {
     async getAttachmentsFromSalesforce(@Param('childId') childId: string) {
         return this.childService.retrieveAttachmentsFromSalesforce(childId);
     }
+    @Post('/updateToSponsored')
+    async updateToSponsored(@Body() body: any) {
+        return this.childService.updateToSponsored(body);
+    }
 }
