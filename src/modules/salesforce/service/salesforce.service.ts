@@ -410,7 +410,8 @@ export class SalesforceService {
         // Add interval to the current date
         switch (interval.toLowerCase()) {
             case 'monthly':
-                nextBillingDate.setMonth(nextBillingDate.getMonth() + 2);
+                nextBillingDate.setMonth(2); // March is month 2 (0-indexed)
+                nextBillingDate.setDate(30);
                 break;
             case 'quarterly':
                 nextBillingDate.setMonth(nextBillingDate.getMonth() + 3);
@@ -419,7 +420,8 @@ export class SalesforceService {
                 nextBillingDate.setFullYear(nextBillingDate.getFullYear() + 1);
                 break;
             default:
-                nextBillingDate.setMonth(nextBillingDate.getMonth() + 1); // Default to monthly
+                nextBillingDate.setMonth(2); // March is month 2 (0-indexed)
+                nextBillingDate.setDate(30); // Default to monthly
         }
 
         // Set to midnight UTC
