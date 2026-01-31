@@ -504,47 +504,45 @@ export class DonationService {
             throw new InternalServerErrorException(error);
         }
     }
-    async repaireDonations(id: string) {
+    async repaireDonations() {
 
         try {
-            console.log('Reparing donations for id:', id);
             let donations = await this.DonationModel.find({
                 syncedWithSalesforce: false,
-                StageName: 'Closed Won',
-                _id: new MongooseTypes.ObjectId(id)// Exclude specific donation by its ID
+                StageName: 'Closed Won'
             });
-            console.log(donations);
             //const donations = await this.DonationModel.find({ syncedWithSalesforce: false, StageName: 'Closed Won', frequency : "One-time", });
             if (!donations) {
                 throw new NotFoundException('donation not found');
             }
-            donations.map(async (don) => {
+            for (const don of donations) {
                 if (don.frequency.toLocaleLowerCase() == "one-time") {
-                    return don;
+                    continue;
                 }
                 //const contact = await this.contactService.findOne(don.contact as string);
                 //don.frequency = don.Amount >= 720 ? "yearly" : "monthly";
                 don.cartItems = await Promise.all(don.cartItems.map(async item => {
                     let payloadSp: SponsorshipChilds[] = [];
-
-                    if (item.amount % 60 !== 0 && item.type == "one-time") {
+                    if (item.type.toLowerCase() == "one-time" || item.type.toLowerCase() == "recurring") {
                         return item;
                     }
                     payloadSp = [{
                         donationId: don._id as string,
                         donorId: don.contact as string,
                         childToreserve: [
-                            { nationality: don.cartItems[0].nationality || "Syrian", Requestedcount: item.amount >= 720 ? (item.amount / 720) : item.amount / 60 },
+                            { nationality: item.nationality || "Syrian", Requestedcount: item.amount >= 720 ? (item.amount / 720) : item.amount / 60 },
                         ],
                         frequency: item.interval,
                         Amount: item.amount,
                         donor__c: don?.npsp__Primary_Contact__c || '',
                     }]
+                    
+                    // Call reserveChildren directly without setTimeout to ensure sequential execution
                     const result = await this.ChildService.reserveChildren(payloadSp);
                     if (result) {
-                        console.log(result);
-                        this.SponsorshipService.repaireSp(result[0]._id as string);
+                        await this.SponsorshipService.repaireSp(result[0]._id as string);
                     }
+
                     return {
                         ...item,
                         interval: item.amount >= 720 ? "yearly" : "monthly",
@@ -555,8 +553,7 @@ export class DonationService {
                 }));
 
                 await don.save();
-                return don;
-            })
+            }
             return donations;
         } catch (error) {
             throw new InternalServerErrorException(error);
