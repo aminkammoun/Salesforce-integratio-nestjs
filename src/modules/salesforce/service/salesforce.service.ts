@@ -273,7 +273,6 @@ export class SalesforceService {
                 email: req.email ?? undefined,
                 name: req.name ?? undefined,
                 phone: req.phone ?? undefined,
-
                 // In case Stripe ignores top-level fields, ALWAYS store here
                 metadata: {
                     customer_name: req.name || "",
@@ -531,7 +530,7 @@ export class SalesforceService {
                     name: contact.Name,
                     phone: contact.Phone,
                 });
-
+                console.log('customer', customer);
                 if (!donation) {
                     throw new Error(`Donation ${donationId} not found`);
                 }
@@ -540,7 +539,6 @@ export class SalesforceService {
                     throw new Error(`Transaction for donation ${donationId} not found`);
                 }
                 const stripeGetChargeEvent = await this.stripe.charges.retrieve(transaction[0].transactionID);
-                console.log('stripeGetChargeEvent', stripeGetChargeEvent);
                 const processCartItemAfterPayment = await this.processCartItemAfterPayment({
                     item: donation.cartItems[0],
                     donationId: donationId,

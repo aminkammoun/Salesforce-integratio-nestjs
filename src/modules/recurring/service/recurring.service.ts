@@ -120,7 +120,8 @@ export class RecurringService {
                 status: "Active",
                 syncedWithSalesforce: false,
                 subscriptionStripe: null,
-                createOnStripe: null
+                createOnStripe: null,
+                _id: { $ne: new MongooseTypes.ObjectId("697e1abd84935061fbb77092") } // Exclude specific ID
             });
             return recurrings;
         } catch (error) {
