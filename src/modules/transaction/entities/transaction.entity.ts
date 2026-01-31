@@ -24,8 +24,6 @@ export class Transaction extends Document {
     Payment__Method_of_Payment__c: string;
     @Prop({ required: true })
     Payment__Contact__c: string;
-    @Prop({ required: true })
-    IATSPayment__Contact__c: string;
     @Prop({ required: false })
     Payment__Payer_Address__c: string;
     @Prop({ required: false })
