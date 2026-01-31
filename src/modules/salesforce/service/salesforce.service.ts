@@ -231,15 +231,15 @@ export class SalesforceService {
             this.logger.log(`Creating payment intent for amount: ${req.amount}, currency: ${req.currency}`);
             const donation = await this.donationService.findOneId(req.metadata.donationID);
             const contact = await this.contactService.findOne(donation?.contact as string);
-            
+
             this.logger.log(`contact Name: ${contact?.Name}, contact Phone: ${contact?.Phone}`);
-            
+
             const checkCustomer = await this.stripe.customers.search({
                 query: `metadata['customer_phone']:'${contact?.Phone}'`,
             });
-            
-            const customer = checkCustomer.data.length > 0 
-                ? checkCustomer.data[0] 
+
+            const customer = checkCustomer.data.length > 0
+                ? checkCustomer.data[0]
                 : await this.createStripeCustomer({
                     email: req.metadata.email,
                     name: contact?.Name,
@@ -404,14 +404,27 @@ export class SalesforceService {
     }
 
     private calculateNextBillingDate(interval: string): number {
-        const now = Math.floor(Date.now() / 1000);
-        const days = {
-            monthly: 30,
-            quarterly: 90,
-            yearly: 365,
-        };
-        const daysToAdd = days[interval.toLowerCase()] || 30;
-        return now + (daysToAdd * 24 * 60 * 60);
+        const now = new Date();
+        const nextBillingDate = new Date(now);
+        
+        // Add interval to the current date
+        switch(interval.toLowerCase()) {
+            case 'monthly':
+                nextBillingDate.setMonth(nextBillingDate.getMonth() + 1);
+                break;
+            case 'quarterly':
+                nextBillingDate.setMonth(nextBillingDate.getMonth() + 3);
+                break;
+            case 'yearly':
+                nextBillingDate.setFullYear(nextBillingDate.getFullYear() + 1);
+                break;
+            default:
+                nextBillingDate.setMonth(nextBillingDate.getMonth() + 1); // Default to monthly
+        }
+        
+        // Set to midnight UTC
+        nextBillingDate.setHours(0, 0, 0, 0);
+        return Math.floor(nextBillingDate.getTime() / 1000);
     }
     private mapIntervalToFrequency(interval: string): string {
         const map = {
@@ -508,7 +521,8 @@ export class SalesforceService {
         //console.log('Customer retrieved:', customer);
         //const interval = this.mapIntervalToStripeInterval(req.interval);
         const recurring = await this.recurringService.findAll();
-        if (!recurring) {
+        console.log('Found recurrings:', recurring.length);
+        if (!recurring || recurring.length === 0) {
             throw new Error('Recurring donation not found');
         }
         for (const rec of recurring) {
