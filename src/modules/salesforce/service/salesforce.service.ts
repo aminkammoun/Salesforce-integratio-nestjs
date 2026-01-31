@@ -393,6 +393,14 @@ export class SalesforceService {
             throw error;
         }
     }
+    private mapIntervalToFrequency(interval: string): string {
+        const map = {
+            monthly: 'Monthly',
+            quarterly: 'Quarterly',
+            yearly: 'Yearly',
+        };
+        return map[interval] || 'One-Time';
+    }
     private mapIntervalToStripeInterval(interval: string) {
         const map = {
             monthly: { interval: 'month', interval_count: 1 },
@@ -402,32 +410,35 @@ export class SalesforceService {
         return map[interval.toLowerCase()] || { interval: 'month', interval_count: 1 };
     }
 
+    // Improved billing date calculation
     private calculateNextBillingDate(interval: string): number {
-        const now = Math.floor(Date.now() / 1000);
-        const days = {
-            monthly: 30,
-            quarterly: 90,
-            yearly: 365,
-        };
-        const daysToAdd = days[interval.toLowerCase()] || 30;
-        return now + (daysToAdd * 24 * 60 * 60);
+        const now = new Date();
+        let nextDate = new Date(now);
+
+        switch (interval.toLowerCase()) {
+            case 'monthly':
+                nextDate.setMonth(nextDate.getMonth() + 1);
+                break;
+            case 'quarterly':
+                nextDate.setMonth(nextDate.getMonth() + 3);
+                break;
+            case 'yearly':
+                nextDate.setFullYear(nextDate.getFullYear() + 1);
+                break;
+            default:
+                nextDate.setMonth(nextDate.getMonth() + 1);
+        }
+        return Math.floor(nextDate.getTime() / 1000);
     }
-    private mapIntervalToFrequency(interval: string): string {
-        const map = {
-            monthly: 'Monthly',
-            quarterly: 'Quarterly',
-            yearly: 'Yearly',
-        };
-        return map[interval] || 'One-Time';
-    }
+
     private async processCartItemAfterPayment(params: {
-        item: CartItemDto;
-        donationId: string;
-        contact: any;
-        customer: any;
-        object?: any;
-        paymentMethod?: any;
-    }) {
+            item: CartItemDto;
+            donationId: string;
+            contact: any;
+            customer: any;
+            object?: any;
+            paymentMethod?: any;
+        }) {
         const { item, donationId, contact, customer, object } = params;
 
         const donation = await this.donationService.findOneId(donationId);
@@ -490,7 +501,7 @@ export class SalesforceService {
             customerId: customer.id,
             priceId: price.id,
             trial_end: billingCycleAnchor, // Don't charge until next period
-            billing_cycle_anchor: now,
+            //billing_cycle_anchor: now,
             default_payment_method: object.payment_method || params.paymentMethod,
             metadata: {
                 donationId: donationId,
