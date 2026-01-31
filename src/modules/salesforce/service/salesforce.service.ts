@@ -498,12 +498,13 @@ export class SalesforceService {
         // Calculate when subscription should start billing
         const billingCycleAnchor = this.calculateNextBillingDate(item.interval);
         console.log(billingCycleAnchor)
+        const currentDate = new Date();
         // Create Stripe subscription with trial to prevent immediate charge
-        /*const subscription = await this.createStripeSubscription({
+        const subscription = await this.createStripeSubscription({
             customerId: customer.id,
             priceId: price.id,
             trial_end: billingCycleAnchor, // Don't charge until next period
-            billing_cycle_anchor: billingCycleAnchor,
+            billing_cycle_anchor: currentDate.getTime() / 1000, // Start billing cycle now
             default_payment_method: object.payment_method || params.paymentMethod,
             metadata: {
                 donationId: donationId,
@@ -513,7 +514,7 @@ export class SalesforceService {
         }, {});
 
         this.logger.log(`Created subscription ${subscription.id} for ${item.type}`);
-        return { subs: subscription.id, customer: customer.id };*/
+        return { subs: subscription.id, customer: customer.id };
 
     }
     async createRecurringOnStripe() {
@@ -561,8 +562,8 @@ export class SalesforceService {
                     customer: customer,
                     object: stripeGetChargeEvent,
                 });
-                //rec.customerStripe = processCartItemAfterPayment?.customer || '';
-                //rec.subscriptionStripe = processCartItemAfterPayment?.subs || '';
+                rec.customerStripe = processCartItemAfterPayment?.customer || '';
+                rec.subscriptionStripe = processCartItemAfterPayment?.subs || '';
                 /*donation.transactionDetails = {
                     captured: "yes",
                     currency: stripeGetChargeEvent.currency,
