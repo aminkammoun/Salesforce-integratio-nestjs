@@ -506,7 +506,7 @@ export class SalesforceService {
             customerId: customer.id,
             priceId: price.id,
             trial_end_date: billingCycleAnchor, // Don't charge until next period
-            billing_cycle_anchor: currentDate.getTime() / 1000, // Start billing cycle now
+            billing_cycle_anchor: currentDate, // Start billing cycle now
             default_payment_method: object.payment_method || params.paymentMethod,
             metadata: {
                 donationId: donationId,
