@@ -498,13 +498,11 @@ export class SalesforceService {
         // Calculate when subscription should start billing
         const billingCycleAnchor = this.calculateNextBillingDate(item.interval);
         console.log(billingCycleAnchor)
-        const currentDate = new Date();
         // Create Stripe subscription with trial to prevent immediate charge
         const subscription = await this.createStripeSubscription({
             customerId: customer.id,
             priceId: price.id,
-            trial_end: billingCycleAnchor, // Don't charge until next period
-            billing_cycle_anchor: currentDate.getTime() / 1000, // Start billing cycle now
+            billing_cycle_anchor: billingCycleAnchor, // Set next billing date as anchor
             default_payment_method: object.payment_method || params.paymentMethod,
             metadata: {
                 donationId: donationId,
