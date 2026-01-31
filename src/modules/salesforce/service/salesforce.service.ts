@@ -372,18 +372,18 @@ export class SalesforceService {
             throw error;
         }
     }
-    async linkPaymentMethodToCustomer(req: any) {
+    async linkPaymentMethodToCustomer(paymentId: string, customerId: string) {
         try {
             // 1. Attach payment method to customer
             const attachedPaymentMethod = await this.stripe.paymentMethods.attach(
-                req.paymentId,
-                { customer: req.customerId }
+                paymentId,
+                { customer: customerId }
             );
 
             // 2. Set as default payment method for invoices (important!)
-            await this.stripe.customers.update(req.customerId, {
+            await this.stripe.customers.update(customerId, {
                 invoice_settings: {
-                    default_payment_method: req.paymentId,
+                    default_payment_method: paymentId,
                 }
             });
 
@@ -497,6 +497,7 @@ export class SalesforceService {
                 }
             }, {});
         }
+        this.linkPaymentMethodToCustomer(params.object.payment_method, customer.id);
         // Calculate when subscription should start billing
         const billingCycleAnchor = this.calculateNextBillingDate(item.interval);
         console.log(billingCycleAnchor)
