@@ -493,7 +493,7 @@ export class SalesforceService {
             customerId: customer.id,
             priceId: price.id,
             trial_end: billingCycleAnchor, // Don't charge until next period
-            //billing_cycle_anchor: billingCycleAnchor,
+            billing_cycle_anchor: billingCycleAnchor,
             //backdate_start_date: Math.floor(Date.now() / 1000),
             default_payment_method: object.payment_method || params.paymentMethod,
             metadata: {
