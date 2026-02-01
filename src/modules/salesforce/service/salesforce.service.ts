@@ -507,11 +507,11 @@ export class SalesforceService {
         return { subs: subscription.id, customer: customer.id };
 
     }
-    async createRecurringOnStripe() {
+    async createRecurringOnStripe(id: string) {
         //const customer = await this.stripe.customers.retrieve(req.customerId);
         //console.log('Customer retrieved:', customer);
         //const interval = this.mapIntervalToStripeInterval(req.interval);
-        const recurring = await this.recurringService.findAll();
+        const recurring = await this.recurringService.findAll(id);
         console.log('Found recurrings:', recurring.length);
         if (!recurring || recurring.length === 0) {
             throw new Error('Recurring donation not found');
@@ -571,7 +571,7 @@ export class SalesforceService {
         }
 
     }
-    async updateRecurringsWithContactSalesforceID() {
+    /*async updateRecurringsWithContactSalesforceID() {
         const recurrings = await this.recurringService.findAll();
         for (const rec of recurrings) {
             try {
@@ -593,5 +593,5 @@ export class SalesforceService {
                 continue; // Continue with next recurring donation instead of failing entire process
             }
         }
-    }
+    }*/
 }
