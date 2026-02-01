@@ -533,7 +533,7 @@ export class SalesforceService {
         //const customer = await this.stripe.customers.retrieve(req.customerId);
         //console.log('Customer retrieved:', customer);
         //const interval = this.mapIntervalToStripeInterval(req.interval);
-        const recurring = await this.recurringService.findAll(id);
+        const recurring = await this.recurringService.findAll();
         console.log('Found recurrings:', recurring.length);
         if (!recurring || recurring.length === 0) {
             throw new Error('Recurring donation not found');
@@ -575,6 +575,7 @@ export class SalesforceService {
                 });
                 rec.customerStripe = processCartItemAfterPayment?.customer || '';
                 rec.subscriptionStripe = processCartItemAfterPayment?.subs || '';
+                rec.createOnStripe = true;
                 /*donation.transactionDetails = {
                     captured: "yes",
                     currency: stripeGetChargeEvent.currency,
