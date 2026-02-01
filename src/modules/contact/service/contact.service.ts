@@ -227,6 +227,8 @@ export class ContactService {
             const salesforcePayloads = contacts.map(async contact => {
                 let payload: any
                 contact.first_name = contact.Name?.split(' ')[0] || '';
+                console.log(contact.Name)
+                console.log(contact.Name?.split(' ')[0])
                 contact.last_name = contact.Name?.split(' ').slice(1).join(' ') || '';
                 console.log('Uploading contact to Salesforce:', contact);
                 payload = {
