@@ -412,7 +412,7 @@ export class SalesforceService {
     }
 
     // Improved billing date calculation
-    private calculateNextBillingDate(interval: string): number {
+    /*private calculateNextBillingDate(interval: string): number {
         const now = Math.floor(Date.now() / 1000);
         const days = {
             monthly: 30,
@@ -421,6 +421,27 @@ export class SalesforceService {
         };
         const daysToAdd = days[interval.toLowerCase()] || 30;
         return now + (daysToAdd * 24 * 60 * 60);
+    }*/
+
+
+    private calculateNextBillingDate(interval: string): number {
+        const date = new Date();
+
+        switch (interval.toLowerCase()) {
+            case 'monthly':
+                date.setMonth(date.getMonth() + 1);
+                break;
+            case 'quarterly':
+                date.setMonth(date.getMonth() + 3);
+                break;
+            case 'yearly':
+                date.setFullYear(date.getFullYear() + 1);
+                break;
+            default:
+                date.setMonth(date.getMonth() + 1);
+        }
+
+        return Math.floor(date.getTime() / 1000);
     }
 
     private async processCartItemAfterPayment(params: {
@@ -493,7 +514,7 @@ export class SalesforceService {
             customerId: customer.id,
             priceId: price.id,
             trial_end: billingCycleAnchor, // Don't charge until next period
-            billing_cycle_anchor: billingCycleAnchor,
+            //billing_cycle_anchor: billingCycleAnchor,
             //backdate_start_date: Math.floor(Date.now() / 1000),
             default_payment_method: object.payment_method || params.paymentMethod,
             metadata: {
