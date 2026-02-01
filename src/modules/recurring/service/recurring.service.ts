@@ -63,7 +63,7 @@ export class RecurringService {
 
             let payload: any
             payload = {
-                Name: recurring.name,
+                Name: "recurring.name",
                 npsp__RecurringType__c: recurring.donorType,
                 npe03__Installment_Period__c: recurring.frequency,
                 npe03__Amount__c: recurring.amount,
