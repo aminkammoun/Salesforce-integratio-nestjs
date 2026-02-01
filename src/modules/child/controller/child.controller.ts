@@ -59,4 +59,18 @@ export class ChildController {
     async updateToSponsored(@Body() body: any) {
         return this.childService.updateToSponsored(body);
     }
+    @Get('/sponsorStatus/:childId')
+    async getSponsorStatus(@Param('childId') childId: string) {
+        return this.childService.checkChildStatus(childId);
+    }
+
+    @Get('/sponsorStatus')
+    async getAllSponsorStatus() {
+        return this.childService.giveAllChildrenStatus();
+    }
+    @Get('/sponsorList/:page')
+    async getSponsorList(@Param('page') page: number) {
+        return this.childService.sponsorList(page);
+    }
+
 }
