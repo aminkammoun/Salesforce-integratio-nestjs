@@ -231,7 +231,7 @@ export class ContactService {
                 console.log('Uploading contact to Salesforce:', contact);
                 payload = {
                     FirstName: contact.first_name,
-                    lastName: contact.last_name,
+                    LastName: contact.last_name,
                     Email: contact.email,
                     Phone: contact.Phone?.replace(/[^0-9]/g, '') || contact.Phone,
                 };
