@@ -325,9 +325,9 @@ export class SalesforceService {
             const subscription = await this.stripe.subscriptions.create({
                 customer: req.customerId,
                 items: [{ price: req.priceId }],
-                //trial_end: req.trial_end, // NEW: prevent immediate charge
-                billing_cycle_anchor: req.billing_cycle_anchor, // NEW: set billing date
-                backdate_start_date: req.backdate_start_date,
+                trial_end: req.trial_end, // NEW: prevent immediate charge
+                //billing_cycle_anchor: req.billing_cycle_anchor, // NEW: set billing date
+                //backdate_start_date: req.backdate_start_date,
                 metadata: req.metadata || {},
                 proration_behavior: 'none',
                 expand: ['latest_invoice.payment_intent'],
@@ -516,6 +516,7 @@ export class SalesforceService {
             trial_end: billingCycleAnchor, // Don't charge until next period
             //billing_cycle_anchor: billingCycleAnchor,
             //backdate_start_date: Math.floor(Date.now() / 1000),
+            payment_behavior: 'default_incomplete',
             default_payment_method: object.payment_method || params.paymentMethod,
             metadata: {
                 donationId: donationId,
