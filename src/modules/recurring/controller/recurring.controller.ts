@@ -23,12 +23,12 @@ export class RecurringController {
     getSalesforceRecurring(@Param('cnid') cnid: string) {
         return this.recurringService.findRecurringFromSalesforceByWordpressId(cnid);
     }
-    @Post('/findAll')
+    /*@Post('/findAll')
     findAll() {
         return this.recurringService.findAll();
     }
     @Post('/completeRecurringData')
     completeRecurringData() {
         return this.recurringService.updateRecurringsWithPaymentData();
-    }
+    }*/
 }
