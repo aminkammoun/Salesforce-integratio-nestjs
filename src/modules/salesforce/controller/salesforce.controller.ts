@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Request, Res } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Request, Res } from '@nestjs/common';
 import { SalesforceService } from '../service/salesforce.service';
 @Controller('salesforce')
 export class SalesforceController {
@@ -63,12 +63,12 @@ export class SalesforceController {
     // async linkPaymentMethodToCustomer(@Body() body: any) {
     //     return await this.salesforceService.linkPaymentMethodToCustomer(body);
     // }
-    @Post('/createSubOnStripe')
-    async createSubOnStripe() {
-        return await this.salesforceService.createRecurringOnStripe();
+    @Post('/createSubOnStripe/:id')
+    async createSubOnStripe(@Param() id: any) {
+        return await this.salesforceService.createRecurringOnStripe(id);
     }
-    @Post('/updateBycontactSfId')
+    /*@Post('/updateBycontactSfId')
     async updateBycontactSfId() {
         return await this.salesforceService.updateRecurringsWithContactSalesforceID();
-    }
+    }*/
 }
