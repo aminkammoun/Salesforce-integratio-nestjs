@@ -121,7 +121,7 @@ export class RecurringService {
                 syncedWithSalesforce: false,
                 subscriptionStripe: null,
                 createOnStripe: null,
-                _id: { $eq: new MongooseTypes.ObjectId("697e1abd84935061fbb77092") } // Exclude specific ID
+                _id: { $eq: new MongooseTypes.ObjectId("697e1abd84935061fbb77077") } // Exclude specific ID
             });
             return recurrings;
         } catch (error) {
