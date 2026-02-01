@@ -396,4 +396,44 @@ export class ChildService {
             throw new InternalServerErrorException(error);
         }
     }
+    async checkChildStatus(salesforceID: string) {
+        try {
+            const child = await this.ChildModel.findOne({ SalesforceID: salesforceID });
+            if (!child) {
+                throw new NotFoundException('Child does not exist');
+            }
+            return { [child.SalesforceID]: child.Status__c === 'Sponsored' ? true : false };
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
+    }
+    async giveAllChildrenStatus(){
+        try {
+            const children = await this.ChildModel.find({}, { SalesforceID: 1, Status__c: 1, _id: 0 });
+            const result = children.map(child => ({ [child.SalesforceID]: child.Status__c === 'Sponsored' ? true : false }));
+            return result;
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }   
+    }
+    async sponsorList(page: number = 1, limit: number = 10){
+        try { 
+            const skip = (page - 1) * limit;
+            const children = await this.ChildModel.find()
+                .skip(skip)
+                .limit(limit);
+            const total = await this.ChildModel.countDocuments();
+            return {
+                data: children,
+                pagination: {
+                    total,
+                    page,
+                    limit,
+                    pages: Math.ceil(total / limit)
+                }
+            };
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }   
+    }
 }
