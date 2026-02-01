@@ -63,7 +63,7 @@ export class RecurringService {
 
             let payload: any
             payload = {
-                Name: recurring.name,
+                Name: "recurring.name",
                 npsp__RecurringType__c: recurring.donorType,
                 npe03__Installment_Period__c: recurring.frequency,
                 npe03__Amount__c: recurring.amount,
@@ -72,7 +72,7 @@ export class RecurringService {
                 npsp__Day_of_Month__c: recurring.DayOfMonth,
                 npsp__Status__c: recurring.status,
                 //npsp__PaymentMethod__c: recurring.npsp__PaymentMethod__c,
-                //npe03__Recurring_Donation_Campaign__c: recurring.npe03__Recurring_Donation_Campaign__c,
+                npe03__Recurring_Donation_Campaign__c: '701VW00000hn9kZYAQ',
                 Donation_Source__c: 'Fundraising App',
                 Stripe_Customer__c: recurring?.customerStripe || recurring.customerStipe,
                 Stripe_subscription_url__c: 'https://dashboard.stripe.com/acct_1S5xcLPK7Mt7pUeD/subscriptions/' + recurring.subscriptionStripe,
