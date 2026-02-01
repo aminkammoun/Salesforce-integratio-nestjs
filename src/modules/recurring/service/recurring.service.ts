@@ -75,8 +75,8 @@ export class RecurringService {
                 //npsp__PaymentMethod__c: recurring.npsp__PaymentMethod__c,
                 //npe03__Recurring_Donation_Campaign__c: recurring.npe03__Recurring_Donation_Campaign__c,
                 Donation_Source__c: 'Fundraising App',
-                //Stripe_Customer__c: recurring?.customerStripe || recurring.customerStipe,
-               // Stripe_subscription_url__c: 'https://dashboard.stripe.com/acct_1S5xcLPK7Mt7pUeD/subscriptions/' + recurring.subscriptionStripe,
+                Stripe_Customer__c: recurring?.customerStripe || recurring.customerStipe,
+                Stripe_subscription_url__c: 'https://dashboard.stripe.com/acct_1S5xcLPK7Mt7pUeD/subscriptions/' + recurring.subscriptionStripe,
                 //RecordTypeId: donation.RecordTypeId,
             };
             const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'npe03__Recurring_Donation__c/', payload, token);
