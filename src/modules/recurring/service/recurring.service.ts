@@ -58,7 +58,6 @@ export class RecurringService {
             console.log('No donations to upload to Salesforce');
             return [];
         }
-        console.log(`Uploading ${recurrings.length} recurrings to Salesforce`);
         const token = await authenticateSalesforce();
         const salesforcePayloads = recurrings.map(async recurring => {
 
@@ -79,6 +78,9 @@ export class RecurringService {
                 Stripe_subscription_url__c: 'https://dashboard.stripe.com/acct_1S5xcLPK7Mt7pUeD/subscriptions/' + recurring.subscriptionStripe,
                 //RecordTypeId: donation.RecordTypeId,
             };
+            console.log('Prepared payload for recurring:', recurring.npe03__Contact__c);
+            console.log(`payload for recurring ${recurring._id}:`, payload);
+
             const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'npe03__Recurring_Donation__c/', payload, token);
             console.log('Salesforce upload result for recurring:', result);
             if (result.salesforceId) {
