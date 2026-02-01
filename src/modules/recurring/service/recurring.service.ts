@@ -114,14 +114,14 @@ export class RecurringService {
             throw new InternalServerErrorException(error);
         }
     }
-    async findAll(id: string) {
+    async findAll() {
         try {
             const recurrings = await this.RecurringModel.find({
                 status: "Active",
                 syncedWithSalesforce: false,
                 subscriptionStripe: null,
                 createOnStripe: null,
-                _id: { $eq: new MongooseTypes.ObjectId(id) } // Exclude specific ID
+                // Exclude specific ID
             });
             return recurrings;
         } catch (error) {
