@@ -7,7 +7,7 @@ export class AuthController {
   constructor(private authService: AuthService) { }
   @Post('/login')
   async login(@Request() req: any) {
-    return this.authService.login(req.user._doc);
+    return this.authService.login(req.body);
   }
 
   @Post('/signup')
