@@ -419,10 +419,10 @@ export class ChildService {
     async sponsorList(page: number = 1, limit: number = 10) {
         try {
             const skip = (page - 1) * limit;
-            const children = await this.ChildModel.find()
+            const children = await this.ChildModel.find({ synched: true })
                 .skip(skip)
                 .limit(limit);
-            const total = await this.ChildModel.countDocuments();
+            const total = await this.ChildModel.countDocuments({ synched: true });
             return {
                 data: children,
                 pagination: {
