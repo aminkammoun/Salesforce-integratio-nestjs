@@ -407,17 +407,17 @@ export class ChildService {
             throw new InternalServerErrorException(error);
         }
     }
-    async giveAllChildrenStatus(){
+    async giveAllChildrenStatus() {
         try {
             const children = await this.ChildModel.find({}, { SalesforceID: 1, Status__c: 1, _id: 0 });
             const result = children.map(child => ({ [child.SalesforceID]: child.Status__c === 'Sponsored' ? true : false }));
             return result;
         } catch (error) {
             throw new InternalServerErrorException(error);
-        }   
+        }
     }
-    async sponsorList(page: number = 1, limit: number = 10){
-        try { 
+    async sponsorList(page: number = 1, limit: number = 10) {
+        try {
             const skip = (page - 1) * limit;
             const children = await this.ChildModel.find()
                 .skip(skip)
@@ -434,6 +434,17 @@ export class ChildService {
             };
         } catch (error) {
             throw new InternalServerErrorException(error);
-        }   
+        }
+    }
+    async updateSynchedStatus() {
+        try {
+            const result = await this.ChildModel.updateMany(
+                { synched: { $ne: true } },
+                { $set: { synched: true } }
+            );
+            return result;
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
     }
 }

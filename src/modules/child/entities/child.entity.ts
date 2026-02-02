@@ -19,6 +19,8 @@ export class Child extends Document {
     createdAt: Date;
     @Prop({ default: null, required: false })
     reservedAt: Date;
+    @Prop({ required: false, default: false })
+    synched: boolean;
 }
 
 export const ChildSchema = SchemaFactory.createForClass(Child);

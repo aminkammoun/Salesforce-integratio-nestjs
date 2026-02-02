@@ -22,4 +22,7 @@ export class CreateChildDto {
     @ApiPropertyOptional({ description: 'URL to child resource (optional)', example: '/services/data/..' })
     @IsOptional()
     reservedAt?: Date;
+    @ApiPropertyOptional({ description: 'Indicates if the child data has been synchronized', example: true })
+    @IsOptional()
+    synched?: boolean;
 }
