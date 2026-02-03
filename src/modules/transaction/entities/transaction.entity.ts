@@ -57,7 +57,7 @@ export class Transaction extends Document {
     @Prop({ required: false })
     note: string;
     @Prop({ required: false })
-    salesforceDonation: string;
+    salesforceDonation: string[];
 }
 
 export const TransactionSchema = SchemaFactory.createForClass(Transaction);
