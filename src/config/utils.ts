@@ -59,6 +59,40 @@ export async function handleInsertQuery(query: string,
     }
     return null;
 }
+
+export async function handleUpdateQuery(query: string,
+    object: string,
+    id: string,
+    body: any,
+    token: string
+) {
+    //const token = await authenticateSalesforce();
+    console.log('Using Bearer Token:', token);
+    console.log(process.env.ISTANCEURL + query + object + '/' + id)
+    const res = await fetch(process.env.ISTANCEURL + query + object + '/' + id, {
+        method: "PATCH",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token,
+        },
+        body: JSON.stringify(body),
+        cache: "no-store",
+    });
+
+    try {
+        if (res.ok) {
+            console.log(`Salesforce Update Successful for ${object} with ID ${id}`);
+            return { message: `${object} updated successfully in Salesforce`, salesforceId: id };
+        } else {
+            const errorData = await res.json();
+            console.error('Salesforce Update Error:', errorData);
+            return { message: `Failed to update ${object} in Salesforce`, errors: errorData };
+        }
+    } catch (err) {
+        console.error(err);
+    }
+    return null;
+}
 export async function handleQuery(version: string, query: string, token: string) {
     //const token = await authenticateSalesforce();
     console.log('Using Bearer Token:', token);
