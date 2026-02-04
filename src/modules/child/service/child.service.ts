@@ -424,6 +424,16 @@ export class ChildService {
                 .skip(skip)
                 .limit(limit);
             const total = await this.ChildModel.countDocuments({ synched: false });
+            
+            // Update synched status to true
+            const childIds = children.map(child => child._id);
+            if (childIds.length > 0) {
+                await this.ChildModel.updateMany(
+                    { _id: { $in: childIds } },
+                    { $set: { synched: true } }
+                );
+            }
+            
             return {
                 data: children,
                 pagination: {
