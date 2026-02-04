@@ -61,6 +61,7 @@ export class ChildService {
                         Child_Name__c: record.Child_Name__c,
                         NationalityList__c: record.NationalityList__c,
                         Age__c: record.Age_Calculated__c,
+                        Profile_Picture__c: record.Profile_Picture__c,
                         Status__c: record.Status__c,
                         url: record.attributes?.url,
                     }

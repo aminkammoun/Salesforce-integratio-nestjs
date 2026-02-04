@@ -19,6 +19,8 @@ export class Child extends Document {
     createdAt: Date;
     @Prop({ default: null, required: false })
     reservedAt: Date;
+    @Prop({ default: null, required: false })
+    Profile_Picture__c: string;
     @Prop({ required: false, default: false })
     synched: boolean;
 }
