@@ -8,7 +8,7 @@ import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 @Controller('contact')
 export class ContactController {
     constructor(private readonly contactService: ContactService) { }
-
+    @UseGuards(JwtAuthGuard)
     @Post('/create')
     @ApiOperation({ summary: 'Create one contact', description: 'Creates a new contact record in the database.' })
     @ApiResponse({ status: 201, description: 'contact created successfully' })
@@ -16,6 +16,7 @@ export class ContactController {
     create(@Body() createContactleDto: CreateContactDto) {
         return this.contactService.create(createContactleDto);
     }
+    @UseGuards(JwtAuthGuard)
     @Get('/phone/:phone')
     @ApiOperation({ summary: 'Find contact by phone', description: 'Finds a contact by their phone number.' })
     @ApiResponse({ status: 200, description: 'Contact found successfully' })
@@ -29,6 +30,7 @@ export class ContactController {
     findOne(@Param('id') id: string) {
         return this.contactService.findOne(id);
     } */
+    @UseGuards(JwtAuthGuard)
     @Get('/email/:email')
     @ApiOperation({ summary: 'Find contact by email', description: 'Finds a contact by their email address.' })
     @ApiResponse({ status: 200, description: 'Contact found successfully' })
@@ -71,6 +73,7 @@ export class ContactController {
         const { phone, email } = body;
         return this.contactService.assignEmailToContact(phone, email);
     }
+    @UseGuards(JwtAuthGuard)
     @Get('/wordpressid/:wordpressID')
     @ApiOperation({ summary: 'Find contact by WordPress ID', description: 'Finds a contact by their WordPress ID.' })
     @ApiResponse({ status: 200, description: 'Contact found successfully' })
