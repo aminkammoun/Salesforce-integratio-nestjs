@@ -72,9 +72,9 @@ export class ChildController {
     async getSponsorList(@Param('page') page: number) {
         return this.childService.sponsorList(page);
     }
-    @Post('/synchronize')
-    async synchronizeChildren() {
-        return this.childService.updateSynchedStatus();
+    @Post('/synchronize/:synched')
+    async synchronizeChildren(@Param('synched') synched: boolean) {
+        return this.childService.updateSynchedStatus(synched);
     }
 
 }
