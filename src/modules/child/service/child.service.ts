@@ -423,7 +423,7 @@ export class ChildService {
             const children = await this.ChildModel.find({ synched: false })
                 .skip(skip)
                 .limit(limit);
-            const total = await this.ChildModel.countDocuments({ synched: false });
+            const total = await this.ChildModel.countDocuments({ synched: false, Status__c : 'Available' });
             
             // Update synched status to true
             const childIds = children.map(child => child._id);

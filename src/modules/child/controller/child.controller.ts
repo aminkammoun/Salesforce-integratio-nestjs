@@ -53,32 +53,32 @@ export class ChildController {
     async uploadAttachmentsToSalesforce(@Body() body: childAttachment) {
         return this.childService.uploadChildAttachmentsToSalesforce(body);
     }
-    @UseGuards(JwtAuthGuard)
+
     @Get('/attachments/:childId')
     async getAttachmentsFromSalesforce(@Param('childId') childId: string) {
         return this.childService.retrieveAttachmentsFromSalesforce(childId);
     }
-    @UseGuards(JwtAuthGuard)
+
     @Post('/updateToSponsored')
     async updateToSponsored(@Body() body: any) {
         return this.childService.updateToSponsored(body);
     }
-    @UseGuards(JwtAuthGuard)
+
     @Get('/sponsorStatus/:childId')
     async getSponsorStatus(@Param('childId') childId: string) {
         return this.childService.checkChildStatus(childId);
     }
-    @UseGuards(JwtAuthGuard)
+
     @Get('/sponsorStatus')
     async getAllSponsorStatus() {
         return this.childService.giveAllChildrenStatus();
     }
-    @UseGuards(JwtAuthGuard)
+
     @Get('/sponsorList/:page')
     async getSponsorList(@Param('page') page: number) {
         return this.childService.sponsorList(page);
     }
-    @UseGuards(JwtAuthGuard)
+
     @Post('/synchronize/:synched')
     async synchronizeChildren(@Param('synched') synched: boolean) {
         return this.childService.updateSynchedStatus(synched);

@@ -8,7 +8,6 @@ import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 @Controller('contact')
 export class ContactController {
     constructor(private readonly contactService: ContactService) { }
-    @UseGuards(JwtAuthGuard)
     @Post('/create')
     @ApiOperation({ summary: 'Create one contact', description: 'Creates a new contact record in the database.' })
     @ApiResponse({ status: 201, description: 'contact created successfully' })
@@ -16,7 +15,6 @@ export class ContactController {
     create(@Body() createContactleDto: CreateContactDto) {
         return this.contactService.create(createContactleDto);
     }
-    @UseGuards(JwtAuthGuard)
     @Get('/phone/:phone')
     @ApiOperation({ summary: 'Find contact by phone', description: 'Finds a contact by their phone number.' })
     @ApiResponse({ status: 200, description: 'Contact found successfully' })
@@ -30,7 +28,6 @@ export class ContactController {
     findOne(@Param('id') id: string) {
         return this.contactService.findOne(id);
     } */
-    @UseGuards(JwtAuthGuard)
     @Get('/email/:email')
     @ApiOperation({ summary: 'Find contact by email', description: 'Finds a contact by their email address.' })
     @ApiResponse({ status: 200, description: 'Contact found successfully' })
@@ -57,7 +54,6 @@ export class ContactController {
         const contacts = await this.contactService.updloadContactsToSalesforce();
         return contacts;
     }
-    @UseGuards(JwtAuthGuard)
     @Get('/text/emptyEmail')
     @ApiOperation({ summary: 'Find contacts with empty email', description: 'Finds all contacts that have an empty email field.' })
     @ApiResponse({ status: 200, description: 'Contacts found successfully' })
@@ -65,7 +61,6 @@ export class ContactController {
         console.log('Finding contacts with empty email');
         return this.contactService.getContactWithEmptyEmail();
     }
-    @UseGuards(JwtAuthGuard)
     @Post('/text/assignEmail/')
     @ApiOperation({ summary: 'Assign email to a contact', description: 'Assigns an email address to a contact based on their phone number.' })
     @ApiResponse({ status: 200, description: 'Email assigned successfully' })
@@ -73,14 +68,12 @@ export class ContactController {
         const { phone, email } = body;
         return this.contactService.assignEmailToContact(phone, email);
     }
-    @UseGuards(JwtAuthGuard)
     @Get('/wordpressid/:wordpressID')
     @ApiOperation({ summary: 'Find contact by WordPress ID', description: 'Finds a contact by their WordPress ID.' })
     @ApiResponse({ status: 200, description: 'Contact found successfully' })
     findByWordPressID(@Param('wordpressID') wordpressID: string) {
         return this.contactService.findByWordPressID(wordpressID);
     }
-    @UseGuards(JwtAuthGuard)
     @Get('/find/:id')
     @ApiOperation({ summary: 'Find contact by id', description: 'Finds a contact by their id number.' })
     @ApiResponse({ status: 200, description: 'Contact found successfully' })
@@ -96,7 +89,6 @@ export class ContactController {
     getSalesforcesp(@Param('cnid') cnid: string) {
         return this.contactService.findcontactFromSalesforceBysfId(cnid);
     }
-    @UseGuards(JwtAuthGuard)
     @Get('/getsfemail/:email')
     getcontactSfByEmail(@Param('email') email: string) {
         console.log('Getting contact from Salesforce by email for email:', email);
