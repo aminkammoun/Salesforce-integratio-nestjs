@@ -437,11 +437,11 @@ export class ChildService {
             throw new InternalServerErrorException(error);
         }
     }
-    async updateSynchedStatus() {
+    async updateSynchedStatus(synched: boolean) {
         try {
             const result = await this.ChildModel.updateMany(
-                { synched: { $ne: true } },
-                { $set: { synched: true } }
+                { synched: { $ne: synched } },
+                { $set: { synched } }
             );
             return result;
         } catch (error) {
