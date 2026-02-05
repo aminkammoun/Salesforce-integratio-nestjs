@@ -19,6 +19,16 @@ export class DonationController {
         console.log('CreateDonationDto received in controller:', createDonationDto);
         return this.donationService.create(createDonationDto);
     }
+
+    @Post('/createWeb')
+    @ApiOperation({ summary: 'Create web donations', description: 'Creates new donation records specifically for web donations with necessary details.' })
+    @ApiBody({ type: [CreateDonationDto], description: 'Array of web donation objects to create' })
+    @ApiResponse({ status: 201, description: 'Web donations created successfully' })
+    @ApiResponse({ status: 400, description: 'Invalid web donation data' })
+    createWeb(@Body() createDonationDto: CreateDonationDto[]) {
+        console.log('CreateWebDonationDto received in controller:', createDonationDto);
+        return this.donationService.create(createDonationDto);
+    }
     @Get('/findAll')
     @ApiOperation({ summary: 'Get all donations', description: 'Retrieves all donation records from the database' })
     @ApiResponse({ status: 200, description: 'List of all donations' })

@@ -55,7 +55,6 @@ export class DonationService {
             throw new InternalServerErrorException(error);
         }
     }
-
     async findAll() {
         try {
             const donations = await this.DonationModel.find();
