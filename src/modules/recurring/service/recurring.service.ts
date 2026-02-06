@@ -74,8 +74,8 @@ export class RecurringService {
                 //npsp__PaymentMethod__c: recurring.npsp__PaymentMethod__c,
                 //npe03__Recurring_Donation_Campaign__c: '701VW00000hn9kZYAQ',
                 Donation_Source__c: 'Fundraising App',
-                Stripe_Customer__c: recurring?.customerStripe || recurring.customerStipe,
-                Stripe_subscription_url__c: 'https://dashboard.stripe.com/acct_1S5xcLPK7Mt7pUeD/subscriptions/' + recurring.subscriptionStripe,
+                //Stripe_Customer__c: recurring?.customerStripe || recurring.customerStipe,
+                //Stripe_subscription_url__c: 'https://dashboard.stripe.com/acct_1S5xcLPK7Mt7pUeD/subscriptions/' + recurring.subscriptionStripe,
                 //RecordTypeId: donation.RecordTypeId,
             };
             console.log('Prepared payload for recurring:', recurring.npe03__Contact__c);
