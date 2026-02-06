@@ -549,4 +549,25 @@ export class DonationService {
             throw new InternalServerErrorException(error);
         }
     }
+    async updateDonationWithnpsPrimaryContact() {
+        try {
+            const donation = await this.DonationModel.find({
+                syncedWithSalesforce: false,
+                npsp__Primary_Contact__c: null
+            });
+            if (!donation) {
+                throw new NotFoundException('Donation not found');
+            }
+            donation.forEach(async (donationItem) => {
+               const contact = await this.contactService.findOne(donationItem.contact as string);
+               if (contact && contact.salesforceID) {
+                   donationItem.npsp__Primary_Contact__c = contact.salesforceID;
+                   await donationItem.save();
+               }
+            });
+            return donation;
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
+    }
 }

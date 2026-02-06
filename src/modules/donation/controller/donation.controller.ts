@@ -4,6 +4,7 @@ import { DonationService } from '../service/donation.service';
 import CreateDonationDto from '../dto/create-donation.dto';
 import { UpdateDonationDto } from '../dto/update-donation.dto';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
+import { Prop } from '@nestjs/mongoose';
 
 @ApiTags('Donation')
 @Controller('donation')
@@ -90,5 +91,9 @@ export class DonationController {
     @Post('/repaireDon/')
     async repaireDonations() {
         return this.donationService.repaireDonations();
+    }
+    @Post('/updateDonationWithnpsPrimaryContact')
+    async updateDonationWithnpsPrimaryContact() {
+        return this.donationService.updateDonationWithnpsPrimaryContact();
     }
 }
