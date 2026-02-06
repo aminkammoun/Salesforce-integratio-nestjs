@@ -169,7 +169,6 @@ export class DonationService {
         try {
             const donations = await this.DonationModel.find({
                 syncedWithSalesforce: false,
-                Donation_Source__c: 'Fundraising App',
                 StageName: "Closed Won"
             });
             if (donations.length === 0) {
