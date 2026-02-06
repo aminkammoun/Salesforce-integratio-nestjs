@@ -120,9 +120,10 @@ export class RecurringService {
         try {
             const recurrings = await this.RecurringModel.find({
                 status: "Active",
-                syncedWithSalesforce: false,
+                syncedWithSalesforce: true,
                 subscriptionStripe: null,
                 createOnStripe: null,
+                effectiveDate : {$gt: new Date('2026-02-06T16:50:21.176+00:00')}
                 // Exclude specific ID
             });
             return recurrings;
