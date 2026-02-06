@@ -37,6 +37,7 @@ export class DonationService {
             let contactDetails;
             let contact
             if (createDonationDto[0].Contact_details) {
+                createDonationDto[0].Contact_details.Phone = createDonationDto[0].Contact_details.Phone.replace(/^\+1/, '');
                 contactDetails = await this.contactService.create(createDonationDto[0].Contact_details);
             }
             console.log('Contact details for donation creation:', createDonationDto[0].contact);
@@ -509,7 +510,6 @@ export class DonationService {
             let donations = await this.DonationModel.find({
                 syncedWithSalesforce: false,
                 StageName: 'Closed Won',
-                Donation_Source__c: 'Fundraising App',
             });
             //const donations = await this.DonationModel.find({ syncedWithSalesforce: false, StageName: 'Closed Won', frequency : "One-time", });
             if (!donations) {

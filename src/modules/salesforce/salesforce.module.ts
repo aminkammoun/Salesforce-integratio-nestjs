@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { SalesforceController } from './controller/salesforce.controller';
 import { SalesforceService } from './service/salesforce.service';
+import { SalesforcesCronService } from './service/salesforce-cron.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
 import config from '../../config';
@@ -25,7 +26,7 @@ import { ChildModule } from '../child/child.module';
         }),
     ],
     controllers: [SalesforceController],
-    providers: [SalesforceService,
+    providers: [SalesforceService, SalesforcesCronService,
         {
             provide: 'STRIPE_API_KEY',
             useFactory: async (configService: ConfigService) =>
