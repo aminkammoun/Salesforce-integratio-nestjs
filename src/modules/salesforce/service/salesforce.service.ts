@@ -561,21 +561,33 @@ export class SalesforceService {
                 if (!donation) {
                     throw new Error(`Donation ${donationId} not found`);
                 }
-                const transaction = await this.transactionService.findByDonationId(donationId);
-                if (!transaction) {
-                    throw new Error(`Transaction for donation ${donationId} not found`);
+
+                if (donation.Donation_Source__c !== 'Fundraising App') {
+                    const transaction = await this.transactionService.findByDonationId(donationId);
+                    if (!transaction) {
+                        throw new Error(`Transaction for donation ${donationId} not found`);
+                    }
+                    const stripeGetChargeEvent = await this.stripe.charges.retrieve(transaction[0].transactionID);
+                    const processCartItemAfterPayment = await this.processCartItemAfterPayment({
+                        item: donation.cartItems[0],
+                        donationId: donationId,
+                        contact: contact,
+                        customer: customer,
+                        object: stripeGetChargeEvent,
+                    });
+                    rec.customerStripe = processCartItemAfterPayment?.customer || '';
+                    rec.subscriptionStripe = processCartItemAfterPayment?.subs || '';
+                    rec.createOnStripe = true;
+                } else {
+                    const subscriptions = await this.stripe.subscriptions.list({
+                        customer: customer.id,
+                        limit: 1,
+                    });
+                    const stripeSubscriptionid = subscriptions.data[0];
+                    rec.customerStripe = donation.transactionDetails.customer_id || '';
+                    rec.subscriptionStripe = stripeSubscriptionid.id;
+                    rec.createOnStripe = true;
                 }
-                const stripeGetChargeEvent = await this.stripe.charges.retrieve(transaction[0].transactionID);
-                const processCartItemAfterPayment = await this.processCartItemAfterPayment({
-                    item: donation.cartItems[0],
-                    donationId: donationId,
-                    contact: contact,
-                    customer: customer,
-                    object: stripeGetChargeEvent,
-                });
-                rec.customerStripe = processCartItemAfterPayment?.customer || '';
-                rec.subscriptionStripe = processCartItemAfterPayment?.subs || '';
-                rec.createOnStripe = true;
                 /*donation.transactionDetails = {
                     captured: "yes",
                     currency: stripeGetChargeEvent.currency,
@@ -617,4 +629,7 @@ export class SalesforceService {
             }
         }
     }*/
+    //    async createCampaignInSalesforce() {
+    //     const 
+    //    }
 }
