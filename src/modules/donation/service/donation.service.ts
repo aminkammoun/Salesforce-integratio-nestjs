@@ -559,6 +559,7 @@ export class DonationService {
                 throw new NotFoundException('Donation not found');
             }
             donation.forEach(async (donationItem) => {
+                console.log('Processing donation:', donationItem.contact.length);
                 const contact = await this.contactService.findOne(donationItem.contact as string);
                 if (contact && contact.salesforceID) {
                     console.log(`Updating donation ${donationItem._id} with contact Salesforce ID ${contact.salesforceID}`);
