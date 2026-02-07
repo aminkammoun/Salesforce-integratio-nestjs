@@ -5,6 +5,7 @@ import { Model } from 'mongoose';
 import { Child } from '../entities/child.entity';
 import { Sponsorship } from 'src/modules/sponsorship/entities/sponsorship.entity';
 import { SponsorshipService } from 'src/modules/sponsorship/service/sponsorship.service';
+import { ChildService } from './child.service';
 
 @Injectable()
 export class ChildCronService {
@@ -14,6 +15,7 @@ export class ChildCronService {
         @InjectModel(Child.name) private readonly childModel: Model<Child>,
         @InjectModel(Sponsorship.name) private readonly sponsorshipModel: Model<Sponsorship>,
         @Inject() private readonly sponsorshipService: SponsorshipService,
+        private readonly childService: ChildService,
     ) { }
 
     // Run every minute
@@ -48,5 +50,16 @@ export class ChildCronService {
         //await this.sponsorshipService.updateToExpired(childIds);
 
         this.logger.log(`Expired reservations released.`);
+    }
+    @Cron(CronExpression.EVERY_WEEKEND)
+    async sychFromSalesforce() {
+        this.logger.warn(`Starting weekly synchronization of child data from Salesforce...`);
+        try {
+            const query = "SELECT+Id,+NationalityList__c,+Child_Name__c+,status__c+,Profile_Picture__c+,Age_Calculated__c+From+Child__c+WHERE+Offline_only__c=False";
+            await this.childService.insertFromSalesforce(query);
+            this.logger.log(`Child data synchronization completed successfully.`);
+        } catch (error) {
+            this.logger.error(`Error during child data synchronization: ${error.message}`, error.stack);
+        }
     }
 }

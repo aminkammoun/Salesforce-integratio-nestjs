@@ -8,14 +8,29 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
   app.enableCors();
+  
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('The Fund Raising App Api')
-    .setDescription('The Fund Raising App API description')
-    .setVersion('1.0')
-    .addTag("API's")
+    .setTitle('Fund Raising Backend API')
+    .setDescription('Comprehensive API for managing fundraising operations, child sponsorships, donations, contacts, and user management. Integrates with Salesforce CRM.')
+    .setVersion('1.0.0')
+    .setContact('Support', '', 'support@fundraising.app')
+    .setLicense('UNLICENSED', '')
+    .addBearerAuth()
+    .addTag('Authentication', 'User login and signup endpoints')
+    .addTag('Child', 'Child sponsorship management endpoints')
+    .addTag('Contact', 'Contact management endpoints')
+    .addTag('Donation', 'Donation management endpoints')
+    .addTag('User', 'User management endpoints (admin)')
     .build();
+    
   const document = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('api/docs', app, document, {
+    swaggerOptions: {
+      persistAuthorization: true,
+      displayOperationId: true,
+    },
+  });
+  
   app.useGlobalPipes(new ValidationPipe());
   await app.listen(configService.get<string>('server.port') ?? 3000);
 }
