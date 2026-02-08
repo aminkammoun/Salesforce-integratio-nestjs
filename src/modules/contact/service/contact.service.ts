@@ -20,6 +20,7 @@ export class ContactService {
 
     async create(createArticleDto: CreateContactDto) {
         try {
+            console.log('Creating contact with data:', createArticleDto);
             // Clean the phone number
             const cleanedData: any = {
                 ...createArticleDto,
