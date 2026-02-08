@@ -77,7 +77,7 @@ export class TransactionService {
     async updateTransactionsWithSalesforceDonation(): Promise<void> {
         console.log('updateTransactionsWithSalesforceDonation called');
         // Get all donations
-        const transactions = await this.TransactionModel.find({ salesforceDonation: { $exists: false } }).select(['donation']).lean();
+        const transactions = await this.TransactionModel.find({ salesforceDonation: { $size: 0 } }).select(['donation']).lean();
         console.log('Donations fetched:', transactions);
         let updatedCount = 0;
 
