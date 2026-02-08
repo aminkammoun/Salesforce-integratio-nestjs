@@ -90,6 +90,7 @@ export class TransactionService {
             console.log(`Processing donation ID: ${donation._id}, Salesforce ID: ${donation.cartItems[0].sfId}`);
             // Update all related transactions
             let result;
+            console.log(donation.cartItems.length)
             if (donation.cartItems.length > 1) {
                 this.logger.warn(
                     `Donation ${donation.salesforceID} has multiple cart items. Only the first one will be used.`,
