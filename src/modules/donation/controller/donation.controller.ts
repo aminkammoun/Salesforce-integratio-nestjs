@@ -4,13 +4,13 @@ import { DonationService } from '../service/donation.service';
 import CreateDonationDto from '../dto/create-donation.dto';
 import { UpdateDonationDto } from '../dto/update-donation.dto';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
-import { Prop } from '@nestjs/mongoose';
+
 
 @ApiTags('Donation')
 @Controller('donation')
 export class DonationController {
     constructor(private readonly donationService: DonationService) { }
-
+    @UseGuards(JwtAuthGuard)
     @Post('/create')
     @ApiOperation({ summary: 'Create one or more donations', description: 'Creates new donation records with full details including cart items, transaction details, and recurring information.' })
     @ApiBody({ type: [CreateDonationDto], description: 'Array of donation objects to create' })
