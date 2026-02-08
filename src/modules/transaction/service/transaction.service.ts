@@ -85,6 +85,7 @@ export class TransactionService {
             console.log('aa')
             console.log(`Processing donation: ${trans.donation}`);
             const donation = await this.donationModel.findById(trans.donation);
+            console.log(!donation || !donation.cartItems || !donation.cartItems[0].sfId);
             if (!donation || !donation.cartItems || !donation.cartItems[0].sfId) continue;
             // Ensure ObjectId format
             console.log(`Processing donation ID: ${donation._id}, Salesforce ID: ${donation.cartItems[0].sfId}`);
