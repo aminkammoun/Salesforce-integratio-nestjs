@@ -28,7 +28,7 @@ export class DonationController {
     @ApiResponse({ status: 400, description: 'Invalid web donation data' })
     createWeb(@Body() createDonationDto: CreateDonationDto[]) {
         console.log('CreateWebDonationDto received in controller:', createDonationDto);
-        return this.donationService.create(createDonationDto);
+        return this.donationService.createWebDonation(createDonationDto);
     }
     @Get('/findAll')
     @ApiOperation({ summary: 'Get all donations', description: 'Retrieves all donation records from the database' })

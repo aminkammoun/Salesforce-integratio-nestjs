@@ -41,7 +41,7 @@ export class TransactionController {
         return this.transactionService.updateTransactionWithContactSalesforceID();
     }
     @Post('/sync-salesforce-transactions')
-    async syncSalesforceTransactions() {
-        return this.transactionService.uploadTransactionsToSalesforce();
+    async syncSalesforceTransactions(@Param('date') date: Date) {
+        return this.transactionService.uploadTransactionsToSalesforce(date);
     }
 }

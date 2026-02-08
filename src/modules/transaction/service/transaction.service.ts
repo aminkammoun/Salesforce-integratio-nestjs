@@ -107,6 +107,7 @@ export class TransactionService {
                     { donation: donation._id },
                     { $set: { salesforceDonation: [donation.cartItems[0].sfId] } },
                 );
+                console.log(result.modifiedCount)
             }
             if (result.modifiedCount > 0) {
                 updatedCount += result.modifiedCount;
@@ -142,7 +143,7 @@ export class TransactionService {
             throw new InternalServerErrorException(error);
         }
     }
-    async uploadTransactionsToSalesforce() {
+    async uploadTransactionsToSalesforce(date: Date) {
         // Placeholder for uploading transactions to Salesforce
         const token = await authenticateSalesforce();
         const transactions = await this.TransactionModel.find({ salesforceDonation: { $exists: true } }).select(['salesforceDonation', 'transactionID', 'Stripe_Customer_ID__c']).lean();

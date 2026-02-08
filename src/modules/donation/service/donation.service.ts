@@ -47,6 +47,33 @@ export class DonationService {
             throw new InternalServerErrorException(error);
         }
     }
+    async createWebDonation(createDonationDto: CreateDonationDto[]) {
+        try {
+            if (!createDonationDto[0].contact) {
+                throw new InternalServerErrorException('Contact ID is required');
+            }
+            let contactDetails;
+            let contact
+            if (createDonationDto[0].Contact_details) {
+                contactDetails = await this.contactService.create(createDonationDto[0].Contact_details);
+            }
+            console.log('Contact details for donation creation:', createDonationDto[0].contact);
+            contact = contactDetails ? await this.contactService.findOne(contactDetails.id) : await this.contactService.findOne(createDonationDto[0].contact);
+            console.log('Contact details for donation creation:', contactDetails, contact);
+            const isContactSynced = contact?.syncedWithSalesforce ? true : false;
+            createDonationDto = createDonationDto.map(donation => ({
+                ...donation,
+                contact: contact.id,
+                npsp__Primary_Contact__c: isContactSynced ? contact?.salesforceID : undefined,
+                //syncedWithSalesforce: isContactSynced,
+            }));
+            const donation = await this.DonationModel.create(createDonationDto, { ordered: false });
+            return donation;
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
+    }
+    
     async findAll() {
         try {
             const donations = await this.DonationModel.find();
