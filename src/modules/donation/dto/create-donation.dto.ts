@@ -114,6 +114,8 @@ export class TransactionDetailDto {
 
     @ApiPropertyOptional({ description: 'if subscription_id', example: 'syb_xxxxxxx' })
     subscription_id?: string;
+    @ApiPropertyOptional({ description: 'stripe charge id', example: 'ch_xxxxxxx' })
+    charge_id?: string;
 }
 export class CreateDonationDto {
     @ApiPropertyOptional({

@@ -60,6 +60,8 @@ export class Donation extends Document {
     @Prop({ required: false })
     customerStripe: string
     @Prop({ required: false })
+    customerStipe: string
+    @Prop({ required: false })
     cartItems: CartItemDto[]
     @Prop({ required: false })
     timeToProcessDonationMs: number
@@ -73,7 +75,9 @@ export class Donation extends Document {
     child__c : string*/
     @Prop({ required: false })
     Contact_details: CreateContactDto;
-    @Prop({ default: Date.now })   
+    @Prop({ default: Date.now })
     createdDate: Date;
+    @Prop({ required : false })
+    campaign_medium: string;
 }
 export const DonationSchema = SchemaFactory.createForClass(Donation);

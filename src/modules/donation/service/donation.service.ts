@@ -73,7 +73,7 @@ export class DonationService {
             throw new InternalServerErrorException(error);
         }
     }
-    
+
     async findAll() {
         try {
             const donations = await this.DonationModel.find();
@@ -208,13 +208,16 @@ export class DonationService {
                                 payload = {
                                     Name: donation.Name,
                                     Amount: recurring?.amount,
-                                    //frequency: recurring?.frequency,
                                     CloseDate: donation.CloseDate,
                                     StageName: donation.StageName,
                                     npsp__Acknowledgment_Status__c: donation.Acknowledgment_Status__c,
                                     Donation_Source__c: donation.Donation_Source__c,
                                     npsp__Primary_Contact__c: donation.npsp__Primary_Contact__c,
                                     npe03__Recurring_Donation__c: recurring.salesforceID,
+                                    npe03__Contact__c: donation.npsp__Primary_Contact__c,
+                                    PaymentIntent_Stripe_Id__c: donation.customerStripe || donation.customerStipe,
+                                    Payment_Method__c: donation.transactionDetails?.payment_type,
+                                    Source_URL__c: donation.campaign_medium,
                                     RecordTypeId: item.recordType,
                                     Child__c: item.Child__c,
                                 };
@@ -248,6 +251,7 @@ export class DonationService {
                             npsp__RecurringType__c: 'Open',
                             npe03__Installment_Period__c: item.interval,
                             npe03__Amount__c: item.amount,
+                            npe03__Recurring_Donation_Campaign__c: donation.campaignId,
                             npe03__Contact__c: donation.npsp__Primary_Contact__c,
                             npe03__Date_Established__c: donation.CloseDate,
                             npsp__Day_of_Month__c: donation.CloseDate.getDate(),
@@ -268,6 +272,9 @@ export class DonationService {
                                 Donation_Source__c: donation.Donation_Source__c,
                                 npsp__Primary_Contact__c: donation.npsp__Primary_Contact__c,
                                 npe03__Recurring_Donation__c: result.salesforceId,
+                                PaymentIntent_Stripe_Id__c: donation.customerStripe || donation.customerStipe,
+                                Payment_Method__c: donation.transactionDetails?.payment_type,
+                                Source_URL__c: donation.campaign_medium,
                                 RecordTypeId: item.recordType,
                                 Child__c: item.Child__c,
                             }
@@ -288,10 +295,14 @@ export class DonationService {
                                 Amount: Number(item.amount),
                                 CloseDate: donation.CloseDate,
                                 StageName: donation.StageName,
-                                //CampaignId: "701VW00000h1twBYAQ",
+                                CampaignId: donation.campaignId,
                                 npsp__Acknowledgment_Status__c: donation.Acknowledgment_Status__c,
                                 Donation_Source__c: donation.Donation_Source__c || 'Fundraising App',
                                 npsp__Primary_Contact__c: donation.npsp__Primary_Contact__c,
+                                Charge_Stripe_Id__c: donation.transactionDetails?.charge_id,
+                                PaymentIntent_Stripe_Id__c: donation.transactionDetails?.intent_id,
+                                Payment_Method__c: donation.transactionDetails?.payment_type,
+                                Source_URL__c: donation.campaign_medium,
                                 RecordTypeId: item.recordType,
                                 Child__c: item.Child__c,
                             };

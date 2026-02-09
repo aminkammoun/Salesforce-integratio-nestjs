@@ -178,6 +178,8 @@ export class SalesforceService {
                     intent_id: object.payment_intent?.toString() || '',
                     source_id: object.payment_method?.toString() || '',
                     customer_id: object.customer?.toString() || '',
+                    payment_type: object.payment_method_details?.type || '',
+                    charge_id: object.id,
                 }
                 donation.customerStripe = object.payment_intent;
                 console.log(new Date(donation.CloseDate).getTime());
