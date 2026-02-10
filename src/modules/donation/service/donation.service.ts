@@ -459,7 +459,7 @@ export class DonationService {
                     } else if (item.type.toLowerCase() == 'one-time' && !item.sfId) {
                         // Process one-time item immediately and synchronously (no setTimeout)
                         try {
-                            console.log('Processing one-time donation item:', item);
+                            console.log('donation.transactionDetails?.intent_id:', donation.transactionDetails?.intent_id);
                             payload = {
                                 Name: donation.Name,
                                 Amount: Number(item.amount),
