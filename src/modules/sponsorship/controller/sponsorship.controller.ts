@@ -8,7 +8,6 @@ import { ApiOperation, ApiResponse, ApiParam, ApiBody, ApiTags, ApiBearerAuth } 
 @Controller('sponsorship')
 export class SponsorshipController {
     constructor(private readonly sponsorshipService: SponsorshipService) { }
-
     @Post('/create')
     @ApiOperation({ summary: 'Create sponsorship', description: 'Creates a new sponsorship relationship between a donor and a child' })
     @ApiBody({ type: CreateSponsorshipDto })

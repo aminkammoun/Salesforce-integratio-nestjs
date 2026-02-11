@@ -579,7 +579,9 @@ export class DonationService {
                         Amount: item.amount,
                         donor__c: don?.npsp__Primary_Contact__c || '',
                     }]
-
+                    if (don.Donation_Source__c == 'Website' && item.Child__c) {
+                        payloadSp[0].child?.push(item.Child__c);
+                    }
                     // Call reserveChildren directly without setTimeout to ensure sequential execution
                     const result = await this.ChildService.reserveChildren(payloadSp);
                     if (result) {

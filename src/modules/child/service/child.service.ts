@@ -242,7 +242,20 @@ export class ChildService {
             const reservationResults: { message: string; nationality: string; reservedCount: number; }[] = [];
             const finalResult: any[] = []
             for (const childmap of childToreserve) {
-
+                if (childmap.child && childmap.child.length > 0) {
+                    // If specific children are provided, try to reserve them directly
+                    const sp = await this.sponsorshipService.create({
+                        donation: childmap.donationId,
+                        donor: childmap.donor__c ? '6944640f71512ff7de282ddc' : childmap.donorId,
+                        child: childmap.child,
+                        Status: 'Active',
+                        frequency: childmap.frequency,
+                        Amount: childmap.Amount,
+                        Donor__c: childmap.donor__c,
+                    })
+                    finalResult.push(sp)
+                    continue;
+                }
 
                 var reservedIDs: string[] = [];
                 for (const req of childmap.childToreserve) {
