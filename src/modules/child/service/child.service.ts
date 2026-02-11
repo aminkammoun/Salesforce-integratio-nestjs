@@ -244,6 +244,7 @@ export class ChildService {
             for (const childmap of childToreserve) {
                 if (childmap.child && childmap.child.length > 0) {
                     // If specific children are provided, try to reserve them directly
+                    console.log('Reserving specific children:', childmap.child);
                     const sp = await this.sponsorshipService.create({
                         donation: childmap.donationId,
                         donor: childmap.donor__c ? '6944640f71512ff7de282ddc' : childmap.donorId,
