@@ -242,6 +242,7 @@ export class ChildService {
             const reservationResults: { message: string; nationality: string; reservedCount: number; }[] = [];
             const finalResult: any[] = []
             for (const childmap of childToreserve) {
+                console.log('Processing reservation for:', childmap.child);
                 if (childmap.child && childmap.child.length > 0) {
                     // If specific children are provided, try to reserve them directly
                     console.log('Reserving specific children:', childmap.child);
