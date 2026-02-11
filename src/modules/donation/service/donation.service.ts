@@ -547,12 +547,13 @@ export class DonationService {
             throw new InternalServerErrorException(error);
         }
     }
-    async repaireDonations() {
+    async repaireDonations(donationsource : string) {
 
         try {
             let donations = await this.DonationModel.find({
                 syncedWithSalesforce: false,
                 StageName: 'Closed Won',
+                Donation_Source__c : donationsource
             });
             //const donations = await this.DonationModel.find({ syncedWithSalesforce: false, StageName: 'Closed Won', frequency : "One-time", });
             if (!donations) {

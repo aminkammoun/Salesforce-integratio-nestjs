@@ -89,8 +89,8 @@ export class DonationController {
         return this.donationService.findDonationsFromSalesforceByWorksheetId(cnid);
     }
     @Post('/repaireDon/')
-    async repaireDonations() {
-        return this.donationService.repaireDonations();
+    async repaireDonations(@Body() donationsource : string) {
+        return this.donationService.repaireDonations(donationsource);
     }
     @Post('/updateDonationWithnpsPrimaryContact')
     async updateDonationWithnpsPrimaryContact() {
