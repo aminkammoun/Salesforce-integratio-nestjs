@@ -581,7 +581,10 @@ export class DonationService {
                     }]
                     if (don.Donation_Source__c == 'Website' && item.Child__c) {
                         console.log('Adding existing child to payloadSp:', item.Child__c);
-                        payloadSp[0].child?.push(item.Child__c);
+                        if (!payloadSp[0].child) {
+                            payloadSp[0].child = []; // Initialize child array if it doesn't exist
+                        }
+                        payloadSp[0].child.push(item.Child__c);
                     }
                     console.log('Payload for reserving children:', payloadSp);
                     // Call reserveChildren directly without setTimeout to ensure sequential execution
