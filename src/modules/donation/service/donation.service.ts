@@ -583,6 +583,7 @@ export class DonationService {
                         console.log('Adding existing child to payloadSp:', item.Child__c);
                         payloadSp[0].child?.push(item.Child__c);
                     }
+                    console.log('Payload for reserving children:', payloadSp);
                     // Call reserveChildren directly without setTimeout to ensure sequential execution
                     const result = await this.ChildService.reserveChildren(payloadSp);
                     if (result) {
