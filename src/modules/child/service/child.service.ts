@@ -254,6 +254,8 @@ export class ChildService {
                         Amount: childmap.Amount,
                         Donor__c: childmap.donor__c,
                     })
+                    this.updateToSponsored(childmap.child);
+
                     finalResult.push(sp)
                     continue;
                 }
