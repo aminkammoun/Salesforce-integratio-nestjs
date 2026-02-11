@@ -235,7 +235,6 @@ export class ChildService {
 
     //async reserveChildren(childToreserve: ChildToreserve[], donorId: string, donationId: string,frequency:string,amount: number) {
     async reserveChildren(childToreserve: SponsorshipChilds[]) {
-        console.log('Reserving children with input:', childToreserve);
         const session: ClientSession = await this.ChildModel.db.startSession();
         session.startTransaction();
         try {

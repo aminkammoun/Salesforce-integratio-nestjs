@@ -580,6 +580,7 @@ export class DonationService {
                         donor__c: don?.npsp__Primary_Contact__c || '',
                     }]
                     if (don.Donation_Source__c == 'Website' && item.Child__c) {
+                        console.log('Adding existing child to payloadSp:', item.Child__c);
                         payloadSp[0].child?.push(item.Child__c);
                     }
                     // Call reserveChildren directly without setTimeout to ensure sequential execution
