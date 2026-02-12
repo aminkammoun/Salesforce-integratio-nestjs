@@ -188,7 +188,8 @@ export class DonationService {
         try {
             const donations = await this.DonationModel.find({
                 syncedWithSalesforce: false,
-                StageName: "Closed Won"
+                StageName: "Closed Won",
+                npsp__Primary_Contact__c : {$ne : null}
             });
             if (donations.length === 0) {
                 console.log('No donations to upload to Salesforce');
@@ -554,7 +555,8 @@ export class DonationService {
             let donations = await this.DonationModel.find({
                 syncedWithSalesforce: false,
                 StageName: 'Closed Won',
-                Donation_Source__c : donationsource
+                Donation_Source__c : donationsource,
+                npsp__Primary_Contact__c : { $ne: null },
             });
             //const donations = await this.DonationModel.find({ syncedWithSalesforce: false, StageName: 'Closed Won', frequency : "One-time", });
             if (!donations) {
