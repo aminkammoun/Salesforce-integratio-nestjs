@@ -20,7 +20,11 @@ export class ContactService {
 
     async create(createArticleDto: CreateContactDto) {
         try {
-            console.log('Creating contact with data:', createArticleDto);
+            console.log('Creating contact with data:', createArticleDto.Phone);
+            const checkExisting = await this.ContactModel.findOne({ Phone: '+1' + createArticleDto.Phone });
+            if (checkExisting) {
+                return checkExisting;
+            }
             // Clean the phone number
             const cleanedData: any = {
                 ...createArticleDto,

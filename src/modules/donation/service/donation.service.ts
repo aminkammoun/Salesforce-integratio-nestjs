@@ -55,6 +55,7 @@ export class DonationService {
             let contactDetails;
             let contact
             if (createDonationDto[0].Contact_details) {
+                createDonationDto[0].Contact_details.Phone = createDonationDto[0].Contact_details.Phone.replace('+1','');
                 contactDetails = await this.contactService.create(createDonationDto[0].Contact_details);
             }
             console.log('Contact details for donation creation:', createDonationDto[0].contact);
