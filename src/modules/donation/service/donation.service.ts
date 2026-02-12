@@ -55,7 +55,7 @@ export class DonationService {
             let contactDetails;
             let contact
             if (createDonationDto[0].Contact_details) {
-                createDonationDto[0].Contact_details.Phone = createDonationDto[0].Contact_details.Phone.replace('+1','');
+                createDonationDto[0].Contact_details.Phone = createDonationDto[0].Contact_details.Phone.replace('+1', '');
                 contactDetails = await this.contactService.create(createDonationDto[0].Contact_details);
             }
             console.log('Contact details for donation creation:', createDonationDto[0].contact);
@@ -189,7 +189,7 @@ export class DonationService {
             const donations = await this.DonationModel.find({
                 syncedWithSalesforce: false,
                 StageName: "Closed Won",
-                npsp__Primary_Contact__c : {$ne : null}
+                npsp__Primary_Contact__c: { $ne: null }
             });
             if (donations.length === 0) {
                 console.log('No donations to upload to Salesforce');
@@ -370,7 +370,7 @@ export class DonationService {
                 let payload: any
                 const recurringItems = await this.recurringService.findAllBySalesforceID(donation.npe03__Recurring_Donation__c);
                 donation.cartItems.map(async (item, index) => {
-                    
+
                     if (item.type.toLowerCase() === 'sponsorship' && !item.sfId) {
                         recurringItems.forEach(async recurring => {
                             if (recurring.amount === item.amount && recurring.frequency.toLowerCase() === item.interval.toLowerCase()) {
@@ -405,19 +405,20 @@ export class DonationService {
 
                                 // }
                                 const donationUpdatePayload = {
-                                    StageName : "Closed Won",
+                                    StageName: "Closed Won",
                                 }
                                 const donationOfRecurring = await handleQuery('/services/data/v65.0/query/?q=', `SELECT Id, StageName FROM Opportunity WHERE npe03__Recurring_Donation__c='${donation.npe03__Recurring_Donation__c[0]}' AND StageName = 'Scheduled'`, token);
                                 console.log('donationOfRecurring:', donationOfRecurring);
                                 if (donationOfRecurring?.records?.length > 0) {
                                     donationUpdatePayload.StageName = "Closed Won";
                                     await handleUpdateQuery('/services/data/v65.0/sobjects/Opportunity', '', donationOfRecurring.records[0].Id, donationUpdatePayload, token);
+                                    item.sfId = donationOfRecurring.records[0].Id;
+                                    recurring.donationSf = donationOfRecurring.records[0].Id;
+                                    await recurring.save();
+                                    donation.syncedWithSalesforce = true;
+                                    await this.update(donation._id as string, { syncedWithSalesforce: donation.syncedWithSalesforce, cartItems: donation.cartItems });
                                 }
-                                console.log(donation);
-                                console.log(donation.cartItems);
-                                await recurring.save();
-                                donation.syncedWithSalesforce = true;
-                                await this.update(donation._id as string, { syncedWithSalesforce: donation.syncedWithSalesforce, cartItems: donation.cartItems });
+                               
                             }
                         })
                     } else if (item.type.toLowerCase() === 'recurring' && !item.sfId) {
@@ -555,14 +556,14 @@ export class DonationService {
             throw new InternalServerErrorException(error);
         }
     }
-    async repaireDonations(donationsource : string) {
+    async repaireDonations(donationsource: string) {
 
         try {
             let donations = await this.DonationModel.find({
                 syncedWithSalesforce: false,
                 StageName: 'Closed Won',
-                Donation_Source__c : donationsource,
-                npsp__Primary_Contact__c : { $ne: null },
+                Donation_Source__c: donationsource,
+                npsp__Primary_Contact__c: { $ne: null },
             });
             //const donations = await this.DonationModel.find({ syncedWithSalesforce: false, StageName: 'Closed Won', frequency : "One-time", });
             if (!donations) {
