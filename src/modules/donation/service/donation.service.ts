@@ -535,16 +535,14 @@ export class DonationService {
                             Id, 
                             
                             Amount,
-                            Id, 
                             Name, 
                             CloseDate, 
                             StageName, 
                             npsp__Acknowledgment_Status__c, 
-                            Program_Cohort__r.Name,
                             npe03__Recurring_Donation__c, 
                             Donation_Source__c,
                             npsp__Primary_Contact__c
-                            FROM Opportunity__c
+                            FROM Opportunity
                             WHERE npsp__Primary_Contact__c = '${wordpressid}'`;
             }
             const token = await authenticateSalesforce();
