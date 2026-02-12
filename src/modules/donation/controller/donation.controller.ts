@@ -89,8 +89,11 @@ export class DonationController {
         return this.donationService.findDonationsFromSalesforceByWorksheetId(cnid);
     }
     @Post('/repaireDon/')
-    async repaireDonations(@Body() donationsource : string) {
-        return this.donationService.repaireDonations(donationsource);
+    @ApiOperation({ summary: 'Repair donations', description: 'Repairs unsynced donations for a specific donation source' })
+    @ApiBody({ schema: { type: 'object', properties: { donationsource: { type: 'string', example: 'Website' } } } })
+    @ApiResponse({ status: 200, description: 'Donations repaired successfully' })
+    async repaireDonations(@Body() body: { donationsource: string }) {
+        return this.donationService.repaireDonations(body.donationsource);
     }
     @Post('/updateDonationWithnpsPrimaryContact')
     async updateDonationWithnpsPrimaryContact() {
