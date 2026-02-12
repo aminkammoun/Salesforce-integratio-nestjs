@@ -530,6 +530,8 @@ export class DonationService {
                             FROM Program_Allocation_Unit__c
                             WHERE Opportunity__r.npsp__Primary_Contact__c = '${wordpressid}'`;
 
+                            console.log('Salesforce query for donations by contact ID:', query.length);
+
             if (query.length == 0) {
                 query = `SELECT 
                             Id, 
