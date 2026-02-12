@@ -207,41 +207,19 @@ export class DonationService {
                         console.log(item.Name.toLowerCase().includes('orphan') && item.type.toLowerCase() === 'recurring', item)
                         recurringItems.forEach(async recurring => {
                             if (recurring.amount === item.amount && recurring.frequency.toLowerCase() === item.interval.toLowerCase()) {
-                                payload = {
-                                    Name: donation.Name,
-                                    Amount: recurring?.amount,
-                                    CloseDate: donation.CloseDate,
-                                    StageName: donation.StageName,
-                                    npsp__Acknowledgment_Status__c: donation.Acknowledgment_Status__c,
-                                    Donation_Source__c: donation.Donation_Source__c,
-                                    npsp__Primary_Contact__c: donation.npsp__Primary_Contact__c,
-                                    npe03__Recurring_Donation__c: recurring.salesforceID,
-                                    npe03__Contact__c: donation.npsp__Primary_Contact__c,
-                                    PaymentIntent_Stripe_Id__c: donation.customerStripe || donation.customerStipe,
-                                    Payment_Method__c: donation.transactionDetails?.payment_type,
-                                    Source_URL__c: donation.campaign_medium,
-                                    RecordTypeId: item.recordType,
-                                    Child__c: item.Child__c,
-                                };
-                                item.npe03__Recurring_Donation__c = recurring.salesforceID;
-                                //item.sfId = recurring.donationSf;
-                                console.log('Updated cart item with Salesforce ID:', item);
-                                if (!payload) {
-                                    return;
+                                const donationUpdatePayload = {
+                                    StageName: "Closed Won",
                                 }
-                                const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Opportunity/', payload, token);
-                                if (result.salesforceId) {
-                                    if (recurring) {
-                                        recurring.donationSf = result.salesforceId || '';
-                                        item.sfId = result.salesforceId;
-                                    }
-
+                                const donationOfRecurring = await handleQuery('/services/data/v65.0/query/?q=', `SELECT Id, StageName FROM Opportunity WHERE npe03__Recurring_Donation__c='${donation.npe03__Recurring_Donation__c[0]}' AND StageName = 'Scheduled'`, token);
+                                if (donationOfRecurring?.records?.length > 0) {
+                                    donationUpdatePayload.StageName = "Closed Won";
+                                    await handleUpdateQuery('/services/data/v65.0/sobjects/Opportunity', '', donationOfRecurring.records[0].Id, donationUpdatePayload, token);
+                                    item.sfId = donationOfRecurring.records[0].Id;
+                                    recurring.donationSf = donationOfRecurring.records[0].Id;
+                                    await recurring.save();
+                                    donation.syncedWithSalesforce = true;
+                                    await this.update(donation._id as string, { syncedWithSalesforce: donation.syncedWithSalesforce, cartItems: donation.cartItems });
                                 }
-                                console.log(donation);
-                                console.log(donation.cartItems);
-                                await recurring.save();
-                                donation.syncedWithSalesforce = true;
-                                await this.update(donation._id as string, { syncedWithSalesforce: donation.syncedWithSalesforce, cartItems: donation.cartItems });
                             }
                         })
                     } else if (item.type.toLowerCase() === 'recurring' && !item.sfId) {
@@ -404,6 +382,7 @@ export class DonationService {
                                 //     }
 
                                 // }
+
                                 const donationUpdatePayload = {
                                     StageName: "Closed Won",
                                 }
@@ -418,7 +397,7 @@ export class DonationService {
                                     donation.syncedWithSalesforce = true;
                                     await this.update(donation._id as string, { syncedWithSalesforce: donation.syncedWithSalesforce, cartItems: donation.cartItems });
                                 }
-                               
+
                             }
                         })
                     } else if (item.type.toLowerCase() === 'recurring' && !item.sfId) {
