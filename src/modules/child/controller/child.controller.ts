@@ -78,8 +78,8 @@ export class ChildController {
     @Post('/markasAvailable')
     @ApiOperation({ summary: 'Mark children as available', description: 'Marks children as available for sponsorship' })
     @ApiResponse({ status: 200, description: 'Children marked as available successfully' })
-    async markAsAvailable() {
-        return this.childService.markAsAvailable();
+    async markAsAvailable(@Body() ids: string[]) {
+        return this.childService.markAsAvailable(ids);
     }
 
     @Post('/uploadAttachments')

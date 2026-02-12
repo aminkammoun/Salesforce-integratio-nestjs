@@ -368,14 +368,11 @@ export class ChildService {
             throw new InternalServerErrorException(error);
         }
     }
-    async markAsAvailable() {
+    async markAsAvailable(ids : string[]) {
         try {
             const result = await this.ChildModel.updateMany(
                 {
-                    Status__c: "Sponsored", NationalityList__c: "Syrian", reservedAt: {
-                        $gt: new Date("2026-01-09T00:00:00.000Z"),
-                        $lt: new Date("2026-01-10T00:00:00.000Z")
-                    }
+                    Status__c: "Sponsored", SalesforceID: { $in: ids }
                 }
                 ,
                 { $set: { Status__c: 'Available' } }
