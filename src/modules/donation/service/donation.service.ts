@@ -407,7 +407,7 @@ export class DonationService {
                                 const donationUpdatePayload = {
                                     StageName : "Closed Won",
                                 }
-                                const donationOfRecurring = await handleQuery('/services/data/v65.0/query/?q=', `SELECT Id, StageName FROM Opportunity WHERE npe03__Recurring_Donation__c='${recurring.donationSf}' AND StageName = 'Scheduled'`, token);
+                                const donationOfRecurring = await handleQuery('/services/data/v65.0/query/?q=', `SELECT Id, StageName FROM Opportunity WHERE npe03__Recurring_Donation__c='${donation.npe03__Recurring_Donation__c[0]}' AND StageName = 'Scheduled'`, token);
                                 console.log('donationOfRecurring:', donationOfRecurring);
                                 if (donationOfRecurring?.records?.length > 0) {
                                     donationUpdatePayload.StageName = "Closed Won";
