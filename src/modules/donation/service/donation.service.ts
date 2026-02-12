@@ -6,7 +6,7 @@ import { Recurring } from 'src/modules/recurring/entities/recurring.entity';
 import { InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { CreateDonationDto, recordType } from '../dto/create-donation.dto';
 import { UpdateDonationDto } from '../dto/update-donation.dto';
-import { authenticateSalesforce, handleInsertQuery, handleQuery } from 'src/config/utils';
+import { authenticateSalesforce, handleInsertQuery, handleQuery, handleUpdateQuery } from 'src/config/utils';
 import { Sponsorship } from 'src/modules/sponsorship/entities/sponsorship.entity';
 import { RecurringService } from 'src/modules/recurring/service/recurring.service';
 import { ContactService } from 'src/modules/contact/service/contact.service';
@@ -366,46 +366,52 @@ export class DonationService {
                 return [];
             }
             const token = await authenticateSalesforce();
-            console.log('donations:', donations);
             const salesforcePayloads = donations.map(async donation => {
                 let payload: any
                 const recurringItems = await this.recurringService.findAllBySalesforceID(donation.npe03__Recurring_Donation__c);
                 donation.cartItems.map(async (item, index) => {
-                    console.log('index:', index);
-                    console.log('Name:', !item.Name.toLowerCase().includes('orphan'));
+                    
                     if (item.type.toLowerCase() === 'sponsorship' && !item.sfId) {
-                        console.log(item.Name.toLowerCase().includes('orphan') && item.type.toLowerCase() === 'recurring', item)
                         recurringItems.forEach(async recurring => {
                             if (recurring.amount === item.amount && recurring.frequency.toLowerCase() === item.interval.toLowerCase()) {
-                                payload = {
-                                    Name: donation.Name,
-                                    Amount: recurring?.amount,
-                                    CloseDate: donation.CloseDate,
-                                    StageName: donation.StageName,
-                                    npsp__Acknowledgment_Status__c: donation.Acknowledgment_Status__c,
-                                    Donation_Source__c: donation.Donation_Source__c,
-                                    npsp__Primary_Contact__c: donation.npsp__Primary_Contact__c,
-                                    npe03__Recurring_Donation__c: recurring.salesforceID,
-                                    npe03__Contact__c: donation.npsp__Primary_Contact__c,
-                                    PaymentIntent_Stripe_Id__c: donation.customerStripe || donation.customerStipe,
-                                    Payment_Method__c: donation.transactionDetails?.payment_type,
-                                    Source_URL__c: donation.campaign_medium,
-                                    RecordTypeId: item.recordType,
-                                    Child__c: item.Child__c,
-                                };
-                                item.npe03__Recurring_Donation__c = recurring.salesforceID;
-                                //item.sfId = recurring.donationSf;
-                                console.log('Updated cart item with Salesforce ID:', item);
-                                if (!payload) {
-                                    return;
-                                }
-                                const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Opportunity/', payload, token);
-                                if (result.salesforceId) {
-                                    if (recurring) {
-                                        recurring.donationSf = result.salesforceId || '';
-                                        item.sfId = result.salesforceId;
-                                    }
+                                // payload = {
+                                //     Name: donation.Name,
+                                //     Amount: recurring?.amount,
+                                //     CloseDate: donation.CloseDate,
+                                //     StageName: donation.StageName,
+                                //     npsp__Acknowledgment_Status__c: donation.Acknowledgment_Status__c,
+                                //     Donation_Source__c: donation.Donation_Source__c,
+                                //     npsp__Primary_Contact__c: donation.npsp__Primary_Contact__c,
+                                //     npe03__Recurring_Donation__c: recurring.salesforceID,
+                                //     //npe03__Contact__c: donation.npsp__Primary_Contact__c,
+                                //     PaymentIntent_Stripe_Id__c: donation.customerStripe || donation.customerStipe,
+                                //     Payment_Method__c: donation.transactionDetails?.payment_type,
+                                //     Source_URL__c: donation.campaign_medium,
+                                //     RecordTypeId: item.recordType,
+                                //     Child__c: item.Child__c,
+                                // };
+                                // item.npe03__Recurring_Donation__c = recurring.salesforceID;
+                                // //item.sfId = recurring.donationSf;
+                                // console.log('Updated cart item with Salesforce ID:', item);
+                                // if (!payload) {
+                                //     return;
+                                // }
+                                // const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Opportunity/', payload, token);
+                                // if (result.salesforceId) {
+                                //     if (recurring) {
+                                //         recurring.donationSf = result.salesforceId || '';
+                                //         item.sfId = result.salesforceId;
+                                //     }
 
+                                // }
+                                const donationUpdatePayload = {
+                                    StageName : "Closed Won",
+                                }
+                                const donationOfRecurring = await handleQuery('/services/data/v65.0/query/?q=', `SELECT Id, StageName FROM Opportunity WHERE npe03__Recurring_Donation__c='${recurring.donationSf}' AND StageName = 'Scheduled'`, token);
+                                console.log('donationOfRecurring:', donationOfRecurring);
+                                if (donationOfRecurring?.records?.length > 0) {
+                                    donationUpdatePayload.StageName = "Closed Won";
+                                    await handleUpdateQuery('/services/data/v65.0/sobjects/Opportunity', '', donationOfRecurring.records[0].Id, donationUpdatePayload, token);
                                 }
                                 console.log(donation);
                                 console.log(donation.cartItems);
