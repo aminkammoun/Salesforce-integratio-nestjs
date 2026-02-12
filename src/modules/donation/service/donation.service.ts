@@ -512,47 +512,49 @@ export class DonationService {
         }
     }
     async findDonationsFromSalesforceByWorksheetId(wordpressid: string) {
-        try {
-            var query: any
-            query = `SELECT 
-                            Id, 
-                            Name, 
-                            Opportunity__r.Amount,
-                            Opportunity__r.Id, 
-                            Opportunity__r.Name, 
-                            Opportunity__r.CloseDate, 
-                            Opportunity__r.StageName, 
-                            Opportunity__r.npsp__Acknowledgment_Status__c, 
-                            Program_Cohort__r.Name,
-                            Opportunity__r.npe03__Recurring_Donation__c, 
-                            Opportunity__r.Donation_Source__c,
-                            Opportunity__r.npsp__Primary_Contact__c
-                            FROM Program_Allocation_Unit__c
-                            WHERE Opportunity__r.npsp__Primary_Contact__c = '${wordpressid}'`;
+    try {
+        const primaryQuery = `SELECT 
+            Id, 
+            Name, 
+            Opportunity__r.Amount,
+            Opportunity__r.Id, 
+            Opportunity__r.Name, 
+            Opportunity__r.CloseDate, 
+            Opportunity__r.StageName, 
+            Opportunity__r.npsp__Acknowledgment_Status__c, 
+            Program_Cohort__r.Name,
+            Opportunity__r.npe03__Recurring_Donation__c, 
+            Opportunity__r.Donation_Source__c,
+            Opportunity__r.npsp__Primary_Contact__c
+            FROM Program_Allocation_Unit__c
+            WHERE Opportunity__r.npsp__Primary_Contact__c = '${wordpressid}'`;
 
-                            console.log('Salesforce query for donations by contact ID:', query.length);
+        const token = await authenticateSalesforce();
+        let res = await handleQuery('/services/data/v65.0/query/?q=', primaryQuery, token);
 
-            if (query.length == 0) {
-                query = `SELECT 
-                            Id, 
-                            Amount,
-                            Name, 
-                            CloseDate, 
-                            StageName, 
-                            npsp__Acknowledgment_Status__c, 
-                            npe03__Recurring_Donation__c, 
-                            Donation_Source__c,
-                            npsp__Primary_Contact__c
-                            FROM Opportunity
-                            WHERE npsp__Primary_Contact__c = '${wordpressid}'`;
-            }
-            const token = await authenticateSalesforce();
-            const res = await handleQuery('/services/data/v65.0/query/?q=', query, token);
-            return res.records;
-        } catch (error) {
-            throw new InternalServerErrorException(error);
+        // If no Program_Allocation_Unit records found, fallback to Opportunity query
+        if (!res.records || res.records.length === 0) {
+            const fallbackQuery = `SELECT 
+                Id, 
+                Amount,
+                Name, 
+                CloseDate, 
+                StageName, 
+                npsp__Acknowledgment_Status__c, 
+                npe03__Recurring_Donation__c, 
+                Donation_Source__c,
+                npsp__Primary_Contact__c
+                FROM Opportunity
+                WHERE npsp__Primary_Contact__c = '${wordpressid}'`;
+            
+            res = await handleQuery('/services/data/v65.0/query/?q=', fallbackQuery, token);
         }
+
+        return res.records;
+    } catch (error) {
+        throw new InternalServerErrorException(error);
     }
+}
     async repaireDonations(donationsource: string) {
 
         try {
