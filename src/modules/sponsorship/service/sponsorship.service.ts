@@ -363,6 +363,7 @@ export class SponsorshipService {
                 donor: sponsorship.donor,
                 sponsorships: sponsorship._id,
                 amount: sponsorship.Amount,
+                npe03__Recurring_Donation_Campaign__c: sponsorship.campaignId || '',
                 dateEstablished: sponsorship.Start_Date__c,
                 DayOfMonth: sponsorship.Start_Date__c.getDate(),
                 status: 'Active',

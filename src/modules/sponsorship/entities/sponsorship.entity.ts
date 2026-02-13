@@ -59,6 +59,8 @@ export class Sponsorship extends Document {
     Amount: number;
     @Prop({ required: false })
     metadata: String;
+    @Prop({ required: false })
+    campaignId: string;
 }
 
 export const SponsorshipSchema = SchemaFactory.createForClass(Sponsorship);

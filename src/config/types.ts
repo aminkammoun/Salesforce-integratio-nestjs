@@ -10,6 +10,7 @@ export interface SponsorshipChilds {
     Amount: number,
     donor__c: string,
     child?: string[];
+    campaignId?: string;
 }
 export interface childAttachment {
     Child__c: string;
