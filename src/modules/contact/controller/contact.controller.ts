@@ -113,7 +113,12 @@ export class ContactController {
     async cleanContacts() {
         return this.contactService.cleanContactPhoneNumbers();
     }
-
+    @Post('/cleanpluone')
+    @ApiOperation({ summary: 'Clean contact phone numbers by adding +1', description: 'Cleans and formats all contact phone numbers by adding +1 country code' })
+    @ApiResponse({ status: 200, description: 'Phone numbers cleaned successfully' })
+    async cleanContactsPlusOne() {
+        return this.contactService.repaireContactsStartingWith1();
+    }
     @UseGuards(JwtAuthGuard)
     @Get('/getsf/:cnid')
     @ApiOperation({ summary: 'Get contact from Salesforce by ID', description: 'Retrieves a contact from Salesforce by Salesforce ID' })

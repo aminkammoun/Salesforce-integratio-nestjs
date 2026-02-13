@@ -341,4 +341,25 @@ export class ContactService {
             throw new InternalServerErrorException(error);
         }
     }
+    async repaireContactsStartingWith1() {
+        try {
+            const result = await this.ContactModel.updateMany(
+                {
+                    Phone: { $regex: /^\+1\+1/ } // Phone numbers starting with '+1+1'
+                },
+                [
+                    {
+                        $set: {
+                            Phone: {
+                                $substr: ['$Phone', 2, -1] // Remove first 2 characters (+1)
+                            }
+                        }
+                    }
+                ]
+            );
+            return result;
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
+    }
 }
