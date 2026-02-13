@@ -588,7 +588,7 @@ export class DonationService {
                         frequency: item.interval,
                         Amount: item.amount,
                         donor__c: don?.npsp__Primary_Contact__c || '',
-                        campaignId: don.campaignId || '',
+                        campaignId: don.campaignId,
                     }]
                     if (don.Donation_Source__c == 'Website' && item.Child__c) {
                         console.log('Adding existing child to payloadSp:', item.Child__c);
@@ -601,7 +601,7 @@ export class DonationService {
                     // Call reserveChildren directly without setTimeout to ensure sequential execution
                     const result = await this.ChildService.reserveChildren(payloadSp);
                     if (result) {
-                        await this.SponsorshipService.repaireSp(result[0]._id as string);
+                        await this.SponsorshipService.repaireSp(result[0]._id as string, don.campaignId || '');
                     }
 
                     return {
