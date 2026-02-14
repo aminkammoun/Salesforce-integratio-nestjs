@@ -60,6 +60,8 @@ export class Recurring extends Document {
     npe03__Recurring_Donation_Campaign__c: string
     @Prop({ required: false })
     createOnStripe: boolean
+    @Prop({ required: false })
+    recurringSource: string
 }
 
 export const RecurringSchema = SchemaFactory.createForClass(Recurring);

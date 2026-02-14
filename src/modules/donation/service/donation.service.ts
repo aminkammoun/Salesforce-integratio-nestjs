@@ -196,15 +196,11 @@ export class DonationService {
                 return [];
             }
             const token = await authenticateSalesforce();
-            console.log('donations:', donations);
             const salesforcePayloads = donations.map(async donation => {
                 let payload: any
                 const recurringItems = await this.recurringService.findAllBySalesforceID(donation.npe03__Recurring_Donation__c);
                 donation.cartItems.map(async (item, index) => {
-                    console.log('index:', index);
-                    console.log('Name:', !item.Name.toLowerCase().includes('orphan'));
                     if (item.type.toLowerCase() === 'sponsorship' && !item.sfId) {
-                        console.log(item.Name.toLowerCase().includes('orphan') && item.type.toLowerCase() === 'recurring', item)
                         recurringItems.forEach(async recurring => {
                             if (recurring.amount === item.amount && recurring.frequency.toLowerCase() === item.interval.toLowerCase()) {
                                 const donationUpdatePayload = {
@@ -218,7 +214,7 @@ export class DonationService {
                                     recurring.donationSf = donationOfRecurring.records[0].Id;
                                     await recurring.save();
                                     donation.syncedWithSalesforce = true;
-                                    await this.update(donation._id as string, { syncedWithSalesforce: donation.syncedWithSalesforce, cartItems: donation.cartItems });
+                                    await this.update(donation._id as string, { syncedWithSalesforce: true, cartItems: donation.cartItems });
                                 }
                             }
                         })
@@ -269,7 +265,6 @@ export class DonationService {
                     } else if (item.type.toLowerCase() == 'one-time' && !item.sfId) {
                         // Process one-time item immediately and synchronously (no setTimeout)
                         try {
-                            console.log('Processing one-time donation item:', item);
                             payload = {
                                 Name: donation.Name,
                                 Amount: Number(item.amount),
