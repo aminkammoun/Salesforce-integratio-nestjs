@@ -596,7 +596,7 @@ export class DonationService {
                     // Call reserveChildren directly without setTimeout to ensure sequential execution
                     const result = await this.ChildService.reserveChildren(payloadSp);
                     if (result) {
-                        await this.SponsorshipService.repaireSp(result[0]._id as string, don.campaignId || '');
+                        await this.SponsorshipService.repaireSp(result[0]._id as string, don.campaignId || '', don.Donation_Source__c);
                     }
 
                     return {
