@@ -538,7 +538,8 @@ export class SalesforceService {
         const recurring = await this.recurringService.findAll();
         console.log('Found recurrings:', recurring.length);
         if (!recurring || recurring.length === 0) {
-            throw new Error('Recurring donation not found');
+            this.logger.warn('No recurring donations found');
+            return;
         }
         for (const rec of recurring) {
             try {
