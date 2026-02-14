@@ -531,7 +531,7 @@ export class SalesforceService {
         return { subs: subscription.id, customer: customer.id };
 
     }
-    async createRecurringOnStripe(id: string) {
+    async createRecurringOnStripe(id?:string) {
         //const customer = await this.stripe.customers.retrieve(req.customerId);
         //console.log('Customer retrieved:', customer);
         //const interval = this.mapIntervalToStripeInterval(req.interval);
