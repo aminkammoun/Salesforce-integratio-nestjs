@@ -81,5 +81,7 @@ export class Donation extends Document {
     campaign_medium: string;
     @Prop({ required : false })
     campaign_source: string;
+    @Prop({ required : false })
+    synchedAt : Date;
 }
 export const DonationSchema = SchemaFactory.createForClass(Donation);

@@ -491,6 +491,7 @@ export class DonationService {
 
                                 // Persist updated cart item and mark donation synced
                                 donation.syncedWithSalesforce = true;
+                                donation.synchedAt = new Date();
                                 await this.update(donation._id as string, { syncedWithSalesforce: donation.syncedWithSalesforce, cartItems: donation.cartItems });
                             } else {
                                 console.warn('Opportunity creation returned no salesforceId for donation item:', item);

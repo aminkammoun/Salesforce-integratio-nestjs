@@ -238,6 +238,8 @@ export class CreateDonationDto {
     Child__c?: string;
     @ApiPropertyOptional({ description: 'Additional contact details (optional)' })
     Contact_details?: CreateContactDto;
+    @ApiPropertyOptional({ description: 'Campaign ID associated with the donation', example: '7011t000000XyZ' })
+    synchedAt?: Date
 }
 
 export default CreateDonationDto;
