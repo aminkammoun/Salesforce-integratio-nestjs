@@ -26,7 +26,7 @@ import { ChildModule } from '../child/child.module';
         }),
     ],
     controllers: [SalesforceController],
-    providers: [SalesforceService, SalesforcesCronService,
+    providers: [SalesforceService,
         {
             provide: 'STRIPE_API_KEY',
             useFactory: async (configService: ConfigService) =>

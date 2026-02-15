@@ -250,8 +250,8 @@ export class SalesforceService {
             const paymentIntent = await this.stripe.paymentIntents.create({
                 amount: req.amount,
                 currency: req.currency,
-                //setup_future_usage: 'off_session',
                 payment_method_types: ['card_present'],
+                setup_future_usage: 'off_session',
                 capture_method: 'automatic',
                 customer: customer.id,
                 //payment_method_types: ['card'],
@@ -531,7 +531,7 @@ export class SalesforceService {
         return { subs: subscription.id, customer: customer.id };
 
     }
-    async createRecurringOnStripe(id?:string) {
+    async createRecurringOnStripe(id?: string) {
         //const customer = await this.stripe.customers.retrieve(req.customerId);
         //console.log('Customer retrieved:', customer);
         //const interval = this.mapIntervalToStripeInterval(req.interval);
