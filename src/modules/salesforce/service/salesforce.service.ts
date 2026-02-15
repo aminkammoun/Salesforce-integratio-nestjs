@@ -565,7 +565,8 @@ export class SalesforceService {
                     throw new Error(`Donation ${donationId} not found`);
                 }
 
-                if (donation.Donation_Source__c !== 'Fundraising App') {
+                if (donation.Donation_Source__c == 'Fundraising App') {
+                    console.log("khal hna")
                     const transaction = await this.transactionService.findByDonationId(donationId);
                     console.log('transaction', transaction);
                     if (!transaction) {
