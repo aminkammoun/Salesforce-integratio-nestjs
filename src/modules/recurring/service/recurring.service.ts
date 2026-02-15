@@ -119,7 +119,7 @@ export class RecurringService {
         try {
             const recurrings = await this.RecurringModel.find({
                 status: "Active",
-                syncedWithSalesforce: true,
+                syncedWithSalesforce: false,
                 subscriptionStripe: null,
                 createOnStripe: null,
                 recurringSource : 'Fundraising App'
