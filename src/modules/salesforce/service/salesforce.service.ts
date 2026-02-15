@@ -327,7 +327,7 @@ export class SalesforceService {
             const subscription = await this.stripe.subscriptions.create({
                 customer: req.customerId,
                 items: [{ price: req.priceId }],
-                trial_end: req.trial_end, // NEW: prevent immediate charge
+                //trial_end: req.trial_end, // NEW: prevent immediate charge
                 //billing_cycle_anchor: req.billing_cycle_anchor, // NEW: set billing date
                 //backdate_start_date: req.backdate_start_date,
                 metadata: req.metadata || {},
@@ -515,11 +515,11 @@ export class SalesforceService {
         const subscription = await this.createStripeSubscription({
             customerId: customer.id,
             priceId: price.id,
-            trial_end: billingCycleAnchor, // Don't charge until next period
+            //trial_end: billingCycleAnchor, // Don't charge until next period
             //billing_cycle_anchor: billingCycleAnchor,
             //backdate_start_date: Math.floor(Date.now() / 1000),
             payment_behavior: 'default_incomplete',
-            default_payment_method: object.payment_method || params.paymentMethod,
+            default_payment_method: object.payment_method_details.card_present.generated_card || params.paymentMethod,
             metadata: {
                 donationId: donationId,
                 contactId: contact._id.toString(),
@@ -571,6 +571,11 @@ export class SalesforceService {
                         throw new Error(`Transaction for donation ${donationId} not found`);
                     }
                     const stripeGetChargeEvent = await this.stripe.charges.retrieve(transaction[0].transactionID);
+
+                    const generatedCard = stripeGetChargeEvent?.payment_method_details?.card_present?.generated_card;
+                    if (generatedCard) {
+                        await this.linkPaymentMethodToCustomer(generatedCard, customer.id);
+                    } 
                     const processCartItemAfterPayment = await this.processCartItemAfterPayment({
                         item: donation.cartItems[0],
                         donationId: donationId,
