@@ -123,7 +123,8 @@ export class TransactionService {
     }
     async findByDonationId(donationId: string) {
         try {
-            const transactions = await this.TransactionModel.find({ donation: new MongooseTypes.ObjectId(donationId) });
+            console.log('Finding transactions for donation ID:', donationId);
+            const transactions = await this.TransactionModel.find({ donation: donationId });
             return transactions;
         } catch (error) {
             throw new InternalServerErrorException(error);
