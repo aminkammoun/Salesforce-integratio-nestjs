@@ -560,7 +560,7 @@ export class SalesforceService {
                     name: contact.Name,
                     phone: contact.Phone,
                 });
-                console.log('customer', customer);
+                console.log('customer', customer.id);
                 if (!donation) {
                     throw new Error(`Donation ${donationId} not found`);
                 }
@@ -573,9 +573,10 @@ export class SalesforceService {
                     const stripeGetChargeEvent = await this.stripe.charges.retrieve(transaction[0].transactionID);
 
                     const generatedCard = stripeGetChargeEvent?.payment_method_details?.card_present?.generated_card;
+                    console.log('generatedCard', generatedCard);
                     if (generatedCard) {
                         await this.linkPaymentMethodToCustomer(generatedCard, customer.id);
-                    } 
+                    }
                     const processCartItemAfterPayment = await this.processCartItemAfterPayment({
                         item: donation.cartItems[0],
                         donationId: donationId,
