@@ -135,9 +135,7 @@ export class DonationService {
 
     async findOneId(id: string) {
         try {
-            console.log('Finding donation by ID:', id);
             const donation = await this.DonationModel.findById(new MongooseTypes.ObjectId(id));
-            console.log('Found donation:', donation);
             return donation;
         } catch (error) {
             throw new InternalServerErrorException(error);
