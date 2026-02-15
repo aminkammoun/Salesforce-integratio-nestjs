@@ -33,7 +33,7 @@ export class SalesforceService {
     }
     async getCustomers() {
         const paymentIntent = await this.stripe.paymentIntents.retrieve(
-            'pi_3SOmM9PK7Mt7pUeD1gdbX6FR'
+            'pi_3T1BDBPK7Mt7pUeD0VmA7MeJ'
         );
         console.log('Payment Intent:', paymentIntent);
         const customers = await this.stripe.customers.list({});
