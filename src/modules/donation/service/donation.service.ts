@@ -413,30 +413,44 @@ export class DonationService {
                     const recResult = await handleInsertQuery('/services/data/v65.0/sobjects/', 'npe03__Recurring_Donation__c/', createRecPay, token);
 
                     if (recResult?.salesforceId) {
-                        item.npe03__Recurring_Donation__c = recResult.salesforceId;
+                        const query = `SELECT Id, StageName FROM Opportunity WHERE npe03__Recurring_Donation__c='${recResult.salesforceId}' AND StageName = 'Scheduled'`;
+                        const donationOfRecurring = await handleQuery('/services/data/v65.0/query/?q=', query, token);
 
-                        // 2. Create the First Installment Opportunity
-                        const createOppPay = {
-                            Name: donation.Name,
-                            Amount: item.amount,
-                            CloseDate: donation.CloseDate,
-                            StageName: donation.StageName,
-                            npsp__Acknowledgment_Status__c: donation.Acknowledgment_Status__c,
-                            Donation_Source__c: donation.Donation_Source__c,
-                            npsp__Primary_Contact__c: donation.npsp__Primary_Contact__c,
-                            npe03__Recurring_Donation__c: recResult.salesforceId,
-                            PaymentIntent_Stripe_Id__c: donation.customerStripe,
-                            Payment_Method__c: donation.transactionDetails?.payment_type,
-                            Source_URL__c: donation.campaign_medium,
-                            RecordTypeId: item.recordType,
-                            Child__c: item.Child__c,
-                        };
+                        if (donationOfRecurring?.records?.length > 0) {
+                            // Close the Opportunity
+                            const updatePayload = { StageName: "Closed Won" };
+                            await handleUpdateQuery('/services/data/v65.0/sobjects/Opportunity', '', donationOfRecurring.records[0].Id, updatePayload, token);
 
-                        const oppResult = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Opportunity/', createOppPay, token);
-                        if (oppResult?.salesforceId) {
-                            item.sfId = oppResult.salesforceId;
+                            // Update Local Data
+                            item.sfId = donationOfRecurring.records[0].Id;
+                            item.npe03__Recurring_Donation__c = recResult.salesforceId;
                             donationUpdated = true;
                         }
+
+                        // item.npe03__Recurring_Donation__c = recResult.salesforceId;
+
+                        // // 2. Create the First Installment Opportunity
+                        // const createOppPay = {
+                        //     Name: donation.Name,
+                        //     Amount: item.amount,
+                        //     CloseDate: donation.CloseDate,
+                        //     StageName: donation.StageName,
+                        //     npsp__Acknowledgment_Status__c: donation.Acknowledgment_Status__c,
+                        //     Donation_Source__c: donation.Donation_Source__c,
+                        //     npsp__Primary_Contact__c: donation.npsp__Primary_Contact__c,
+                        //     npe03__Recurring_Donation__c: recResult.salesforceId,
+                        //     PaymentIntent_Stripe_Id__c: donation.customerStripe,
+                        //     Payment_Method__c: donation.transactionDetails?.payment_type,
+                        //     Source_URL__c: donation.campaign_medium,
+                        //     RecordTypeId: item.recordType,
+                        //     Child__c: item.Child__c,
+                        // };
+
+                        // const oppResult = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Opportunity/', createOppPay, token);
+                        // if (oppResult?.salesforceId) {
+                        //     item.sfId = oppResult.salesforceId;
+                        //     donationUpdated = true;
+                        // }
                     }
                 }
 
