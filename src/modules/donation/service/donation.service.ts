@@ -87,7 +87,7 @@ export class DonationService {
     async findDonationBySalesforceID(contactId: string) {
         try {
             console.log('Searching for donation with contact ID:', contactId);
-            const donation = await this.DonationModel.findOne({ contact: contactId, StageName: 'Pendding' });
+            const donation = await this.DonationModel.find({ contact: contactId });
             console.log('Found donation for contact:', donation);
             return donation;
         } catch (error) {
@@ -210,6 +210,7 @@ export class DonationService {
                                     donationUpdatePayload.StageName = "Closed Won";
                                     await handleUpdateQuery('/services/data/v65.0/sobjects/Opportunity', '', donationOfRecurring.records[0].Id, donationUpdatePayload, token);
                                     item.sfId = donationOfRecurring.records[0].Id;
+                                    item.npe03__Recurring_Donation__c = donation.npe03__Recurring_Donation__c[0];
                                     recurring.donationSf = donationOfRecurring.records[0].Id;
                                     await recurring.save();
                                     donation.syncedWithSalesforce = true;
