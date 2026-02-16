@@ -103,7 +103,7 @@ export class RecurringService {
                 await this.sponsorshipService.updateDonationWithRecurringSalesforceID(recurring.sponsorships.toString(), result.salesforceId);
                 const GAUPayload = {
                     npsp__Recurring_Donation__c: result.salesforceId,
-                    npsp__General_Accounting_Unit__c: this.EnumDonorType[recurring.nationality.toUpperCase() as keyof typeof this.EnumDonorType],
+                    npsp__General_Accounting_Unit__c: this.EnumDonorType[recurring.nationality as keyof typeof this.EnumDonorType],
                     npsp__Amount__c: recurring.amount,
                 };
                 await handleInsertQuery('/services/data/v65.0/sobjects/', 'npsp__Allocation__c/', GAUPayload, token);
