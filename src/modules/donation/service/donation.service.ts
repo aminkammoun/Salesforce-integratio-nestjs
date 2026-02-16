@@ -354,7 +354,7 @@ export class DonationService {
                 const sponsorshipItems = donation.cartItems.filter(i => i.type.toLowerCase() === 'sponsorship' && !i.sfId);
                 const recurringItems = donation.cartItems.filter(i => i.type.toLowerCase() === 'recurring' && !i.sfId);
                 const oneTimeItems = donation.cartItems.filter(i => i.type.toLowerCase() === 'one-time' && !i.sfId);
-
+                console.log(`Processing donation ${donation._id} with ${sponsorshipItems.length} sponsorship items, ${recurringItems.length} recurring items, and ${oneTimeItems.length} one-time items.`);
 
                 // ====================================================
                 // SECTION A: SPONSORSHIPS
@@ -366,6 +366,7 @@ export class DonationService {
                         for (const recurring of recurringRecords) {
                             // Match item to recurring record based on amount/freq
                             if (recurring.amount === item.amount && recurring.frequency.toLowerCase() === item.interval.toLowerCase()) {
+                                console.log('dkhal l sponsorships')
                                 // Find the specific 'Scheduled' Opportunity for this Recurring Donation
                                 const recurringId = Array.isArray(donation.npe03__Recurring_Donation__c)
                                     ? donation.npe03__Recurring_Donation__c[0]
@@ -373,7 +374,7 @@ export class DonationService {
 
                                 const query = `SELECT Id, StageName FROM Opportunity WHERE npe03__Recurring_Donation__c='${recurringId}' AND StageName = 'Scheduled'`;
                                 const donationOfRecurring = await handleQuery('/services/data/v65.0/query/?q=', query, token);
-
+                                console.log('donationOfRecurring', donationOfRecurring);
                                 if (donationOfRecurring?.records?.length > 0) {
                                     // Close the Opportunity
                                     const updatePayload = { StageName: "Closed Won" };
