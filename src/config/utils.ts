@@ -37,7 +37,6 @@ export async function handleInsertQuery(query: string,
 
     try {
         const json = await res.json();
-        console.log('Salesforce Insert Response:', json);
         if (object.includes('Opportunity') && json.success) {
             return { message: 'Donation created successfully in Salesforce', salesforceId: json.id };
         }
@@ -66,9 +65,7 @@ export async function handleUpdateQuery(query: string,
     body: any,
     token: string
 ) {
-    //const token = await authenticateSalesforce();
-    console.log('Using Bearer Token:', token);
-    console.log(process.env.ISTANCEURL + query + object + '/' + id)
+    
     const res = await fetch(process.env.ISTANCEURL + query + object + '/' + id, {
         method: "PATCH",
         headers: {
