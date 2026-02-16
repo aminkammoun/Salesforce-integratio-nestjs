@@ -349,7 +349,7 @@ export class SponsorshipService {
             throw new InternalServerErrorException(error);
         }
     }
-    async repaireSp(idsp: string, campaignId: string, source: string) {
+    async repaireSp(idsp: string, campaignId: string, source: string, nationality?: string) {
         const sponsorships = await this.SponsorshipModel.find({
             Status: "Active",
             syncedWithSalesforce: false,
@@ -370,6 +370,7 @@ export class SponsorshipService {
                 npe03__Contact__c: sponsorship.Donor__c,
                 synchedWithSalesforce: false,
                 recurringSource: source || '',
+                nationality: nationality || ''
             });
             sponsorship.Recurring = recurring._id as string;
             await sponsorship.save();

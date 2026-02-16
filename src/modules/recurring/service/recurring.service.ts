@@ -12,6 +12,17 @@ import { TransactionService } from 'src/modules/transaction/service/transaction.
 
 @Injectable()
 export class RecurringService {
+
+    EnumDonorType = {
+        Syrian: 'a0e8W00000il33MQAQ',
+        Bangladeshi: 'a0e8W00000ilPW4QAM',
+        Iraqi: 'a0e8W00000ilPTZQA2',
+        Palestinian: 'a0e8W00000il33NQAQ',
+        Lebanese: 'a0e8W00000il33PQAQ',
+        Jordinian : 'a0e8W00000il33QQAQ',
+        Pakistani : 'a0e8W00000il33SQAQ',
+        Other: 'a0eVW000008x2IvYAI'
+    }
     constructor(
         @Inject(forwardRef(() => DonationService)) private readonly donationService: DonationService,
         @Inject(forwardRef(() => SponsorshipService)) private readonly sponsorshipService: SponsorshipService,
@@ -83,18 +94,20 @@ export class RecurringService {
             const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'npe03__Recurring_Donation__c/', payload, token);
             console.log('Salesforce upload result for recurring:', result);
             if (result.salesforceId) {
+
+
                 recurring.salesforceID = result.salesforceId;
                 recurring.syncedWithSalesforce = true;
                 await recurring.save();
                 await this.donationService.updateDonationWithRecurringSalesforceID(recurring.donations.toString(), result.salesforceId);
                 await this.sponsorshipService.updateDonationWithRecurringSalesforceID(recurring.sponsorships.toString(), result.salesforceId);
-                /*const GAUPayload = {
+                const GAUPayload = {
                     npsp__Recurring_Donation__c: result.salesforceId,
-                    npsp__General_Accounting_Unit__c: "a0e8W00000il33MQAQ",
+                    npsp__General_Accounting_Unit__c: this.EnumDonorType[recurring.nationality.toUpperCase() as keyof typeof this.EnumDonorType],
                     npsp__Amount__c: recurring.amount,
                 };
                 await handleInsertQuery('/services/data/v65.0/sobjects/', 'npsp__Allocation__c/', GAUPayload, token);
-            */}
+            }
 
         })
         return recurrings;

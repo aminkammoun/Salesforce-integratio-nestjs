@@ -49,4 +49,7 @@ export class CreateRecurringDto {
     @ApiPropertyOptional({ description: 'Stripe subscription id', example: 1 })
     @IsOptional()
     subscriptionStripe?: string;
+    @ApiPropertyOptional({ description: 'Stripe customer id', example: 1 })
+    @IsOptional()
+    nationality?: string
 }
