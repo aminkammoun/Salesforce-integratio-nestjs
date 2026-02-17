@@ -383,6 +383,8 @@ export class DonationService {
                                         Payment_Method__c: donation.transactionDetails?.payment_type,
                                         Source_URL__c: donation.campaign_medium,
                                         campaignId: donation.campaignId,
+                                        campaign_source__c: donation.campaign_source,
+
                                     };
                                     await handleUpdateQuery('/services/data/v65.0/sobjects/Opportunity', '', donationOfRecurring.records[0].Id, updatePayload, token);
 
@@ -438,7 +440,8 @@ export class DonationService {
                                 PaymentIntent_Stripe_Id__c: donation.transactionDetails?.intent_id,
                                 Payment_Method__c: donation.transactionDetails?.payment_type,
                                 Source_URL__c: donation.campaign_medium,
-                            };
+                                campaign_source__c: donation.campaign_source,
+                            }; 
                             await handleUpdateQuery('/services/data/v65.0/sobjects/Opportunity', '', donationOfRecurring.records[0].Id, updatePayload, token);
                             item.sfId = donationOfRecurring.records[0].Id;
                             item.npe03__Recurring_Donation__c = recResult.salesforceId;
@@ -505,6 +508,7 @@ export class DonationService {
                             PaymentIntent_Stripe_Id__c: donation.transactionDetails?.intent_id,
                             Payment_Method__c: donation.transactionDetails?.payment_type,
                             Source_URL__c: donation.campaign_medium,
+                            campaign_source__c: donation.campaign_source,
                             // Use the record type of the first item, or a default 'Donation' record type
                             RecordTypeId: oneTimeItems[0].recordType,
                             Child__c: oneTimeItems[0].Child__c,
