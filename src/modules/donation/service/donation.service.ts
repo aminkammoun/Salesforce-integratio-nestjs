@@ -204,6 +204,7 @@ export class DonationService {
                             if (recurring.amount === item.amount && recurring.frequency.toLowerCase() === item.interval.toLowerCase()) {
                                 const donationUpdatePayload = {
                                     StageName: "Closed Won",
+
                                 }
                                 const donationOfRecurring = await handleQuery('/services/data/v65.0/query/?q=', `SELECT Id, StageName FROM Opportunity WHERE npe03__Recurring_Donation__c='${donation.npe03__Recurring_Donation__c[0]}' AND StageName = 'Scheduled'`, token);
                                 if (donationOfRecurring?.records?.length > 0) {
@@ -377,7 +378,13 @@ export class DonationService {
                                 console.log('donationOfRecurring', donationOfRecurring);
                                 if (donationOfRecurring?.records?.length > 0) {
                                     // Close the Opportunity
-                                    const updatePayload = { StageName: "Closed Won" };
+                                    const updatePayload = {
+                                        StageName: "Closed Won",
+                                        Charge_Stripe_Id__c: donation.transactionDetails?.charge_id,
+                                        PaymentIntent_Stripe_Id__c: donation.transactionDetails?.intent_id,
+                                        Payment_Method__c: donation.transactionDetails?.payment_type,
+                                        Source_URL__c: donation.campaign_medium,
+                                    };
                                     await handleUpdateQuery('/services/data/v65.0/sobjects/Opportunity', '', donationOfRecurring.records[0].Id, updatePayload, token);
 
                                     // Update Local Data
@@ -406,8 +413,8 @@ export class DonationService {
                         npe03__Amount__c: item.amount,
                         npe03__Recurring_Donation_Campaign__c: donation.campaignId,
                         npe03__Contact__c: donation.npsp__Primary_Contact__c,
-                        Stripe_Customer__c : donation.customerStripe || donation.customerStipe,
-                        
+                        Stripe_Customer__c: donation.customerStripe || donation.customerStipe,
+
                         npe03__Date_Established__c: donation.CloseDate,
                         npsp__Day_of_Month__c: new Date(donation.CloseDate).getDate(),
                         npsp__Status__c: 'Active',
@@ -421,7 +428,12 @@ export class DonationService {
 
                         if (donationOfRecurring?.records?.length > 0) {
                             // Close the Opportunity
-                            const updatePayload = { StageName: "Closed Won" };
+                            const updatePayload = { StageName: "Closed Won", 
+                                Charge_Stripe_Id__c: donation.transactionDetails?.charge_id,
+                                PaymentIntent_Stripe_Id__c: donation.transactionDetails?.intent_id,
+                                Payment_Method__c: donation.transactionDetails?.payment_type,
+                                Source_URL__c: donation.campaign_medium,
+                             };
                             await handleUpdateQuery('/services/data/v65.0/sobjects/Opportunity', '', donationOfRecurring.records[0].Id, updatePayload, token);
 
                             // Update Local Data
@@ -639,7 +651,7 @@ export class DonationService {
                     // Call reserveChildren directly without setTimeout to ensure sequential execution
                     const result = await this.ChildService.reserveChildren(payloadSp);
                     if (result) {
-                        await this.SponsorshipService.repaireSp(result[0]._id as string, don.campaignId || '', don.Donation_Source__c,item.nationality || "Syrian");
+                        await this.SponsorshipService.repaireSp(result[0]._id as string, don.campaignId || '', don.Donation_Source__c, item.nationality || "Syrian");
                     }
 
                     return {
