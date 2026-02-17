@@ -365,10 +365,8 @@ export class DonationService {
 
                     for (const item of sponsorshipItems) {
                         for (const recurring of recurringRecords) {
-                            // Match item to recurring record based on amount/freq
                             if (recurring.amount === item.amount && recurring.frequency.toLowerCase() === item.interval.toLowerCase()) {
                                 console.log('dkhal l sponsorships')
-                                // Find the specific 'Scheduled' Opportunity for this Recurring Donation
                                 const recurringId = Array.isArray(donation.npe03__Recurring_Donation__c)
                                     ? donation.npe03__Recurring_Donation__c[0]
                                     : donation.npe03__Recurring_Donation__c;
@@ -384,11 +382,21 @@ export class DonationService {
                                         PaymentIntent_Stripe_Id__c: donation.transactionDetails?.intent_id,
                                         Payment_Method__c: donation.transactionDetails?.payment_type,
                                         Source_URL__c: donation.campaign_medium,
+                                        campaignId: donation.campaignId,
                                     };
                                     await handleUpdateQuery('/services/data/v65.0/sobjects/Opportunity', '', donationOfRecurring.records[0].Id, updatePayload, token);
 
                                     // Update Local Data
                                     item.sfId = donationOfRecurring.records[0].Id;
+                                    if (item.programId && item.sfId) {
+                                        const allocationPayload = {
+                                            Opportunity__c: item.sfId,
+                                            Amount__c: item.amount,
+                                            Program_Cohort__c: item.programId,
+                                        };
+                                        await handleInsertQuery('/services/data/v65.0/sobjects/', 'Program_Allocation_Unit__c/', allocationPayload, token);
+
+                                    }
                                     recurring.donationSf = donationOfRecurring.records[0].Id;
                                     await recurring.save();
                                     donationUpdated = true;
@@ -404,8 +412,6 @@ export class DonationService {
                 // ====================================================
                 for (const item of recurringItems) {
                     console.log('Creating new recurring donation structure:', item);
-
-                    // 1. Create the Recurring Donation Container object
                     const createRecPay = {
                         Name: item.Name,
                         npsp__RecurringType__c: 'Open',
@@ -414,7 +420,6 @@ export class DonationService {
                         npe03__Recurring_Donation_Campaign__c: donation.campaignId,
                         npe03__Contact__c: donation.npsp__Primary_Contact__c,
                         Stripe_Customer__c: donation.customerStripe || donation.customerStipe,
-
                         npe03__Date_Established__c: donation.CloseDate,
                         npsp__Day_of_Month__c: new Date(donation.CloseDate).getDate(),
                         npsp__Status__c: 'Active',
@@ -427,18 +432,27 @@ export class DonationService {
                         const donationOfRecurring = await handleQuery('/services/data/v65.0/query/?q=', query, token);
 
                         if (donationOfRecurring?.records?.length > 0) {
-                            // Close the Opportunity
-                            const updatePayload = { StageName: "Closed Won", 
+                            const updatePayload = {
+                                StageName: "Closed Won",
                                 Charge_Stripe_Id__c: donation.transactionDetails?.charge_id,
                                 PaymentIntent_Stripe_Id__c: donation.transactionDetails?.intent_id,
                                 Payment_Method__c: donation.transactionDetails?.payment_type,
                                 Source_URL__c: donation.campaign_medium,
-                             };
+                            };
                             await handleUpdateQuery('/services/data/v65.0/sobjects/Opportunity', '', donationOfRecurring.records[0].Id, updatePayload, token);
-
-                            // Update Local Data
                             item.sfId = donationOfRecurring.records[0].Id;
                             item.npe03__Recurring_Donation__c = recResult.salesforceId;
+
+                            if (item.sfId && item.npe03__Recurring_Donation__c) {
+                                if (item.programId) {
+                                    await this.assignProgramCohortToDonation(item.sfId, item.programId, item.amount, token);
+                                    const queryGAU = await handleQuery('/services/data/v65.0/query/?q=', `SELECT General_Accounting_Unit__c FROM pmdm__ProgramCohort__c WHERE id='${item.programId}'`, token);
+
+                                    if (queryGAU?.records?.length) {
+                                        this.assignGAUToDonation(item.sfId, item.programId, item.amount, token);
+                                    }
+                                }
+                            }
                             donationUpdated = true;
                         }
 
@@ -507,26 +521,20 @@ export class DonationService {
                                 item.sfId = parentOppId; // All items share the same Opportunity ID
 
                                 if (item.programId) {
-                                    // A. Create Program Allocation Unit (Custom Object)
-                                    const allocationPayload = {
-                                        Opportunity__c: parentOppId,
-                                        Amount__c: item.amount,
-                                        Program_Cohort__c: item.programId,
-                                    };
-                                    await handleInsertQuery('/services/data/v65.0/sobjects/', 'Program_Allocation_Unit__c/', allocationPayload, token);
-
+                                    await this.assignProgramCohortToDonation(parentOppId, item.programId, item.amount, token);
                                     // B. Create GAU Allocation (NPSP Standard)
                                     const queryGAU = await handleQuery('/services/data/v65.0/query/?q=', `SELECT General_Accounting_Unit__c FROM pmdm__ProgramCohort__c WHERE id='${item.programId}'`, token);
 
                                     if (queryGAU?.records?.length) {
-                                        const GAUPayload = {
+                                        this.assignGAUToDonation(parentOppId, item.programId, item.amount, token);
+                                        /*const GAUPayload = {
                                             npsp__Opportunity__c: parentOppId,
                                             npsp__General_Accounting_Unit__c: queryGAU.records[0].General_Accounting_Unit__c,
                                             npsp__Amount__c: item.amount,
                                             GAU_Type__c: 'Once',
                                         };
                                         await handleInsertQuery('/services/data/v65.0/sobjects/', 'npsp__Allocation__c/', GAUPayload, token);
-                                    }
+                                    */}
                                 }
                             }
                             donationUpdated = true;
@@ -560,6 +568,57 @@ export class DonationService {
         } catch (error) {
             throw new InternalServerErrorException(error);
         }
+    }
+    async assignProgramCohortToDonation(donationId: string, programCohortId: string, amount: number, token: string) {
+        try {
+            const allocationPayload = {
+                Opportunity__c: donationId,
+                Amount__c: amount,
+                Program_Cohort__c: programCohortId,
+            };
+            await handleInsertQuery('/services/data/v65.0/sobjects/', 'Program_Allocation_Unit__c/', allocationPayload, token);
+
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
+    }
+    async assignGAUToDonation(donationId: string, programId: string, amount: number, token: string) {
+        try {
+            const queryGAU = await handleQuery('/services/data/v65.0/query/?q=', `SELECT General_Accounting_Unit__c FROM pmdm__ProgramCohort__c WHERE id='${programId}'`, token);
+
+            if (queryGAU?.records?.length) {
+                const GAUPayload = {
+                    npsp__Opportunity__c: donationId,
+                    npsp__General_Accounting_Unit__c: queryGAU.records[0].General_Accounting_Unit__c,
+                    npsp__Amount__c: amount,
+                    GAU_Type__c: 'Once',
+                };
+                await handleInsertQuery('/services/data/v65.0/sobjects/', 'npsp__Allocation__c/', GAUPayload, token);
+            }
+
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
+
+    }
+    async assignGAUToRecurring(recurringId: string, programId: string, amount: number, token: string) {
+        try {
+            const queryGAU = await handleQuery('/services/data/v65.0/query/?q=', `SELECT General_Accounting_Unit__c FROM pmdm__ProgramCohort__c WHERE id='${programId}'`, token);
+
+            if (queryGAU?.records?.length) {
+                const GAUPayload = {
+                    npsp__Opportunity__c: recurringId,
+                    npsp__General_Accounting_Unit__c: queryGAU.records[0].General_Accounting_Unit__c,
+                    npsp__Amount__c: amount,
+                    GAU_Type__c: 'Once',
+                };
+                await handleInsertQuery('/services/data/v65.0/sobjects/', 'npsp__Allocation__c/', GAUPayload, token);
+            }
+
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
+
     }
     async findDonationsFromSalesforceByWorksheetId(wordpressid: string) {
         try {
