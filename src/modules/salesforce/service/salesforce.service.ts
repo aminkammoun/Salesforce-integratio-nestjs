@@ -515,7 +515,7 @@ export class SalesforceService {
         const subscription = await this.createStripeSubscription({
             customerId: customer.id,
             priceId: price.id,
-            //trial_end: billingCycleAnchor, // Don't charge until next period
+            trial_end: billingCycleAnchor, // Don't charge until next period
             //billing_cycle_anchor: billingCycleAnchor,
             //backdate_start_date: Math.floor(Date.now() / 1000),
             payment_behavior: 'default_incomplete',

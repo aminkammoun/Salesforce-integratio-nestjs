@@ -11,22 +11,24 @@ import { TransactionModule } from '../transaction/transaction.module';
 import { SponsorshipModule } from '../sponsorship/sponsorship.module';
 import { RecurringModule } from '../recurring/recurring.module';
 import { ChildModule } from '../child/child.module';
+import { LogModule } from '../log/log.module';
 
 @Module({
     imports: [
         ContactModule,
         DonationModule,
         TransactionModule,
-        SponsorshipModule ,
-        RecurringModule ,
+        SponsorshipModule,
+        RecurringModule,
         ChildModule,
+        LogModule,
         ConfigModule.forRoot({
             load: config,
             isGlobal: true,
         }),
     ],
     controllers: [SalesforceController],
-    providers: [SalesforceService,
+    providers: [SalesforceService, SalesforcesCronService,
         {
             provide: 'STRIPE_API_KEY',
             useFactory: async (configService: ConfigService) =>

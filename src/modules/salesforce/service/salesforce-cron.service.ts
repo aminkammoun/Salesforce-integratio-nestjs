@@ -5,6 +5,7 @@ import { DonationService } from 'src/modules/donation/service/donation.service';
 import { RecurringService } from 'src/modules/recurring/service/recurring.service';
 import { SponsorshipService } from 'src/modules/sponsorship/service/sponsorship.service';
 import { SalesforceService } from './/salesforce.service';
+import { LogService } from 'src/modules/log/service/log.service';
 interface RepairResult {
     source: string;
     count?: number;
@@ -27,6 +28,7 @@ export class SalesforcesCronService {
         private readonly recurringService: RecurringService,
         private readonly sponsorshipService: SponsorshipService,
         private readonly salesforceService: SalesforceService,
+        private readonly logService: LogService
     ) { }
 
     @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
@@ -45,8 +47,12 @@ export class SalesforcesCronService {
         try {
             console.log('Starting hourly contacts upload to Salesforce...');
             const result = await this.contactService.updloadContactsToSalesforce();
+            if (result) {
+                this.logService.createlog('Hourly contacts upload to Salesforce completed successfully', 'success', new Date());
+            }
             console.log('Hourly contacts upload to Salesforce completed:', result);
         } catch (error) {
+            this.logService.createlog('Error during hourly contacts upload to Salesforce: ' + (error as Error).message, 'error', new Date());
             console.error('Error during hourly contacts upload to Salesforce:', error);
         }
     }
@@ -72,6 +78,7 @@ export class SalesforcesCronService {
             await this.phase3UploadToSalesforce();
 
             const duration = Date.now() - startTime;
+            this.logService.createlog('Donation workflow completed successfully', 'success', new Date());
             this.logger.log(`========== DONATION WORKFLOW COMPLETED SUCCESSFULLY (${duration}ms) ==========`);
 
         } catch (error) {
