@@ -66,7 +66,6 @@ export class RecurringService {
     async uploadRecurringsToSalesforce() {
         const recurrings = await this.RecurringModel.find({ syncedWithSalesforce: false });
         if (recurrings.length === 0) {
-            console.log('No donations to upload to Salesforce');
             return [];
         }
         const token = await authenticateSalesforce();
@@ -84,18 +83,14 @@ export class RecurringService {
                 npsp__Status__c: recurring.status,
                 npsp__PaymentMethod__c: recurring.npsp__PaymentMethod__c,
                 npe03__Recurring_Donation_Campaign__c: recurring.npe03__Recurring_Donation_Campaign__c,
-                Donation_Source__c: 'Fundraising App',
+                Donation_Source__c: recurring.recurringSource || 'Fundraising App',
                 Stripe_Customer__c: recurring?.customerStripe || recurring.customerStipe,
                 Stripe_subscription_url__c: 'https://dashboard.stripe.com/acct_1S5xcLPK7Mt7pUeD/subscriptions/' + recurring.subscriptionStripe,
             };
-            console.log('Prepared payload for recurring:', recurring.npe03__Contact__c);
-            console.log(`payload for recurring ${recurring._id}:`, payload);
 
             const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'npe03__Recurring_Donation__c/', payload, token);
             console.log('Salesforce upload result for recurring:', result);
             if (result.salesforceId) {
-
-
                 recurring.salesforceID = result.salesforceId;
                 recurring.syncedWithSalesforce = true;
                 await recurring.save();
@@ -103,7 +98,7 @@ export class RecurringService {
                 await this.sponsorshipService.updateDonationWithRecurringSalesforceID(recurring.sponsorships.toString(), result.salesforceId);
                 const GAUPayload = {
                     npsp__Recurring_Donation__c: result.salesforceId,
-                    npsp__General_Accounting_Unit__c: this.EnumDonorType[recurring.nationality as keyof typeof this.EnumDonorType],
+                    npsp__General_Accounting_Unit__c: this.EnumDonorType[recurring.nationality as keyof typeof this.EnumDonorType] || this.EnumDonorType['Other'],
                     npsp__Amount__c: recurring.amount,
                 };
                 await handleInsertQuery('/services/data/v65.0/sobjects/', 'npsp__Allocation__c/', GAUPayload, token);
