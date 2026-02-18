@@ -6,6 +6,7 @@ import { Child } from '../entities/child.entity';
 import { Sponsorship } from 'src/modules/sponsorship/entities/sponsorship.entity';
 import { SponsorshipService } from 'src/modules/sponsorship/service/sponsorship.service';
 import { ChildService } from './child.service';
+import { LogService } from 'src/modules/log/service/log.service';
 
 @Injectable()
 export class ChildCronService {
@@ -16,6 +17,8 @@ export class ChildCronService {
         @InjectModel(Sponsorship.name) private readonly sponsorshipModel: Model<Sponsorship>,
         @Inject() private readonly sponsorshipService: SponsorshipService,
         private readonly childService: ChildService,
+                private readonly logService: LogService
+        
     ) { }
 
     // Run every minute
@@ -57,7 +60,7 @@ export class ChildCronService {
         try {
             const query = "SELECT+Id,+NationalityList__c,+Child_Name__c+,status__c+,Profile_Picture__c+,Age_Calculated__c+From+Child__c+WHERE+Offline_only__c=False";
             await this.childService.insertFromSalesforce(query);
-            this.logger.log(`Child data synchronization completed successfully.`);
+            this.logService.createlog('Child data synchronization completed successfully', 'success', new Date());
         } catch (error) {
             this.logger.error(`Error during child data synchronization: ${error.message}`, error.stack);
         }

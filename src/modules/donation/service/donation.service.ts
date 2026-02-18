@@ -513,7 +513,7 @@ export class DonationService {
                             Source_URL__c: donation.campaign_medium,
                             campaign_source__c: donation.campaign_source,
                             UTM_Medium__c: donation.campaignId,
-
+                            npsp__Honoree_Name__c: oneTimeItems[0].on_behalf_of || null,
                             // Use the record type of the first item, or a default 'Donation' record type
                             RecordTypeId: oneTimeItems[0].recordType,
                             Child__c: oneTimeItems[0].Child__c,
