@@ -7,7 +7,6 @@ import { Log, LogSchema } from './entities/log.entity';
 @Module({
     imports: [
         MongooseModule.forFeature([{ name: Log.name, schema: LogSchema }]),
-
     ],
     controllers: [LogController],
     providers: [LogService],

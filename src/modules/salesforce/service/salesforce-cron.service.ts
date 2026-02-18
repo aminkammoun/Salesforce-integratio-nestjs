@@ -176,8 +176,8 @@ export class SalesforcesCronService {
             try {
                 this.logger.log('Step 3: Uploading Donations to Salesforce...');
                 const donations = await this.donationService.uploadDonationsToSalesforce();
-                uploadResults.donations.success = donations?.length || 0;
-                this.logger.log(`Successfully uploaded ${donations?.length || 0} donations`);
+                uploadResults.donations.success = Array.isArray(donations) ? donations.length : 0;
+                this.logger.log(`Successfully uploaded ${Array.isArray(donations) ? donations.length : 0} donations`);
             } catch (error) {
                 this.logger.error('Error uploading donations:', (error as Error).message);
                 uploadResults.donations.error++;
