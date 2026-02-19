@@ -341,6 +341,16 @@ export class ContactService {
                 payload.Email = updateData.email;
             }
             console.log('p', payload)
+            
+            // Initialize the address object if any address fields are provided
+            if (updateData.MailingStreet !== undefined || 
+                updateData.MailingCity !== undefined || 
+                updateData.MailingState !== undefined || 
+                updateData.MailingPostalCode !== undefined || 
+                updateData.MailingCountry !== undefined) {
+                payload.npsp__Current_Address__r = {};
+            }
+            
             if (updateData.MailingStreet !== undefined) {
                 payload.npsp__Current_Address__r.npsp__MailingStreet__c = updateData.MailingStreet;
             }
