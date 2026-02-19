@@ -337,12 +337,12 @@ export class ContactService {
             const query = `SELECT id, Name,npsp__Current_Address__c, npsp__Current_Address__r.Name
                             FROM Contact   
                             where id = '${contactid}'`;
-                            
+
             const contact = await handleQuery('/services/data/v65.0/query/?q=', query, token);
             if (!contact || contact.length === 0) {
                 throw new Error(`Contact with ID ${contactid} not found in Salesforce`);
             }
-            console.log('Existing contact data from Salesforce:', contact[0]);
+            console.log('Existing contact data from Salesforce:', contact);
             const payload: any = {};
             const payloadcnt: any = {};
             if (updateData.email !== undefined) {
