@@ -337,8 +337,20 @@ export class ContactService {
             if (updateData.email !== undefined) {
                 payload.Email = updateData.email;
             }
-            if (updateData.householdMailingAddress !== undefined) {
-                payload.npo02__Formula_HouseholdMailingAddress__c = updateData.householdMailingAddress;
+            if (updateData.MailingStreet !== undefined) {
+                payload.npsp__Current_Address__r.npsp__MailingStreet__c = updateData.MailingStreet;
+            }
+            if (updateData.MailingCity !== undefined) {
+                payload.npsp__Current_Address__r.npsp__MailingCity__c = updateData.MailingCity;
+            }
+            if (updateData.MailingState !== undefined) {
+                payload.npsp__Current_Address__r.npsp__MailingState__c = updateData.MailingState;
+            }
+            if (updateData.MailingPostalCode !== undefined) {
+                payload.npsp__Current_Address__r.npsp__MailingPostalCode__c = updateData.MailingPostalCode;
+            }
+            if (updateData.MailingCountry !== undefined) {
+                payload.npsp__Current_Address__r.npsp__MailingCountry__c = updateData.MailingCountry;
             }
             const result = await handleUpdateQuery('/services/data/v65.0/sobjects/Contact/', '', contactid, payload, token);
             return result;

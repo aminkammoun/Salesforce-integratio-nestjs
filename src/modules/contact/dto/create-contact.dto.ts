@@ -3,6 +3,11 @@ import { IsOptional } from 'class-validator';
 
 export class ContactData {
   householdMailingAddress?: string;
+  MailingStreet?: string;
+  MailingCity?: string;
+  MailingState?: string;
+  MailingPostalCode?: string;
+  MailingCountry?: string;
   email?: string;
 }
 
