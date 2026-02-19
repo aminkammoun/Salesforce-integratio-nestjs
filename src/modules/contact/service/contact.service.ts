@@ -352,6 +352,7 @@ export class ContactService {
             if (updateData.MailingCountry !== undefined) {
                 payload.npsp__Current_Address__r.npsp__MailingCountry__c = updateData.MailingCountry;
             }
+            console.log('Updating contact in Salesforce with payload:', payload);
             const result = await handleUpdateQuery('/services/data/v65.0/sobjects/', 'Contact', contactid, payload, token);
             return result;
         } catch (error) {
