@@ -140,9 +140,9 @@ export class ContactController {
     }
 
     @Post('/updateContact/:id')
-    @ApiOperation({ summary: 'Repair contact phone numbers', description: 'Repairs contact phone numbers that start with 1 but are missing the + sign' })
-    @ApiResponse({ status: 200, description: 'Phone numbers repaired successfully' })
-    async repairContactsStartingWith1(@Param('id') id: string, @Body() body: ContactData) {
+    @ApiOperation({ summary: 'Update contact in Salesforce', description: 'Updates a contact in Salesforce with the provided data' })
+    @ApiResponse({ status: 200, description: 'Contact updated successfully' })
+    async updateContactOneSalesforce(@Param('id') id: string, @Body() body: ContactData) {
         return this.contactService.updateContactOneSalesforce(id, body);
     }
 }
