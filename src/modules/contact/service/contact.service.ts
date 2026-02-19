@@ -333,18 +333,23 @@ export class ContactService {
     async updateContactOneSalesforce(contactid: string, updateData: ContactData) {
         try {
             const token = await authenticateSalesforce();
-            const contact = await handleQuery('/services/data/v65.0/sobjects/Contact/', contactid, token);
+            console.log('Using Bearer Token for update:', contactid);
+            const query = `SELECT id, Name,npsp__Current_Address__c, npsp__Current_Address__r.Name
+                            FROM Contact   
+                            where id = '${contactid}'`;
+                            
+            const contact = await handleQuery('/services/data/v65.0/query/?q=', query, token);
             if (!contact || contact.length === 0) {
                 throw new Error(`Contact with ID ${contactid} not found in Salesforce`);
             }
-            console.log('Existing contact data from Salesforce:', contact[0]);            
+            console.log('Existing contact data from Salesforce:', contact[0]);
             const payload: any = {};
             const payloadcnt: any = {};
             if (updateData.email !== undefined) {
                 payloadcnt.Email = updateData.email;
             }
             console.log('p', payloadcnt)
-            
+
             // Map address fields directly to Contact object (NPSP standard fields)
             // These are the standard Salesforce Contact mailing address fields
             if (updateData.MailingStreet !== undefined) {
