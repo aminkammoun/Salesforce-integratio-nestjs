@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { ContactService } from '../service/contact.service';
-import { CreateContactDto } from '../dto/create-contact.dto';
+import { ContactData, CreateContactDto } from '../dto/create-contact.dto';
 import { UpdateContactDto } from '../dto/update-contact.dto';
 import { ApiOperation, ApiResponse, ApiParam, ApiBody, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
@@ -137,5 +137,12 @@ export class ContactController {
     getcontactSfByEmail(@Param('email') email: string) {
         console.log('Getting contact from Salesforce by email for email:', email);
         return this.contactService.findcontactFromSalesforceByEmail(email);
+    }
+
+    @Post('/updateContact/:id')
+    @ApiOperation({ summary: 'Repair contact phone numbers', description: 'Repairs contact phone numbers that start with 1 but are missing the + sign' })
+    @ApiResponse({ status: 200, description: 'Phone numbers repaired successfully' })
+    async repairContactsStartingWith1(@Param('id') id: string, @Body() body: ContactData) {
+        return this.contactService.updateContactOneSalesforce(id, body);
     }
 }

@@ -2,9 +2,9 @@ import { ConflictException, Inject, Injectable, InternalServerErrorException } f
 import { Contact } from '../entities/contact.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types as MongooseTypes, set } from 'mongoose';
-import { CreateContactDto } from '../dto/create-contact.dto';
+import { ContactData, CreateContactDto } from '../dto/create-contact.dto';
 import { UpdateContactDto } from '../dto/update-contact.dto';
-import { authenticateSalesforce, handleInsertQuery, handleQuery } from 'src/config/utils';
+import { authenticateSalesforce, handleInsertQuery, handleQuery, handleUpdateQuery } from 'src/config/utils';
 import { first, last } from 'rxjs';
 import { DonationService } from 'src/modules/donation/service/donation.service';
 import { SponsorshipService } from 'src/modules/sponsorship/service/sponsorship.service';
@@ -325,6 +325,23 @@ export class ContactService {
             const token = await authenticateSalesforce();
             const res = await handleQuery('/services/data/v65.0/query/?q=', query, token);
             return res.records;
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
+    }
+
+    async updateContactOneSalesforce(contactid: string, updateData: ContactData) {
+        try {
+            const token = await authenticateSalesforce();
+            const payload: any = {};
+            if (updateData.email !== undefined) {
+                payload.Email = updateData.email;
+            }
+            if (updateData.householdMailingAddress !== undefined) {
+                payload.npo02__Formula_HouseholdMailingAddress__c = updateData.householdMailingAddress;
+            }
+            const result = await handleUpdateQuery('/services/data/v65.0/sobjects/Contact/', '', contactid, payload, token);
+            return result;
         } catch (error) {
             throw new InternalServerErrorException(error);
         }

@@ -1,6 +1,11 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional } from 'class-validator';
 
+export class ContactData {
+  householdMailingAddress?: string;
+  email?: string;
+}
+
 export class CreateContactDto {
   @ApiProperty({ description: 'Salesforce unique identifier for the contact', example: '0031t00000XyZzAAB' })
   @IsOptional()
