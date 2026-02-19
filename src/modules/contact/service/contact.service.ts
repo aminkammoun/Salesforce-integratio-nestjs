@@ -353,19 +353,19 @@ export class ContactService {
             // Map address fields directly to Contact object (NPSP standard fields)
             // These are the standard Salesforce Contact mailing address fields
             if (updateData.MailingStreet !== undefined) {
-                payload.MailingStreet = updateData.MailingStreet;
+                payload.npsp__MailingStreet__c = updateData.MailingStreet;
             }
             if (updateData.MailingCity !== undefined) {
-                payload.MailingCity = updateData.MailingCity;
+                payload.npsp__MailingCity__c = updateData.MailingCity;
             }
             if (updateData.MailingState !== undefined) {
-                payload.MailingState = updateData.MailingState;
+                payload.npsp__MailingState__c = updateData.MailingState;
             }
             if (updateData.MailingPostalCode !== undefined) {
-                payload.MailingPostalCode = updateData.MailingPostalCode;
+                payload.npsp__MailingPostalCode__c = updateData.MailingPostalCode;
             }
             if (updateData.MailingCountry !== undefined) {
-                payload.MailingCountry = updateData.MailingCountry;
+                payload.npsp__MailingCountry__c = updateData.MailingCountry;
             }
             console.log('contact.records[0].npsp__Address__c:', contact.records[0].npsp__Address__c);
             const resultaddress = await handleUpdateQuery('/services/data/v65.0/sobjects/', 'npsp__Address__c', contact.records[0].npsp__Current_Address__c, payload, token);
