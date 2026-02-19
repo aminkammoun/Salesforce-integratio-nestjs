@@ -337,13 +337,9 @@ export class ContactService {
             if (!contact || contact.length === 0) {
                 throw new Error(`Contact with ID ${contactid} not found in Salesforce`);
             }
-            const address = await handleQuery('/services/data/v65.0/sobjects/npsp__Address__c/', contact[0].npsp__Address__c, token);
-            
+            console.log('Existing contact data from Salesforce:', contact[0]);            
             const payload: any = {};
             const payloadcnt: any = {};
-            console.log('Updating contact in Salesforce with data:', updateData);
-            console.log('Updating contact in Salesforce with data:', updateData.MailingCity);
-            console.log('Updating contact in Salesforce with data:', updateData.MailingCountry);
             if (updateData.email !== undefined) {
                 payloadcnt.Email = updateData.email;
             }
