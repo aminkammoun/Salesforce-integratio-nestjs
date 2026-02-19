@@ -368,7 +368,7 @@ export class ContactService {
                 payload.MailingCountry = updateData.MailingCountry;
             }
             console.log('contact.records[0].npsp__Address__c:', contact.records[0].npsp__Address__c);
-            const resultaddress = await handleUpdateQuery('/services/data/v65.0/sobjects/', 'npsp__Address__c', contact.records[0].npsp__Address__c, payload, token);
+            const resultaddress = await handleUpdateQuery('/services/data/v65.0/sobjects/', 'npsp__Address__c', contact.records[0].npsp__Current_Address__c, payload, token);
             const resultcontact = await handleUpdateQuery('/services/data/v65.0/sobjects/', 'Contact', contact.records[0].Id, payloadcnt, token);
             return { address: resultaddress, contact: resultcontact };
         } catch (error) {
