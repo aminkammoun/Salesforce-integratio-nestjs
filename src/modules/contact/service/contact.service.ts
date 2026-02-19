@@ -342,7 +342,7 @@ export class ContactService {
             if (!contact || contact.length === 0) {
                 throw new Error(`Contact with ID ${contactid} not found in Salesforce`);
             }
-            console.log('Existing contact data from Salesforce:', contact);
+            console.log('Existing contact data from Salesforce:', contact.records[0]);
             const payload: any = {};
             const payloadcnt: any = {};
             if (updateData.email !== undefined) {
@@ -368,8 +368,8 @@ export class ContactService {
                 payload.MailingCountry = updateData.MailingCountry;
             }
             console.log('Updating contact in Salesforce with payload:', payload);
-            const resultaddress = await handleUpdateQuery('/services/data/v65.0/sobjects/', 'npsp__Address__c', contact[0].npsp__Address__c, payload, token);
-            const resultcontact = await handleUpdateQuery('/services/data/v65.0/sobjects/', 'Contact', contactid, payloadcnt, token);
+            const resultaddress = await handleUpdateQuery('/services/data/v65.0/sobjects/', 'npsp__Address__c', contact.records[0].npsp__Address__c, payload, token);
+            const resultcontact = await handleUpdateQuery('/services/data/v65.0/sobjects/', 'Contact', contact.records[0].Id, payloadcnt, token);
             return { address: resultaddress, contact: resultcontact };
         } catch (error) {
             throw new InternalServerErrorException(error);
