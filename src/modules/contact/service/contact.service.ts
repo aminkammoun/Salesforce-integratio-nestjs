@@ -340,6 +340,7 @@ export class ContactService {
             if (updateData.email !== undefined) {
                 payload.Email = updateData.email;
             }
+            console.log('p', payload)
             if (updateData.MailingStreet !== undefined) {
                 payload.npsp__Current_Address__r.npsp__MailingStreet__c = updateData.MailingStreet;
             }
