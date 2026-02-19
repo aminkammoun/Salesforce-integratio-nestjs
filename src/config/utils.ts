@@ -22,9 +22,7 @@ export async function handleInsertQuery(query: string,
     body: any,
     token: string
 ) {
-    //const token = await authenticateSalesforce();
-    //console.log('Using Bearer Token:', token);
-    console.log(process.env.ISTANCEURL + query + object)
+  
     const res = await fetch(process.env.ISTANCEURL + query + object, {
         method: "POST",
         headers: {
@@ -91,9 +89,7 @@ export async function handleUpdateQuery(query: string,
     return null;
 }
 export async function handleQuery(version: string, query: string, token: string) {
-    //const token = await authenticateSalesforce();
-    console.log('Using Bearer Token:', token);
-    console.log(process.env.ISTANCEURL + version + query)
+    
     const res = await fetch(process.env.ISTANCEURL + version + query, {
         method: "GET",
         headers: {
@@ -103,7 +99,6 @@ export async function handleQuery(version: string, query: string, token: string)
         cache: "no-store",
     }
     );
-    console.log('Fetch Result:', res);
     if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
     }
