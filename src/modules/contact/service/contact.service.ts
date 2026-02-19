@@ -334,6 +334,7 @@ export class ContactService {
         try {
             const token = await authenticateSalesforce();
             const payload: any = {};
+            console.log('Updating contact in Salesforce with data:', updateData);
             if (updateData.email !== undefined) {
                 payload.Email = updateData.email;
             }
