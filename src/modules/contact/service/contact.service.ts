@@ -333,42 +333,43 @@ export class ContactService {
     async updateContactOneSalesforce(contactid: string, updateData: ContactData) {
         try {
             const token = await authenticateSalesforce();
+            const contact = await handleQuery('/services/data/v65.0/sobjects/Contact/', contactid, token);
+            if (!contact || contact.length === 0) {
+                throw new Error(`Contact with ID ${contactid} not found in Salesforce`);
+            }
+            const address = await handleQuery('/services/data/v65.0/sobjects/npsp__Address__c/', contact[0].npsp__Address__c, token);
+            
             const payload: any = {};
+            const payloadcnt: any = {};
             console.log('Updating contact in Salesforce with data:', updateData);
             console.log('Updating contact in Salesforce with data:', updateData.MailingCity);
             console.log('Updating contact in Salesforce with data:', updateData.MailingCountry);
             if (updateData.email !== undefined) {
-                payload.Email = updateData.email;
+                payloadcnt.Email = updateData.email;
             }
-            console.log('p', payload)
+            console.log('p', payloadcnt)
             
-            // Initialize the address object if any address fields are provided
-            if (updateData.MailingStreet !== undefined || 
-                updateData.MailingCity !== undefined || 
-                updateData.MailingState !== undefined || 
-                updateData.MailingPostalCode !== undefined || 
-                updateData.MailingCountry !== undefined) {
-                payload.npsp__Current_Address__r = {};
-            }
-            
+            // Map address fields directly to Contact object (NPSP standard fields)
+            // These are the standard Salesforce Contact mailing address fields
             if (updateData.MailingStreet !== undefined) {
-                payload.npsp__Current_Address__r.npsp__MailingStreet__c = updateData.MailingStreet;
+                payload.MailingStreet = updateData.MailingStreet;
             }
             if (updateData.MailingCity !== undefined) {
-                payload.npsp__Current_Address__r.npsp__MailingCity__c = updateData.MailingCity;
+                payload.MailingCity = updateData.MailingCity;
             }
             if (updateData.MailingState !== undefined) {
-                payload.npsp__Current_Address__r.npsp__MailingState__c = updateData.MailingState;
+                payload.MailingState = updateData.MailingState;
             }
             if (updateData.MailingPostalCode !== undefined) {
-                payload.npsp__Current_Address__r.npsp__MailingPostalCode__c = updateData.MailingPostalCode;
+                payload.MailingPostalCode = updateData.MailingPostalCode;
             }
             if (updateData.MailingCountry !== undefined) {
-                payload.npsp__Current_Address__r.npsp__MailingCountry__c = updateData.MailingCountry;
+                payload.MailingCountry = updateData.MailingCountry;
             }
             console.log('Updating contact in Salesforce with payload:', payload);
-            const result = await handleUpdateQuery('/services/data/v65.0/sobjects/', 'Contact', contactid, payload, token);
-            return result;
+            const resultaddress = await handleUpdateQuery('/services/data/v65.0/sobjects/', 'npsp__Address__c', contact[0].npsp__Address__c, payload, token);
+            const resultcontact = await handleUpdateQuery('/services/data/v65.0/sobjects/', 'Contact', contactid, payloadcnt, token);
+            return { address: resultaddress, contact: resultcontact };
         } catch (error) {
             throw new InternalServerErrorException(error);
         }
