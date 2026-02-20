@@ -327,7 +327,7 @@ export class SalesforceService {
             const subscription = await this.stripe.subscriptions.create({
                 customer: req.customerId,
                 items: [{ price: req.priceId }],
-                //trial_end: req.trial_end, // NEW: prevent immediate charge
+                trial_end: req.trial_end, // NEW: prevent immediate charge
                 //billing_cycle_anchor: req.billing_cycle_anchor, // NEW: set billing date
                 //backdate_start_date: req.backdate_start_date,
                 metadata: req.metadata || {},
