@@ -199,9 +199,11 @@ export class SponsorshipService {
                             Current_Recurring_Donation__c: sponsorship.Current_Recurring_Donation__c,
                         };
                         const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Sponsorship__c/', payload, token);
+                        if(result && result.salesforceId) {
                         sponsorship.salesforceID = result.salesforceId;
                         sponsorship.syncedWithSalesforce = true;
                         await sponsorship.save();
+                    }
                     }
                 } else {
                     const timestamp = new Date().getTime();
