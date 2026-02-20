@@ -54,7 +54,7 @@ export class ChildCronService {
 
         this.logger.log(`Expired reservations released.`);
     }
-    @Cron(CronExpression.EVERY_DAY_AT_3AM)
+    @Cron('0 15 * * * *')
     async sychFromSalesforce() {
         this.logger.warn(`Starting weekly synchronization of child data from Salesforce...`);
         try {
