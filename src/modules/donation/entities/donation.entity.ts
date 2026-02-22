@@ -11,7 +11,7 @@ export class Donation extends Document {
 
     @Prop({ required: true })
     Name: string
-    @Prop({ default: Date.now })
+    @Prop({ default: () => new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })) })
     CloseDate: Date
     @Prop({ required: true })
     StageName: string
@@ -75,7 +75,7 @@ export class Donation extends Document {
     child__c : string*/
     @Prop({ required: false })
     Contact_details: CreateContactDto;
-    @Prop({ default: Date.now })
+    @Prop({ default: () => new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })) })
     createdDate: Date;
     @Prop({ required : false })
     campaign_medium: string;

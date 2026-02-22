@@ -31,7 +31,7 @@ export class SalesforcesCronService {
         private readonly logService: LogService
     ) { }
 
-    @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+    @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT, { timeZone: 'America/Chicago' })
     async uploadContactsToSalesforceDaily() {
         try {
             console.log('Starting daily contacts upload to Salesforce...');
@@ -42,7 +42,7 @@ export class SalesforcesCronService {
         }
     }
 
-    @Cron(CronExpression.EVERY_HOUR)
+    @Cron(CronExpression.EVERY_HOUR, { timeZone: 'America/Chicago' })
     async uploadContactsToSalesforceHourly() {
         try {
             console.log('Starting hourly contacts upload to Salesforce...');
@@ -57,7 +57,7 @@ export class SalesforcesCronService {
         }
     }
 
-    @Cron('0 30 * * * *') // Runs at 30 minutes past every hour (30 min after uploadContactsToSalesforceHourly)
+    @Cron('0 30 * * * *', { timeZone: 'America/Chicago' }) // Runs at 30 minutes past every hour (30 min after uploadContactsToSalesforceHourly)
     async processFullDonationWorkflow() {
 
         if (this.isProcessing) {

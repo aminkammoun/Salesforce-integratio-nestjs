@@ -22,7 +22,7 @@ export class ChildCronService {
     ) { }
 
     // Run every minute
-    @Cron(CronExpression.EVERY_MINUTE)
+    @Cron(CronExpression.EVERY_MINUTE, { timeZone: 'America/Chicago' })
     async releaseExpiredReservations() {
         const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
 
@@ -54,7 +54,7 @@ export class ChildCronService {
 
         this.logger.log(`Expired reservations released.`);
     }
-    @Cron('0 15 * * * *')
+    @Cron('0 15 * * * *', { timeZone: 'America/Chicago' })
     async sychFromSalesforce() {
         this.logger.warn(`Starting weekly synchronization of child data from Salesforce...`);
         try {

@@ -268,8 +268,8 @@ export class DonationService {
                         npe03__Recurring_Donation_Campaign__c: donation.campaignId,
                         npe03__Contact__c: donation.npsp__Primary_Contact__c,
                         Stripe_Customer__c: donation.customerStripe || donation.customerStipe,
-                        npe03__Date_Established__c: donation.CloseDate,
-                        npsp__Day_of_Month__c: new Date(donation.CloseDate).getDate(),
+                        npe03__Date_Established__c: this.convertToCST(donation.CloseDate),
+                        npsp__Day_of_Month__c: new Date(this.convertToCST(donation.CloseDate)).getDate(),
                         npsp__Status__c: 'Active',
                     };
 
