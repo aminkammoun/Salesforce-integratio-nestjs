@@ -67,9 +67,9 @@ export class SalesforceController {
     async createSubOnStripe(@Param() id: any) {
         return await this.salesforceService.createRecurringOnStripe(id);
     }
-    @Post('/createOneSubOnStripe/')
-    async createOneSubOnStripe() {
-        return await this.salesforceService.createOneRecurringOnStripe();
+    @Post('/createOneSubOnStripe/:id')
+    async createOneSubOnStripe(@Param() id: any) {
+        return await this.salesforceService.createOneRecurringOnStripe(id);
     }
     /*@Post('/updateBycontactSfId')
     async updateBycontactSfId() {
