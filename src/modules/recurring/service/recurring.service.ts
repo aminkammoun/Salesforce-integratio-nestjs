@@ -19,8 +19,8 @@ export class RecurringService {
         Iraqi: 'a0e8W00000ilPTZQA2',
         Palestinian: 'a0e8W00000il33NQAQ',
         Lebanese: 'a0e8W00000il33PQAQ',
-        Jordinian : 'a0e8W00000il33QQAQ',
-        Pakistani : 'a0e8W00000il33SQAQ',
+        Jordinian: 'a0e8W00000il33QQAQ',
+        Pakistani: 'a0e8W00000il33SQAQ',
         Other: 'a0eVW000008x2IvYAI'
     }
     constructor(
@@ -130,8 +130,23 @@ export class RecurringService {
                 syncedWithSalesforce: false,
                 subscriptionStripe: null,
                 createOnStripe: null,
-                recurringSource : 'Fundraising App'
+                recurringSource: 'Fundraising App'
                 // Exclude specific ID
+            });
+            return recurrings;
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
+    }
+    async findAll2() {
+        try {
+            const recurrings = await this.RecurringModel.find({
+                status: "Active",
+                syncedWithSalesforce: true,
+                subscriptionStripe: null,
+                createOnStripe: null,
+                recurringSource: 'Fundraising App'
+
             });
             return recurrings;
         } catch (error) {

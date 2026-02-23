@@ -617,6 +617,94 @@ export class SalesforceService {
         }
 
     }
+
+
+    async createOneRecurringOnStripe() {
+        //const customer = await this.stripe.customers.retrieve(req.customerId);
+        //console.log('Customer retrieved:', customer);
+        //const interval = this.mapIntervalToStripeInterval(req.interval);
+        const recurring = await this.recurringService.findAll2();
+        console.log('Found recurrings:', recurring.length);
+        if (!recurring || recurring.length === 0) {
+            this.logger.warn('No recurring donations found');
+            return;
+        }
+        for (const rec of recurring) {
+            try {
+
+
+                const donationId = rec?.donations?.toString();
+                const donation = await this.donationService.findOneId(donationId);
+                const contact = await this.contactService.findOne(rec?.donor?.toString());
+                if (!contact) {
+                    throw new Error(`Contact ${rec?.donor?.toString()} not found`);
+                }
+                let customer: any
+                const checkCustomer = await this.stripe.customers.search({
+                    query: `metadata['customer_phone']:'${contact.Phone}'`,
+                });
+                customer = checkCustomer.data.length > 0 ? checkCustomer.data[0] : this.createStripeCustomer({
+                    email: contact.email,
+                    name: contact.Name,
+                    phone: contact.Phone,
+                });
+                console.log('customer', customer.id);
+                if (!donation) {
+                    throw new Error(`Donation ${donationId} not found`);
+                }
+
+                if (donation.Donation_Source__c == 'Fundraising App') {
+                    console.log("khal hna")
+                    const transaction = await this.transactionService.findByDonationId(donationId);
+                    console.log('transaction', transaction);
+                    if (!transaction) {
+                        throw new Error(`Transaction for donation ${donationId} not found`);
+                    }
+                    const stripeGetChargeEvent = await this.stripe.charges.retrieve(transaction[0].transactionID);
+
+                    const generatedCard = stripeGetChargeEvent?.payment_method_details?.card_present?.generated_card;
+                    console.log('generatedCard', generatedCard);
+                    if (generatedCard) {
+                        await this.linkPaymentMethodToCustomer(generatedCard, customer.id);
+                    }
+                    const processCartItemAfterPayment = await this.processCartItemAfterPayment({
+                        item: donation.cartItems[0],
+                        donationId: donationId,
+                        contact: contact,
+                        customer: customer,
+                        object: stripeGetChargeEvent,
+                    });
+                    rec.customerStripe = processCartItemAfterPayment?.customer || '';
+                    rec.subscriptionStripe = processCartItemAfterPayment?.subs || '';
+                    rec.createOnStripe = true;
+                } else {
+                    const subscriptions = await this.stripe.subscriptions.list({
+                        customer: customer.id,
+                        limit: 1,
+                    });
+                    const stripeSubscriptionid = subscriptions.data[0];
+                    rec.customerStripe = donation.transactionDetails.customer_id || '';
+                    rec.subscriptionStripe = stripeSubscriptionid.id;
+                    rec.createOnStripe = true;
+                }
+                /*donation.transactionDetails = {
+                    captured: "yes",
+                    currency: stripeGetChargeEvent.currency,
+                    intent_id: stripeGetChargeEvent.payment_intent?.toString() || '',
+                    source_id: stripeGetChargeEvent.payment_method?.toString() || '',
+                    customer_id: stripeGetChargeEvent.customer?.toString() || '',
+                }
+                await donation.save();*/
+                await rec.save();
+                this.logger.log(`Successfully processed recurring donation ${rec._id}`);
+
+            } catch (error) {
+                this.logger.error(`Error processing recurring ${rec._id}:`, error.message);
+                continue; // Continue with next recurring donation instead of failing entire process
+            }
+        }
+
+    }
     /*async updateRecurringsWithContactSalesforceID() {
         const recurrings = await this.recurringService.findAll();
         for (const rec of recurrings) {
