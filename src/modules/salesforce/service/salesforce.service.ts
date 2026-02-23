@@ -619,11 +619,11 @@ export class SalesforceService {
     }
 
 
-    async createOneRecurringOnStripe() {
+    async createOneRecurringOnStripe(id?: string) {
         //const customer = await this.stripe.customers.retrieve(req.customerId);
         //console.log('Customer retrieved:', customer);
         //const interval = this.mapIntervalToStripeInterval(req.interval);
-        const recurring = await this.recurringService.findAll2();
+        const recurring = await this.recurringService.findAll2(id);
         console.log('Found recurrings:', recurring.length);
         if (!recurring || recurring.length === 0) {
             this.logger.warn('No recurring donations found');

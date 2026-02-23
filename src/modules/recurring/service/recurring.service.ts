@@ -138,14 +138,15 @@ export class RecurringService {
             throw new InternalServerErrorException(error);
         }
     }
-    async findAll2() {
+    async findAll2(id?: string) {
         try {
             const recurrings = await this.RecurringModel.find({
                 status: "Active",
                 syncedWithSalesforce: true,
                 subscriptionStripe: null,
                 createOnStripe: null,
-                recurringSource: 'Fundraising App'
+                recurringSource: 'Fundraising App',
+                _id: { $eq: id } // Exclude specific ID
 
             });
             return recurrings;
