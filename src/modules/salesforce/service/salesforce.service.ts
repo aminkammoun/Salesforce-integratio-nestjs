@@ -665,7 +665,11 @@ export class SalesforceService {
                     const generatedCard = stripeGetChargeEvent?.payment_method_details?.card_present?.generated_card;
                     console.log('generatedCard', generatedCard);
                     if (generatedCard) {
-                        await this.linkPaymentMethodToCustomer(generatedCard, customer.id);
+                        const customerPaymentMethods = await this.stripe.customers.listPaymentMethods(customer.id);
+                        const isAlreadyLinked = customerPaymentMethods.data.some(pm => pm.id === generatedCard);
+                        if (!isAlreadyLinked) {
+                            await this.linkPaymentMethodToCustomer(generatedCard, customer.id);
+                        }
                     }
                     const processCartItemAfterPayment = await this.processCartItemAfterPayment({
                         item: donation.cartItems[0],
