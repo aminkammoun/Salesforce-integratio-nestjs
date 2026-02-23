@@ -146,8 +146,7 @@ export class RecurringService {
                 subscriptionStripe: null,
                 createOnStripe: null,
                 recurringSource: 'Fundraising App',
-                _id: { $eq: id } // Exclude specific ID
-
+                _id: { $eq: new MongooseTypes.ObjectId(id) } // Exclude specific ID
             });
             return recurrings;
         } catch (error) {
