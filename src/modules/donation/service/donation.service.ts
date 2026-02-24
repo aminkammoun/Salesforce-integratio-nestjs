@@ -689,6 +689,7 @@ export class DonationService {
             const primaryQuery = `SELECT 
             Id, 
             Name, 
+            Amount__c,
             Opportunity__r.Amount,
             Opportunity__r.Id, 
             Opportunity__r.Name, 
