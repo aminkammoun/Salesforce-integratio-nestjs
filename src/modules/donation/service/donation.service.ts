@@ -685,6 +685,7 @@ export class DonationService {
 
     }
     async findDonationsFromSalesforceByWorksheetId(wordpressid: string) {
+        let donations: any[] = [];
         try {
             const primaryQuery = `SELECT 
             Id, 
@@ -703,28 +704,37 @@ export class DonationService {
             FROM Program_Allocation_Unit__c
             WHERE Opportunity__r.npsp__Primary_Contact__c = '${wordpressid}'`;
 
+            const fallbackQuery = `SELECT 
+            Id, 
+            Amount,
+            Name, 
+            CloseDate, 
+            StageName, 
+            npsp__Acknowledgment_Status__c, 
+            npe03__Recurring_Donation__c, 
+            Donation_Source__c,
+            npsp__Primary_Contact__c
+            FROM Opportunity
+            WHERE npsp__Primary_Contact__c = '${wordpressid}'`;
+
             const token = await authenticateSalesforce();
-            let res = await handleQuery('/services/data/v65.0/query/?q=', primaryQuery, token);
-
-            // If no Program_Allocation_Unit records found, fallback to Opportunity query
-            if (!res.records || res.records.length === 0) {
-                const fallbackQuery = `SELECT 
-                Id, 
-                Amount,
-                Name, 
-                CloseDate, 
-                StageName, 
-                npsp__Acknowledgment_Status__c, 
-                npe03__Recurring_Donation__c, 
-                Donation_Source__c,
-                npsp__Primary_Contact__c
-                FROM Opportunity
-                WHERE npsp__Primary_Contact__c = '${wordpressid}'`;
-
-                res = await handleQuery('/services/data/v65.0/query/?q=', fallbackQuery, token);
+            
+            const primaryQueryRes = await handleQuery('/services/data/v65.0/query/?q=', primaryQuery, token);
+            const secondQueryRes = await handleQuery('/services/data/v65.0/query/?q=', fallbackQuery, token);
+            
+            if (primaryQueryRes?.records?.length > 0) {
+            donations.push(...primaryQueryRes.records);
+            }
+            
+            if (secondQueryRes?.records?.length > 0) {
+            donations.push(...secondQueryRes.records);
+            }
+            
+            if (donations.length === 0) {
+            throw new NotFoundException('No donations found for this contact in Salesforce');
             }
 
-            return res.records;
+            return donations;
         } catch (error) {
             throw new InternalServerErrorException(error);
         }
