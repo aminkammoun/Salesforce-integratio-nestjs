@@ -247,7 +247,7 @@ export class ChildService {
                     console.log('Reserving specific children:', childmap.child);
                     const sp = await this.sponsorshipService.create({
                         donation: childmap.donationId,
-                        donor: childmap.donor__c ? '6944640f71512ff7de282ddc' : childmap.donorId,
+                        donor:  childmap.donorId,
                         child: childmap.child,
                         Status: 'Active',
                         frequency: childmap.frequency,
@@ -278,7 +278,7 @@ export class ChildService {
                     if (reservedIds.length == 0 || availableChildren.length < count) {
                         const sp = await this.sponsorshipService.create({
                             donation: childmap.donationId,
-                            donor: childmap.donor__c ? '6944640f71512ff7de282ddc' : childmap.donorId,
+                            donor:  childmap.donorId,
                             child: [],
                             Status: 'Active',
                             frequency: childmap.frequency,
