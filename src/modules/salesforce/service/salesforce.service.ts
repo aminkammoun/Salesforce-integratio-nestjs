@@ -635,9 +635,9 @@ export class SalesforceService {
 
                 const donationId = rec?.donations?.toString();
                 const donation = await this.donationService.findOneId(donationId);
-                const contact = await this.contactService.findOne(rec?.donor?.toString());
+                const contact = await this.contactService.findBySfId(rec?.npe03__Contact__c?.toString());
                 if (!contact) {
-                    throw new Error(`Contact ${rec?.donor?.toString()} not found`);
+                    throw new Error(`Contact ${rec?.npe03__Contact__c?.toString()} not found`);
                 }
                 let customer: any
                 const checkCustomer = await this.stripe.customers.search({

@@ -196,7 +196,14 @@ export class ContactService {
             throw new InternalServerErrorException(error);
         }
     }
-
+    async findBySfId(salesforceID: string) {
+        try {
+            const contact = await this.ContactModel.findOne({ salesforceID });
+            return contact;
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
+    }
     async delete(id: string) {
         try {
             const result = await this.ContactModel.findByIdAndDelete(new MongooseTypes.ObjectId(id));
@@ -319,7 +326,15 @@ export class ContactService {
     }
     async findcontactFromSalesforceBysfId(contactid: string) {
         try {
-            const query = `Select id, Name, Email,Phone,npo02__Formula_HouseholdMailingAddress__c, npo02__FirstCloseDate__c, npo02__Best_Gift_Year__c, npo02__TotalOppAmount__c, npo02__OppAmountThisYear__c , npo02__OppAmount2YearsAgo__c, Total_Gifts_Last_12_Months__c
+            const query = `Select id, Name, 
+            Email,
+            Phone,
+            npo02__Formula_HouseholdMailingAddress__c, 
+            npo02__FirstCloseDate__c, 
+            npo02__Best_Gift_Year__c, 
+            npo02__TotalOppAmount__c, npo02__OppAmountThisYear__c ,
+            npo02__OppAmount2YearsAgo__c, 
+            Total_Gifts_Last_12_Months__c
                   from contact 
                   where Id = '${contactid}'`;
             const token = await authenticateSalesforce();
