@@ -627,7 +627,7 @@ export class SalesforceService {
         console.log('Found recurrings:', recurring.length);
         if (!recurring || recurring.length === 0) {
             this.logger.warn('No recurring donations found');
-            return;
+            return { message: 'No recurring donations found or recurring already processed' };
         }
         for (const rec of recurring) {
             try {
