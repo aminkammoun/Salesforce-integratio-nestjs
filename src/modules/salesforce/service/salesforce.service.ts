@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Stripe from 'stripe';
-import { handleInsertQuery } from 'src/config/utils';
+import { authenticateSalesforce, handleInsertQuery, handleUpdateQuery } from 'src/config/utils';
 import mongoose, { Model } from 'mongoose';
 import { Contact } from 'src/modules/contact/entities/contact.entity';
 import { InjectModel } from '@nestjs/mongoose';
@@ -681,6 +681,13 @@ export class SalesforceService {
                     rec.customerStripe = processCartItemAfterPayment?.customer || '';
                     rec.subscriptionStripe = processCartItemAfterPayment?.subs || '';
                     rec.createOnStripe = true;
+                    const recurringPayloadToUpdateOnSF = {
+                        Stripe_subscription_url__c : 'https://dashboard.stripe.com/acct_1S5xcLPK7Mt7pUeD/subscriptions/' + processCartItemAfterPayment?.subs,
+                        Stripe_Customer__c : processCartItemAfterPayment?.customer || '',
+                    }
+                    const token = await authenticateSalesforce();
+                    await handleUpdateQuery('/services/data/v65.0/sobjects/',`npe03__Recurring_Donation__c`, rec.salesforceID.toString(), recurringPayloadToUpdateOnSF, token);
+                    return { subs: processCartItemAfterPayment?.subs, customer: processCartItemAfterPayment?.customer };
                 } else {
                     const subscriptions = await this.stripe.subscriptions.list({
                         customer: customer.id,
