@@ -682,12 +682,11 @@ export class SalesforceService {
                     rec.subscriptionStripe = processCartItemAfterPayment?.subs || '';
                     rec.createOnStripe = true;
                     const recurringPayloadToUpdateOnSF = {
-                        Stripe_subscription_url__c : 'https://dashboard.stripe.com/acct_1S5xcLPK7Mt7pUeD/subscriptions/' + processCartItemAfterPayment?.subs,
-                        Stripe_Customer__c : processCartItemAfterPayment?.customer || '',
+                        Stripe_subscription_url__c: 'https://dashboard.stripe.com/acct_1S5xcLPK7Mt7pUeD/subscriptions/' + processCartItemAfterPayment?.subs,
+                        Stripe_Customer__c: processCartItemAfterPayment?.customer || '',
                     }
                     const token = await authenticateSalesforce();
-                    await handleUpdateQuery('/services/data/v65.0/sobjects/',`npe03__Recurring_Donation__c`, rec.salesforceID.toString(), recurringPayloadToUpdateOnSF, token);
-                    return { subs: processCartItemAfterPayment?.subs, customer: processCartItemAfterPayment?.customer };
+                    await handleUpdateQuery('/services/data/v65.0/sobjects/', `npe03__Recurring_Donation__c`, rec.salesforceID.toString(), recurringPayloadToUpdateOnSF, token);
                 } else {
                     const subscriptions = await this.stripe.subscriptions.list({
                         customer: customer.id,
@@ -708,6 +707,7 @@ export class SalesforceService {
                 await donation.save();*/
                 await rec.save();
                 this.logger.log(`Successfully processed recurring donation ${rec._id}`);
+                return { sub : rec.subscriptionStripe, customer: rec.customerStripe };
 
             } catch (error) {
                 this.logger.error(`Error processing recurring ${rec._id}:`, error.message);
