@@ -252,18 +252,21 @@ export class ContactService {
 
                 const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Contact/', payload, token);
                 // If you want to upload immediately, perform it outside map with Promise.all.
-                console.log('Salesforce upload result:', result);
-                contact.salesforceID = result.salesforceId;
-                contact.syncedWithSalesforce = true;
-                contact.save()
-                this.donationService.updateDonationByContactSalesforceId(contact._id as string, result.salesforceId).then(async (donation) => {
-                    console.log('Donation found for contact during upload:', donation);
-                });
-                this.sponsorshipService.updateSponsorshipByContactSalesforceId(contact._id as string, result.salesforceId).then(async (sponsorship) => {
-                    console.log('Sponsorship found for contact during upload:', sponsorship);
-                });
+                if (result) {
+                    console.log('Salesforce upload result:', result);
+                    contact.salesforceID = result.salesforceId;
+                    contact.syncedWithSalesforce = true;
+                    contact.save()
+                    this.donationService.updateDonationByContactSalesforceId(contact._id as string, result.salesforceId).then(async (donation) => {
+                        console.log('Donation found for contact during upload:', donation);
+                    });
+                    this.sponsorshipService.updateSponsorshipByContactSalesforceId(contact._id as string, result.salesforceId).then(async (sponsorship) => {
+                        console.log('Sponsorship found for contact during upload:', sponsorship);
+                    });
 
-                this.recurringService.updateWithContactSalesforceID(contact._id as string, result.salesforceId)
+                    this.recurringService.updateWithContactSalesforceID(contact._id as string, result.salesforceId)
+                }
+
                 return contact;
             })
             return salesforcePayloads;
