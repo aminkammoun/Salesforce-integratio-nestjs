@@ -576,7 +576,7 @@ export class DonationService {
 
                         // 2. Insert Parent Opportunity
                         const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Opportunity/', payload, token);
-
+                        console.log(result)
                         if (result?.salesforceId) {
                             const parentOppId = result.salesforceId;
 
