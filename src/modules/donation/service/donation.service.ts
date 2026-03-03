@@ -307,7 +307,7 @@ export class DonationService {
                             donationUpdated = true;
                         }
 
-                       
+
                     }
                 }
                 // ====================================================
@@ -319,7 +319,7 @@ export class DonationService {
 
                         const payload = {
                             Name: donation.Name,
-                            Amount: totalAmount, 
+                            Amount: totalAmount,
                             CloseDate: donation.createdDate,
                             StageName: donation.StageName,
                             CampaignId: donation.campaignId,
@@ -343,7 +343,7 @@ export class DonationService {
                             const parentOppId = result.salesforceId;
 
                             for (const item of oneTimeItems) {
-                                item.sfId = parentOppId; 
+                                item.sfId = parentOppId;
 
                                 if (item.programId) {
                                     await this.assignProgramCohortToDonation(parentOppId, item.programId, item.amount, token);
@@ -351,7 +351,7 @@ export class DonationService {
 
                                     if (queryGAU?.records?.length) {
                                         this.assignGAUToDonation(parentOppId, item.programId, item.amount, token);
-                                        }
+                                    }
                                 }
                             }
                             donationUpdated = true;
@@ -576,12 +576,13 @@ export class DonationService {
 
                         // 2. Insert Parent Opportunity
                         const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Opportunity/', payload, token);
-                        if(result ){
+                        if (result) {
                             console.log(result);
                         }
                         if (result?.salesforceId) {
                             const parentOppId = result.salesforceId;
-
+                            console.log(parentOppId)
+                            console.log(result)
                             // 3. Create Allocations for each specific item
                             for (const item of oneTimeItems) {
                                 item.sfId = parentOppId; // All items share the same Opportunity ID
@@ -593,14 +594,7 @@ export class DonationService {
 
                                     if (queryGAU?.records?.length) {
                                         this.assignGAUToDonation(parentOppId, item.programId, item.amount, token);
-                                        /*const GAUPayload = {
-                                            npsp__Opportunity__c: parentOppId,
-                                            npsp__General_Accounting_Unit__c: queryGAU.records[0].General_Accounting_Unit__c,
-                                            npsp__Amount__c: item.amount,
-                                            GAU_Type__c: 'Once',
-                                        };
-                                        await handleInsertQuery('/services/data/v65.0/sobjects/', 'npsp__Allocation__c/', GAUPayload, token);
-                                    */}
+                                    }
                                 }
                             }
                             donationUpdated = true;
@@ -720,20 +714,20 @@ export class DonationService {
             WHERE npsp__Primary_Contact__c = '${wordpressid}'`;
 
             const token = await authenticateSalesforce();
-            
+
             const primaryQueryRes = await handleQuery('/services/data/v65.0/query/?q=', primaryQuery, token);
             const secondQueryRes = await handleQuery('/services/data/v65.0/query/?q=', fallbackQuery, token);
-            
+
             if (primaryQueryRes?.records?.length > 0) {
-            donations.push(...primaryQueryRes.records);
+                donations.push(...primaryQueryRes.records);
             }
-            
+
             if (secondQueryRes?.records?.length > 0) {
-            donations.push(...secondQueryRes.records);
+                donations.push(...secondQueryRes.records);
             }
-            
+
             if (donations.length === 0) {
-            throw new NotFoundException('No donations found for this contact in Salesforce');
+                throw new NotFoundException('No donations found for this contact in Salesforce');
             }
 
             return donations;
