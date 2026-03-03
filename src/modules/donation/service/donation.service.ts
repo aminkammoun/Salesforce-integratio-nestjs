@@ -573,8 +573,7 @@ export class DonationService {
                             RecordTypeId: oneTimeItems[0].recordType,
                             Child__c: oneTimeItems[0].Child__c,
                         };
-
-                        // 2. Insert Parent Opportunity
+                        console.log('Payload for one-time donation:', payload);                        // 2. Insert Parent Opportunity
                         const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Opportunity/', payload, token);
                         if (result) {
                             console.log(result);
