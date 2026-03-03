@@ -103,4 +103,8 @@ export class SponsorshipController {
     async checkChild() {
         return await this.sponsorshipService.checkFreeChildInSP();
     }
+    @Post('/assignFreeChild')
+    async assignFreeChild() {
+        return await this.sponsorshipService.checkFreeChildInSP();
+    }
 }
