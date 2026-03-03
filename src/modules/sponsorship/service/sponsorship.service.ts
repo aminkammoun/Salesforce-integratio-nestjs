@@ -345,8 +345,8 @@ export class SponsorshipService {
         const sponsorships = await this.SponsorshipModel.find({
                 syncedWithSalesforce : false,
                 Status: 'Active'
-            }).lean(false);
-
+            })
+            console.log('Checking free children in sponsorships:', sponsorships);
             for(const sponsor of sponsorships){
                 const children = await this.ChildModel.findOne({
                     SalesforceID: { $in: sponsor.child },
