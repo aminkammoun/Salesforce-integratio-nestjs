@@ -351,6 +351,7 @@ export class SponsorshipService {
                 const children = await this.ChildModel.findOne({
                     SalesforceID: { $in: sponsor.child },
                 });
+                console.log('Checking sponsorship:', sponsor._id, 'with children:', sponsor.child, 'and their statuses:', children?.Status__c);
                 if(children?.Status__c == 'Sponsored'){
                     const newChild = await this.ChildModel.findOne({
                         Status__c: 'Available',
