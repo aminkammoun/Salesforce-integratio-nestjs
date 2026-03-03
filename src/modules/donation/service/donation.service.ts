@@ -815,12 +815,12 @@ export class DonationService {
                 console.log('Processing donation with name:', donationItem.Name);
                 // Search for contact by name in the contact model
                 const contact = await this.contactService['ContactModel'].findOne({ 
-                    Name: donationItem.Name 
+                    wordpressID: donationItem.Contact_details.wordpressID?.toString()
                 });
                 if (contact && contact.salesforceID) {
                     console.log(`Updating donation ${donationItem._id} with contact Salesforce ID ${contact.salesforceID}`);
                     donationItem.npsp__Primary_Contact__c = contact.salesforceID;
-                    
+
                     //await donationItem.save();
                 } else {
                     console.log(`No contact found for donation ${donationItem._id} with name ${donationItem.Name}`);
