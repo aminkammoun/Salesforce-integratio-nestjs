@@ -580,8 +580,8 @@ export class DonationService {
                             console.log(result);
                         }
                         console.log('tesst')
+                        console.log(donationUpdated)
                         if (result?.salesforceId) {
-                            console
                             const parentOppId = result.salesforceId;
                             console.log(parentOppId)
                             console.log(result)
