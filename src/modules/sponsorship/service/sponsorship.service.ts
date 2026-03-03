@@ -199,11 +199,11 @@ export class SponsorshipService {
                             Current_Recurring_Donation__c: sponsorship.Current_Recurring_Donation__c,
                         };
                         const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Sponsorship__c/', payload, token);
-                        if(result && result.salesforceId) {
-                        sponsorship.salesforceID = result.salesforceId;
-                        sponsorship.syncedWithSalesforce = true;
-                        await sponsorship.save();
-                    }
+                        if (result && result.salesforceId) {
+                            sponsorship.salesforceID = result.salesforceId;
+                            sponsorship.syncedWithSalesforce = true;
+                            await sponsorship.save();
+                        }
                     }
                 } else {
                     const timestamp = new Date().getTime();
@@ -340,6 +340,26 @@ export class SponsorshipService {
         } catch (error) {
             throw new InternalServerErrorException(error);
         }
+    }
+    async checkFreeChildInSP(){
+        const sponsorships = await this.SponsorshipModel.find({
+                syncedWithSalesforce : false,
+                Status: 'Active'
+            }).lean(false);
+
+            for(const sponsor of sponsorships){
+                const children = await this.ChildModel.findOne({
+                    SalesforceID: { $in: sponsor.child },
+                });
+                if(children?.Status__c == 'Sponsored'){
+                    const newChild = await this.ChildModel.findOne({
+                        Status__c: 'Available',
+                        NationalityList__c: children.NationalityList__c,
+                    })
+                    sponsor.child = [newChild?.SalesforceID || ''];
+                }
+                await sponsor.save()
+            }
     }
     async findSpFromSalesforceByWordpressId(wordpressid: string) {
         try {

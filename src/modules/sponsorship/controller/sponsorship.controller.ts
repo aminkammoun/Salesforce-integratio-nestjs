@@ -99,4 +99,8 @@ export class SponsorshipController {
     async updateBycontactSfId() {
         return await this.sponsorshipService.updateSpBycontactSfId();
     }
+    @Post('/checkChild')
+    async checkChild() {
+        return await this.sponsorshipService.checkIfChildIsSponsored();
+    }
 }
