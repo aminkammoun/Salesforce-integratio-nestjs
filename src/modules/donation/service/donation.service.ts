@@ -573,7 +573,8 @@ export class DonationService {
                             RecordTypeId: oneTimeItems[0].recordType,
                             Child__c: oneTimeItems[0].Child__c,
                         };
-                        console.log('Payload for one-time donation:', payload);                        // 2. Insert Parent Opportunity
+                        
+                        // 2. Insert Parent Opportunity
                         const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Opportunity/', payload, token);
                         if (result) {
                             console.log(result);
@@ -803,23 +804,29 @@ export class DonationService {
     }
     async updateDonationWithnpsPrimaryContact() {
         try {
-            const donation = await this.DonationModel.find({
+            const donations = await this.DonationModel.find({
                 syncedWithSalesforce: false,
                 npsp__Primary_Contact__c: null
             });
-            if (!donation) {
+            if (!donations || donations.length === 0) {
                 throw new NotFoundException('Donation not found');
             }
-            donation.forEach(async (donationItem) => {
-                console.log('Processing donation:', donationItem.contact.length);
-                const contact = await this.contactService.findOne(donationItem.contact as string);
+            for (const donationItem of donations) {
+                console.log('Processing donation with name:', donationItem.Name);
+                // Search for contact by name in the contact model
+                const contact = await this.contactService['ContactModel'].findOne({ 
+                    Name: donationItem.Name 
+                });
                 if (contact && contact.salesforceID) {
                     console.log(`Updating donation ${donationItem._id} with contact Salesforce ID ${contact.salesforceID}`);
                     donationItem.npsp__Primary_Contact__c = contact.salesforceID;
-                    await donationItem.save();
+                    
+                    //await donationItem.save();
+                } else {
+                    console.log(`No contact found for donation ${donationItem._id} with name ${donationItem.Name}`);
                 }
-            });
-            return donation;
+            }
+            return donations;
         } catch (error) {
             throw new InternalServerErrorException(error);
         }
