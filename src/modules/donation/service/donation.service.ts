@@ -592,11 +592,11 @@ export class DonationService {
                                 if (item.programId) {
                                     await this.assignProgramCohortToDonation(parentOppId, item.programId, item.amount, token);
                                     // B. Create GAU Allocation (NPSP Standard)
-                                    const queryGAU = await handleQuery('/services/data/v65.0/query/?q=', `SELECT General_Accounting_Unit__c FROM pmdm__ProgramCohort__c WHERE id='${item.programId}'`, token);
+                                    /*const queryGAU = await handleQuery('/services/data/v65.0/query/?q=', `SELECT General_Accounting_Unit__c FROM pmdm__ProgramCohort__c WHERE id='${item.programId}'`, token);
 
                                     if (queryGAU?.records?.length) {
                                         this.assignGAUToDonation(parentOppId, item.programId, item.amount, token);
-                                    }
+                                    }*/
                                 }
                             }
                             donationUpdated = true;
