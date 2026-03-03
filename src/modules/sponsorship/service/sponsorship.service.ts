@@ -342,6 +342,7 @@ export class SponsorshipService {
         }
     }
     async checkFreeChildInSP(){
+        console.log('Checking free children in sponsorships');
         const sponsorships = await this.SponsorshipModel.find({
                 syncedWithSalesforce : false,
                 Status: 'Active'
