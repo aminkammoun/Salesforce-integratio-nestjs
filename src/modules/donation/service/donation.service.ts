@@ -808,15 +808,14 @@ export class DonationService {
                 syncedWithSalesforce: false,
                 npsp__Primary_Contact__c: null
             });
+            console.log('Donations to update:', donations.length);
             if (!donations || donations.length === 0) {
                 throw new NotFoundException('Donation not found');
             }
             for (const donationItem of donations) {
                 console.log('Processing donation with name:', donationItem.Name);
                 // Search for contact by name in the contact model
-                const contact = await this.contactService['ContactModel'].findOne({ 
-                    wordpressID: donationItem.Contact_details.wordpressID?.toString()
-                });
+                const contact = await this.contactService.findByWordPressID(donationItem.Contact_details.wordpressID?.toString() ?? '');
                 if (contact && contact.salesforceID) {
                     console.log(`Updating donation ${donationItem._id} with contact Salesforce ID ${contact.salesforceID}`);
                     donationItem.npsp__Primary_Contact__c = contact.salesforceID;
