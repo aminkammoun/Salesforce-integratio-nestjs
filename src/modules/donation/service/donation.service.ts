@@ -822,6 +822,7 @@ export class DonationService {
                     console.log(`Updating donation ${donationItem._id} with contact Salesforce ID ${getContactFromSF.records[0].Id}`);
                     donationItem.npsp__Primary_Contact__c = getContactFromSF.records[0].Id;
                     contact.salesforceID = getContactFromSF.records[0].Id;
+                    contact.syncedWithSalesforce = true;
                     await contact.save();
                     await donationItem.save();
                 } else {
