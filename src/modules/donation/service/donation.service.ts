@@ -807,7 +807,7 @@ export class DonationService {
             const donations = await this.DonationModel.find({
                 syncedWithSalesforce: false,
                 npsp__Primary_Contact__c: null,
-                Donation_Source__c : 'Website',
+                Donation_Source__c : 'Fundraising App',
             });
             console.log('Donations to update:', donations.length);
             if (!donations || donations.length === 0) {
