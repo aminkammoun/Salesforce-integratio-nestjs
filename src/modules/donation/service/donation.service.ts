@@ -808,14 +808,17 @@ export class DonationService {
                 syncedWithSalesforce: false,
                 npsp__Primary_Contact__c: null,
                 Donation_Source__c : 'Fundraising App',
+                StageName : "Closed Won"
             });
             console.log('Donations to update:', donations.length);
             if (!donations || donations.length === 0) {
                 throw new NotFoundException('Donation not found');
             }
             for (const donationItem of donations) {
+                const cnt = await this.contactService.findOne(donationItem.contact as string);
+                
                 console.log('Processing donation with name:', donationItem.Name);
-                const getContactFromSF = await handleQuery('/services/data/v65.0/query/?q=', `SELECT Id, Name FROM Contact WHERE Email = '${donationItem.Contact_details.email}'`, await authenticateSalesforce());
+                const getContactFromSF = await handleQuery('/services/data/v65.0/query/?q=', `SELECT Id, Name FROM Contact WHERE Email = '${cnt?.email}'`, await authenticateSalesforce());
                 // Search for contact by name in the contact model
                 const contact = await this.contactService.findByWordPressID(donationItem.Contact_details.wordpressID?.toString() ?? '');
                 if (contact && getContactFromSF?.records?.length > 0) {
