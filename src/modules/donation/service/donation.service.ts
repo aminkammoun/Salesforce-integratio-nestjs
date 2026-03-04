@@ -573,7 +573,7 @@ export class DonationService {
                             RecordTypeId: oneTimeItems[0].recordType,
                             Child__c: oneTimeItems[0].Child__c,
                         };
-                        
+
                         // 2. Insert Parent Opportunity
                         const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Opportunity/', payload, token);
                         if (result) {
@@ -807,8 +807,8 @@ export class DonationService {
             const donations = await this.DonationModel.find({
                 syncedWithSalesforce: false,
                 npsp__Primary_Contact__c: null,
-                Donation_Source__c : 'Fundraising App',
-                StageName : "Closed Won"
+                Donation_Source__c: 'Fundraising App',
+                StageName: "Closed Won"
             });
             console.log('Donations to update:', donations.length);
             if (!donations || donations.length === 0) {
@@ -816,22 +816,24 @@ export class DonationService {
             }
             for (const donationItem of donations) {
                 const cnt = await this.contactService.findOne(donationItem.contact as string);
-                
-                console.log('Processing donation with name:', donationItem.Name);
-                const getContactFromSF = await handleQuery('/services/data/v65.0/query/?q=', `SELECT Id, Name FROM Contact WHERE Email = '${cnt?.email}'`, await authenticateSalesforce());
-                // Search for contact by name in the contact model
-                const contact = await this.contactService.findByWordPressID(donationItem.Contact_details.wordpressID?.toString() ?? '');
-                if (contact && getContactFromSF?.records?.length > 0) {
-                    console.log(`Updating donation ${donationItem._id} with contact Salesforce ID ${getContactFromSF.records[0].Id}`);
-                    donationItem.npsp__Primary_Contact__c = getContactFromSF.records[0].Id;
-                    contact.salesforceID = getContactFromSF.records[0].Id;
-                    contact.Phone = '+1' + donationItem.Contact_details.Phone.replace('+1', '');
-                    contact.syncedWithSalesforce = true;
-                    await contact.save();
-                    await donationItem.save();
-                } else {
-                    console.log(`No contact found for donation ${donationItem._id} with name ${donationItem.Name}`);
+                if (cnt?.email) {
+                    console.log('Processing donation with name:', donationItem.Name);
+                    const getContactFromSF = await handleQuery('/services/data/v65.0/query/?q=', `SELECT Id, Name FROM Contact WHERE Email = '${cnt?.email}'`, await authenticateSalesforce());
+                    // Search for contact by name in the contact model
+                    const contact = await this.contactService.findByWordPressID(donationItem.Contact_details.wordpressID?.toString() ?? '');
+                    if (contact && getContactFromSF?.records?.length > 0) {
+                        console.log(`Updating donation ${donationItem._id} with contact Salesforce ID ${getContactFromSF.records[0].Id}`);
+                        donationItem.npsp__Primary_Contact__c = getContactFromSF.records[0].Id;
+                        contact.salesforceID = getContactFromSF.records[0].Id;
+                        contact.Phone = '+1' + donationItem.Contact_details.Phone.replace('+1', '');
+                        contact.syncedWithSalesforce = true;
+                        await contact.save();
+                        await donationItem.save();
+                    } else {
+                        console.log(`No contact found for donation ${donationItem._id} with name ${donationItem.Name}`);
+                    }
                 }
+
             }
             return donations;
         } catch (error) {
