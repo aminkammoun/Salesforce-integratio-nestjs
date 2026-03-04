@@ -820,14 +820,14 @@ export class DonationService {
                     console.log('Processing donation with name:', donationItem.Name);
                     const getContactFromSF = await handleQuery('/services/data/v65.0/query/?q=', `SELECT Id, Name FROM Contact WHERE Email = '${cnt?.email}'`, await authenticateSalesforce());
                     // Search for contact by name in the contact model
-                    const contact = await this.contactService.findByWordPressID(donationItem.Contact_details.wordpressID?.toString() ?? '');
-                    if (contact && getContactFromSF?.records?.length > 0) {
+                    //const contact = await this.contactService.findByWordPressID(donationItem.Contact_details.wordpressID?.toString() ?? '');
+                    if (getContactFromSF?.records?.length > 0) {
                         console.log(`Updating donation ${donationItem._id} with contact Salesforce ID ${getContactFromSF.records[0].Id}`);
                         donationItem.npsp__Primary_Contact__c = getContactFromSF.records[0].Id;
-                        contact.salesforceID = getContactFromSF.records[0].Id;
-                        contact.Phone = '+1' + donationItem.Contact_details.Phone.replace('+1', '');
-                        contact.syncedWithSalesforce = true;
-                        await contact.save();
+                        cnt.salesforceID = getContactFromSF.records[0].Id;
+                        //contact.Phone = '+1' + donationItem.Contact_details.Phone.replace('+1', '');
+                        cnt.syncedWithSalesforce = true;
+                        await cnt.save();
                         await donationItem.save();
                     } else {
                         console.log(`No contact found for donation ${donationItem._id} with name ${donationItem.Name}`);
