@@ -347,11 +347,11 @@ export class DonationService {
 
                                 if (item.programId) {
                                     await this.assignProgramCohortToDonation(parentOppId, item.programId, item.amount, token);
-                                    const queryGAU = await handleQuery('/services/data/v65.0/query/?q=', `SELECT General_Accounting_Unit__c FROM pmdm__ProgramCohort__c WHERE id='${item.programId}'`, token);
+                                    /*const queryGAU = await handleQuery('/services/data/v65.0/query/?q=', `SELECT General_Accounting_Unit__c FROM pmdm__ProgramCohort__c WHERE id='${item.programId}'`, token);
 
                                     if (queryGAU?.records?.length) {
                                         this.assignGAUToDonation(parentOppId, item.programId, item.amount, token);
-                                    }
+                                    }*/
                                 }
                             }
                             donationUpdated = true;
@@ -822,7 +822,7 @@ export class DonationService {
                     // Search for contact by name in the contact model
                     //const contact = await this.contactService.findByWordPressID(donationItem.Contact_details.wordpressID?.toString() ?? '');
                     if (getContactFromSF?.records?.length > 0) {
-                        console.log(`Updating donation ${donationItem._id} with contact Salesforce ID ${getContactFromSF.records[0].Id}`);
+                        //console.log(`Updating donation ${donationItem._id} with contact Salesforce ID ${getContactFromSF.records[0].Id}`);
                         donationItem.npsp__Primary_Contact__c = getContactFromSF.records[0].Id;
                         cnt.salesforceID = getContactFromSF.records[0].Id;
                         //contact.Phone = '+1' + donationItem.Contact_details.Phone.replace('+1', '');
