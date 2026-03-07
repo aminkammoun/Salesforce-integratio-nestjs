@@ -12,7 +12,7 @@ import { ApiOperation, ApiResponse, ApiParam, ApiBody, ApiTags } from '@nestjs/s
 @Controller('child')
 export class ChildController {
     constructor(private readonly childService: ChildService) { }
-    
+
     @Get('/synchsalesforce/:q')
     @ApiOperation({ summary: 'Synchronize children from Salesforce', description: 'Inserts/syncs children data from Salesforce based on query parameter' })
     @ApiParam({ name: 'q', description: 'Query parameter for Salesforce sync', example: 'Available' })
@@ -104,6 +104,13 @@ export class ChildController {
     @ApiResponse({ status: 200, description: 'Child updated to sponsored successfully' })
     async updateToSponsored(@Body() body: any) {
         return this.childService.updateToSponsored(body);
+    }
+    @Post('/updateToAvailable')
+    @ApiOperation({ summary: 'Update child to available status', description: 'Updates a child record to available status' })
+    @ApiBody({ type: Object, description: 'Update payload' })
+    @ApiResponse({ status: 200, description: 'Child updated to available successfully' })
+    async updateToAvailable(@Body() body: any) {
+        return this.childService.updateToAvailable(body);
     }
 
     @Get('/sponsorStatus/:childId')

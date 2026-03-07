@@ -364,6 +364,17 @@ export class ChildService {
             throw new InternalServerErrorException(error);
         }
     }
+    async updateToAvailable(childIds: string[]) {
+        try {
+            const result = await this.ChildModel.updateMany(
+                { SalesforceID: { $in: childIds } },
+                { $set: { Status__c: 'Available' } }
+            );
+            return result;
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
+    }
     async findBySalesforceIDs(salesforceIDs: string[]) {
         try {
             const children = await this.ChildModel.find({ SalesforceID: { $in: salesforceIDs } });
