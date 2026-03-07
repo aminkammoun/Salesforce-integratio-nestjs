@@ -4,7 +4,7 @@ import { Model, Types as MongooseTypes, set, Types } from 'mongoose';
 import { Donation } from '../entities/donation.entity';
 import { Recurring } from 'src/modules/recurring/entities/recurring.entity';
 import { InternalServerErrorException, NotFoundException } from '@nestjs/common';
-import { CreateDonationDto, recordType } from '../dto/create-donation.dto';
+import { CreateDonationDto, Frequency, recordType } from '../dto/create-donation.dto';
 import { UpdateDonationDto } from '../dto/update-donation.dto';
 import { authenticateSalesforce, handleInsertQuery, handleQuery, handleUpdateQuery } from 'src/config/utils';
 import { Sponsorship } from 'src/modules/sponsorship/entities/sponsorship.entity';
@@ -55,7 +55,9 @@ export class DonationService {
             let contactDetails;
             let contact
             if (createDonationDto[0].Contact_details) {
-                createDonationDto[0].Contact_details.Phone = createDonationDto[0].Contact_details.Phone.replace('+1', '');
+                if (createDonationDto[0].Contact_details.Phone.includes('+1')) {
+                    createDonationDto[0].Contact_details.Phone = createDonationDto[0].Contact_details.Phone.replace('+1', '');
+                }
                 contactDetails = await this.contactService.create(createDonationDto[0].Contact_details);
             }
             console.log('Contact details for donation creation:', createDonationDto[0].contact);
@@ -181,6 +183,7 @@ export class DonationService {
             throw new InternalServerErrorException(error);
         }
     }
+
 
     async uploadDonationsToSalesforce() {
         try {
@@ -836,6 +839,35 @@ export class DonationService {
 
             }
             return donations;
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
+    }
+    async getDonationContactDetails(donationId: string) {
+        try {
+            const donation = await this.DonationModel.findById(donationId);
+            if (!donation) {
+                throw new NotFoundException('Donation not found');
+            }
+            if (!donation.npsp__Primary_Contact__c) {
+                throw new NotFoundException('No contact associated with this donation');
+            }
+
+            const contact = await this.contactService.findBySfId(donation.npsp__Primary_Contact__c);
+
+            if (!contact) {
+                throw new NotFoundException('Contact not found in local database');
+            }
+            const response = {
+                firstName: contact.Name?.split(' ')[0] || '',
+                lastName: contact.Name?.split(' ').slice(1).join(' ') || '',
+                email: contact.email,
+                Amount : donation.Amount,
+                Frequency : donation.frequency,
+                CloseDate : donation.CloseDate,
+                programName : donation.cartItems[0]?.Name || '',
+            }
+            return response;
         } catch (error) {
             throw new InternalServerErrorException(error);
         }

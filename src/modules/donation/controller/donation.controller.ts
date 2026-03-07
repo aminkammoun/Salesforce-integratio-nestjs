@@ -99,4 +99,8 @@ export class DonationController {
     async updateDonationWithnpsPrimaryContact() {
         return this.donationService.updateDonationWithnpsPrimaryContact();
     }
+    @Get('/findDonation/:id')
+    async findDonation(@Param('id') id: string) {
+        return this.donationService.getDonationContactDetails(id);
+    }
 }

@@ -247,7 +247,7 @@ export class ChildService {
                     console.log('Reserving specific children:', childmap.child);
                     const sp = await this.sponsorshipService.create({
                         donation: childmap.donationId,
-                        donor:  childmap.donorId,
+                        donor: childmap.donorId,
                         child: childmap.child,
                         Status: 'Active',
                         frequency: childmap.frequency,
@@ -278,7 +278,7 @@ export class ChildService {
                     if (reservedIds.length == 0 || availableChildren.length < count) {
                         const sp = await this.sponsorshipService.create({
                             donation: childmap.donationId,
-                            donor:  childmap.donorId,
+                            donor: childmap.donorId,
                             child: [],
                             Status: 'Active',
                             frequency: childmap.frequency,
@@ -317,6 +317,10 @@ export class ChildService {
                         Amount: childmap.Amount,
                         Donor__c: childmap.donor__c
                     })
+                    await this.ChildModel.updateMany(
+                        { SalesforceID: { $in: reservedIDs } },
+                        { $set: { Status__c: 'Sponsored', reservedAt: new Date() } }
+                    );
                     await session.commitTransaction();
                     session.endSession();
                     console.log('Created Sponsorship:', sp);
@@ -368,7 +372,7 @@ export class ChildService {
             throw new InternalServerErrorException(error);
         }
     }
-    async markAsAvailable(ids : string[]) {
+    async markAsAvailable(ids: string[]) {
         try {
             const result = await this.ChildModel.updateMany(
                 {
