@@ -103,4 +103,11 @@ export class DonationController {
     async findDonation(@Param('id') id: string) {
         return this.donationService.getDonationContactDetails(id);
     }
+    @Post('/repaireOneDon/:id')
+    @ApiOperation({ summary: 'Repair donations', description: 'Repairs unsynced donations for a specific donation source' })
+    @ApiBody({ schema: { type: 'object', properties: { donationsource: { type: 'string', example: 'Website' } } } })
+    @ApiResponse({ status: 200, description: 'Donations repaired successfully' })
+    async repaireOneDonations(@Body() body: { donationsource: string }, @Param('id') id: string) {
+        return this.donationService.repaireOneDonations(body.donationsource, id);
+    }
 }
