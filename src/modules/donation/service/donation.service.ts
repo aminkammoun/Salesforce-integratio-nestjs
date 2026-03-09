@@ -778,12 +778,77 @@ export class DonationService {
                     if (don.Donation_Source__c == 'Website' && item.Child__c) {
                         console.log('Adding existing child to payloadSp:', item.Child__c);
                         if (!payloadSp[0].child) {
-                            payloadSp[0].child = []; // Initialize child array if it doesn't exist
+                            payloadSp[0].child = [];
                         }
                         payloadSp[0].child.push(item.Child__c);
                     }
                     console.log('Payload for reserving children:', payloadSp);
-                    // Call reserveChildren directly without setTimeout to ensure sequential execution
+                    const result = await this.ChildService.reserveChildren(payloadSp);
+                    if (result) {
+                        await this.SponsorshipService.repaireSp(result[0]._id as string, don.campaignId || '', don.Donation_Source__c, item.nationality || "Syrian");
+                    }
+
+                    return {
+                        ...item,
+                        interval: item.amount >= 720 ? "yearly" : "monthly",
+                        type: "sponsorship",
+                        nationality: item.nationality || "Syrian",
+                        childrenCount: item.amount >= 720 ? (item.amount / 720) : item.amount / 60,
+                    }
+                }));
+
+                await don.save();
+            }
+            return donations;
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
+    }
+
+    async repaireOneDonations(donationsource: string,id: string) {
+
+        try {
+            let donations = await this.DonationModel.find({
+                syncedWithSalesforce: false,
+                StageName: 'Closed Won',
+                Donation_Source__c: donationsource,
+                npsp__Primary_Contact__c: { $ne: null },
+                _id: new MongooseTypes.ObjectId(id)
+            });
+            //const donations = await this.DonationModel.find({ syncedWithSalesforce: false, StageName: 'Closed Won', frequency : "One-time", });
+            if (!donations) {
+                throw new NotFoundException('donation not found');
+            }
+            for (const don of donations) {
+                if (don.frequency.toLocaleLowerCase() == "one-time") {
+                    continue;
+                }
+                //const contact = await this.contactService.findOne(don.contact as string);
+                //don.frequency = don.Amount >= 720 ? "yearly" : "monthly";
+                don.cartItems = await Promise.all(don.cartItems.map(async item => {
+                    let payloadSp: SponsorshipChilds[] = [];
+                    if (item.type.toLowerCase() == "one-time" || item.type.toLowerCase() == "recurring") {
+                        return item;
+                    }
+                    payloadSp = [{
+                        donationId: don._id as string,
+                        donorId: don.contact as string,
+                        childToreserve: [
+                            { nationality: item.nationality || "Syrian", Requestedcount: item.amount >= 720 ? (item.amount / 720) : item.amount / 60 },
+                        ],
+                        frequency: item.interval,
+                        Amount: item.amount,
+                        donor__c: don?.npsp__Primary_Contact__c || '',
+                        campaignId: don.campaignId,
+                    }]
+                    if (don.Donation_Source__c == 'Website' && item.Child__c) {
+                        console.log('Adding existing child to payloadSp:', item.Child__c);
+                        if (!payloadSp[0].child) {
+                            payloadSp[0].child = [];
+                        }
+                        payloadSp[0].child.push(item.Child__c);
+                    }
+                    console.log('Payload for reserving children:', payloadSp);
                     const result = await this.ChildService.reserveChildren(payloadSp);
                     if (result) {
                         await this.SponsorshipService.repaireSp(result[0]._id as string, don.campaignId || '', don.Donation_Source__c, item.nationality || "Syrian");
