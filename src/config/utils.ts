@@ -22,7 +22,7 @@ export async function handleInsertQuery(query: string,
     body: any,
     token: string
 ) {
-  
+  console.log('Body being sent to Salesforce:', body);
     const res = await fetch(process.env.ISTANCEURL + query + object, {
         method: "POST",
         headers: {
