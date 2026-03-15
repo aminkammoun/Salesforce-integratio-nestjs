@@ -9,6 +9,7 @@ services:
       - MONGO_URL=mongodb://mongo:27017
       - MONGO_DATABASE_NAME=fundraisingDB
       - NODE_ENV=production
+      - TZ=America/Chicago
     env_file:
       - .env
     depends_on:
