@@ -35,7 +35,7 @@ export async function handleInsertQuery(query: string,
 
     try {
         const json = await res.json();
-        console.log('Salesforce Insert Response:', json);
+        console.log('Salesforce Insert Response:',body, json);
         if (object.includes('Opportunity') && json.success) {
             return { message: 'Donation created successfully in Salesforce', salesforceId: json.id };
         }
