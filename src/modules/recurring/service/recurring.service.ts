@@ -87,7 +87,7 @@ export class RecurringService {
                 Stripe_Customer__c: recurring?.customerStripe || recurring.customerStipe,
                 Stripe_subscription_url__c: 'https://dashboard.stripe.com/acct_1S5xcLPK7Mt7pUeD/subscriptions/' + recurring.subscriptionStripe,
             };
-
+            console.log('Prepared payload for Salesforce:', payload);
             const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'npe03__Recurring_Donation__c/', payload, token);
             console.log('Salesforce upload result for recurring:', result);
             if (result.salesforceId) {
