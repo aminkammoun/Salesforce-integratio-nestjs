@@ -53,7 +53,14 @@ export async function handleInsertQuery(query: string,
         }
         return json.data;
     } catch (err) {
-        console.error(err);
+        console.error(`Error inserting record into Salesforce object "${object}". Body:`, body);
+        try {
+            const errorText = await res.text();
+            console.error('Salesforce response:', errorText);
+        } catch (e) {
+            console.error('Could not read Salesforce error response:', e);
+        }
+        console.error('Caught error:', err);
     }
     return null;
 }
