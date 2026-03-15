@@ -57,7 +57,7 @@ export class SalesforcesCronService {
         }
     }
 
-    @Cron('0 30 * * * *') // Runs at 30 minutes past every hour
+    @Cron('0 45 * * * *') // Runs at 30 minutes past every hour
     async processFullDonationWorkflow() {
 
         if (this.isProcessing) {
