@@ -491,7 +491,7 @@ export class DonationService {
                                     await handleUpdateQuery('/services/data/v65.0/sobjects/Opportunity', '', donationOfRecurring.records[0].Id, updatePayload, token);
 
                                     // Update Local Data
-                                    item.sfId = donationOfRecurring.records[0].Id;
+                                    item.sfId = recurringId;
                                     if (item.programId && item.sfId) {
                                         const allocationPayload = {
                                             Opportunity__c: item.sfId,
