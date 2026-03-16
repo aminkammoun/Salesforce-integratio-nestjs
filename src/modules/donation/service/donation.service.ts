@@ -129,7 +129,7 @@ export class DonationService {
             throw new NotFoundException('donation does not exists related to recurring');
         }
         donation.npe03__Recurring_Donation__c.push(salesforceId);
-        donation.syncedWithSalesforce = true
+        //donation.syncedWithSalesforce = true
         console.log('Updated donation with recurring Salesforce ID:', donation);
         await donation.save();
 
