@@ -206,6 +206,8 @@ export class DonationService {
                 const sponsorshipItems = donation.cartItems.filter(i => i.type.toLowerCase() === 'sponsorship' && !i.sfId);
                 const recurringItems = donation.cartItems.filter(i => i.type.toLowerCase() === 'recurring' && !i.sfId);
                 const oneTimeItems = donation.cartItems.filter(i => i.type.toLowerCase() === 'one-time' && !i.sfId && i.recordType != "0128W000000GRMwQAO");
+                const oneTimeGift = donation.cartItems.filter(i => i.type.toLowerCase() === 'one-time' && !i.sfId && i.recordType == "0128W000000GRMwQAO");
+
                 console.log(`Processing donation ${donation._id} with ${sponsorshipItems.length} sponsorship items, ${recurringItems.length} recurring items, and ${oneTimeItems.length} one-time items.`);
 
                 // ====================================================
@@ -363,7 +365,45 @@ export class DonationService {
                         console.error(`Error processing one-time batch for donation ${donation._id}:`, err);
                     }
                 }
+                if (oneTimeGift.length > 0) {
+                    for (const item of oneTimeGift) {
+                        try {
+                            const payload = {
+                                Name: item.Name,
+                                Amount: item.amount,
+                                CloseDate: donation.createdDate,
+                                StageName: donation.StageName,
+                                CampaignId: donation.campaignId,
+                                npsp__Acknowledgment_Status__c: donation.Acknowledgment_Status__c,
+                                Donation_Source__c: donation.Donation_Source__c || 'Fundraising App',
+                                npsp__Primary_Contact__c: donation.npsp__Primary_Contact__c,
+                                Charge_Stripe_Id__c: donation.transactionDetails?.charge_id,
+                                PaymentIntent_Stripe_Id__c: donation.transactionDetails?.intent_id,
+                                Payment_Method__c: donation.transactionDetails?.payment_type,
+                                Source_URL__c: donation.campaign_medium,
+                                campaign_source__c: donation.campaign_source,
+                                UTM_Medium__c: donation.campaignId,
+                                npsp__Honoree_Name__c: item.on_behalf_of || null,
+                                RecordTypeId: item.recordType,
+                                Child__c: item.Child__c,
+                            };
 
+                            const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Opportunity/', payload, token);
+
+                            if (result?.salesforceId) {
+                                item.sfId = result.salesforceId;
+
+                                if (item.programId) {
+                                    await this.assignProgramCohortToDonation(result.salesforceId, item.programId, item.amount, token);
+                                }
+                            }
+                        } catch (err) {
+                            console.error(`Error processing one-time gift for donation ${donation._id}:`, err);
+                        }
+                    }
+                    donationUpdated = true;
+
+                }
                 // ====================================================
                 // FINAL SAVE
                 // ====================================================
