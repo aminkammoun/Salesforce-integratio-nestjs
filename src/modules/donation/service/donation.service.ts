@@ -217,8 +217,8 @@ export class DonationService {
                 if (sponsorshipItems.length > 0) {
                     const recurringRecords = await this.recurringService.findAllBySalesforceID(donation.npe03__Recurring_Donation__c);
 
-                    for (const item of sponsorshipItems) {
-                        for (const [index, recurring] of recurringRecords.entries()) {
+                    for (const [index, item] of sponsorshipItems.entries()) {
+                        for (const recurring of recurringRecords) {
                             if (recurring.amount === item.amount && recurring.frequency.toLowerCase() === item.interval.toLowerCase()) {
                                 console.log('dkhal l sponsorships')
                                 const recurringId = Array.isArray(donation.npe03__Recurring_Donation__c)
