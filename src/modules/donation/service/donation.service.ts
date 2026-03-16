@@ -464,17 +464,17 @@ export class DonationService {
                 if (sponsorshipItems.length > 0) {
                     const recurringRecords = await this.recurringService.findAllBySalesforceID(donation.npe03__Recurring_Donation__c);
 
-                    for (const item of sponsorshipItems) {
-                        for (const [index, recurring] of recurringRecords.entries()) {
+                    for (const [index, item] of sponsorshipItems.entries()) {
+                        for (const recurring of recurringRecords) {
                             if (recurring.amount === item.amount && recurring.frequency.toLowerCase() === item.interval.toLowerCase()) {
                                 console.log('dkhal l sponsorships')
+                                console.log((index))
                                 const recurringId = Array.isArray(donation.npe03__Recurring_Donation__c)
                                     ? donation.npe03__Recurring_Donation__c[index]
                                     : donation.npe03__Recurring_Donation__c;
-
+                                console.log(recurringId)
                                 const query = `SELECT Id, StageName FROM Opportunity WHERE npe03__Recurring_Donation__c='${recurringId}' AND StageName = 'Scheduled'`;
                                 const donationOfRecurring = await handleQuery('/services/data/v65.0/query/?q=', query, token);
-                                console.log('donationOfRecurring', donationOfRecurring);
                                 if (donationOfRecurring?.records?.length > 0) {
                                     // Close the Opportunity
                                     const updatePayload = {
@@ -491,7 +491,7 @@ export class DonationService {
                                     await handleUpdateQuery('/services/data/v65.0/sobjects/Opportunity', '', donationOfRecurring.records[0].Id, updatePayload, token);
 
                                     // Update Local Data
-                                    item.sfId = recurringId;
+                                    item.sfId = donationOfRecurring.records[0].Id;
                                     if (item.programId && item.sfId) {
                                         const allocationPayload = {
                                             Opportunity__c: item.sfId,
