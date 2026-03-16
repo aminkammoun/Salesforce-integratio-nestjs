@@ -129,7 +129,7 @@ export class DonationService {
             throw new NotFoundException('donation does not exists related to recurring');
         }
         donation.npe03__Recurring_Donation__c.push(salesforceId);
-        donation.syncedWithSalesforce = true;
+        donation.syncedWithSalesforce = true
         console.log('Updated donation with recurring Salesforce ID:', donation);
         await donation.save();
 
@@ -218,14 +218,9 @@ export class DonationService {
                     const recurringRecords = await this.recurringService.findAllBySalesforceID(donation.npe03__Recurring_Donation__c);
 
                     for (const item of sponsorshipItems) {
-                        let matched = false;
                         for (const [index, recurring] of recurringRecords.entries()) {
-                            if (
-                                recurring.amount === item.amount &&
-                                recurring.frequency.toLowerCase() === item.interval.toLowerCase() &&
-                                !recurring.donationSf // prevent double assignment
-                            ) {
-                                console.log('dkhal l sponsorships');
+                            if (recurring.amount === item.amount && recurring.frequency.toLowerCase() === item.interval.toLowerCase()) {
+                                console.log('dkhal l sponsorships')
                                 const recurringId = Array.isArray(donation.npe03__Recurring_Donation__c)
                                     ? donation.npe03__Recurring_Donation__c[index]
                                     : donation.npe03__Recurring_Donation__c;
@@ -243,6 +238,7 @@ export class DonationService {
                                         campaignId: donation.campaignId,
                                         UTM_Medium__c: donation.campaignId,
                                         campaign_source__c: donation.campaign_source,
+
                                     };
                                     await handleUpdateQuery('/services/data/v65.0/sobjects/Opportunity', '', donationOfRecurring.records[0].Id, updatePayload, token);
                                     item.sfId = donationOfRecurring.records[0].Id;
@@ -253,17 +249,13 @@ export class DonationService {
                                             Program_Cohort__c: item.programId,
                                         };
                                         await handleInsertQuery('/services/data/v65.0/sobjects/', 'Program_Allocation_Unit__c/', allocationPayload, token);
+
                                     }
                                     recurring.donationSf = donationOfRecurring.records[0].Id;
                                     await recurring.save();
                                     donationUpdated = true;
-                                    matched = true;
-                                    break; // break inner loop after match
                                 }
                             }
-                        }
-                        if (!matched) {
-                            console.warn(`No matching recurring record found for sponsorship item:`, item);
                         }
                     }
                 }
@@ -473,11 +465,11 @@ export class DonationService {
                     const recurringRecords = await this.recurringService.findAllBySalesforceID(donation.npe03__Recurring_Donation__c);
 
                     for (const item of sponsorshipItems) {
-                        for (const recurring of recurringRecords) {
+                        for (const [index, recurring] of recurringRecords.entries()) {
                             if (recurring.amount === item.amount && recurring.frequency.toLowerCase() === item.interval.toLowerCase()) {
                                 console.log('dkhal l sponsorships')
                                 const recurringId = Array.isArray(donation.npe03__Recurring_Donation__c)
-                                    ? donation.npe03__Recurring_Donation__c[0]
+                                    ? donation.npe03__Recurring_Donation__c[index]
                                     : donation.npe03__Recurring_Donation__c;
 
                                 const query = `SELECT Id, StageName FROM Opportunity WHERE npe03__Recurring_Donation__c='${recurringId}' AND StageName = 'Scheduled'`;
