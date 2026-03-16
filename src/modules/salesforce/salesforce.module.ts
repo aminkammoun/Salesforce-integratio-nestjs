@@ -28,7 +28,7 @@ import { LogModule } from '../log/log.module';
         }),
     ],
     controllers: [SalesforceController],
-    providers: [SalesforceService, 
+    providers: [SalesforceService, SalesforcesCronService,
         {
             provide: 'STRIPE_API_KEY',
             useFactory: async (configService: ConfigService) =>
