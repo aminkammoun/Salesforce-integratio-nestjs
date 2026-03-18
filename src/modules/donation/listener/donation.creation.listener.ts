@@ -10,6 +10,7 @@ export class DonationCreationListener {
     @OnEvent('donation.created')
     async handleDonationCreated(payload: any) {
         try {
+            this.logger.log(`Webhook sent for donation ${payload}`);
             const url = 'https://zrtext.dev.mwl.org/donation-created/';
             const headers = {
                 'Content-Type': 'application/json',
