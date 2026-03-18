@@ -45,13 +45,13 @@ export class DonationService {
             }));
             const donation = await this.DonationModel.create(createDonationDto, { ordered: false });
             for (const d of donation) {
-                                console.log('Emitting donation.created event for donation:', d);
-                const payload= {
-                    _id : String(d._id),
-                    StageName : d.StageName,
-                    Donation_Source__c : d.Donation_Source__c,
-                    contact : d.contact,
-                    createdAt : d.createdDate,
+                console.log('Emitting donation.created event for donation:', d);
+                const payload = {
+                    _id: String(d._id),
+                    StageName: d.StageName,
+                    Donation_Source__c: d.Donation_Source__c,
+                    contact: d.contact,
+                    createdAt: d.createdDate,
                 }
                 this.eventEmitter.emit('donation.created', payload);
             }
@@ -853,6 +853,8 @@ export class DonationService {
                 syncedWithSalesforce: false,
                 StageName: 'Closed Won',
                 Donation_Source__c: donationsource,
+                frequency: { $ne: ["One-time", "one-time"] },
+                isRepaired: { $ne: [null, true] },
                 npsp__Primary_Contact__c: { $ne: null },
             });
             //const donations = await this.DonationModel.find({ syncedWithSalesforce: false, StageName: 'Closed Won', frequency : "One-time", });
@@ -902,7 +904,7 @@ export class DonationService {
                         childrenCount: item.amount >= 720 ? (item.amount / 720) : item.amount / 60,
                     }
                 }));
-
+                don.isRepaired = true
                 await don.save();
             }
             return donations;

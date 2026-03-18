@@ -240,6 +240,9 @@ export class CreateDonationDto {
     Contact_details?: CreateContactDto;
     @ApiPropertyOptional({ description: 'Campaign ID associated with the donation', example: '7011t000000XyZ' })
     synchedAt?: Date
+@ApiPropertyOptional({ description: ' isRepared', example: 'Ema isReparedil' })
+    isRepared?: boolean;
+    
 }
 
 export default CreateDonationDto;
