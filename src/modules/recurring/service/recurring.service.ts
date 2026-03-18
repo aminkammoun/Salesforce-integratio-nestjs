@@ -95,7 +95,7 @@ export class RecurringService {
                 recurring.syncedWithSalesforce = true;
                 await recurring.save();
                 await this.donationService.updateDonationWithRecurringSalesforceID(recurring.donations.toString(), result.salesforceId);
-                //await this.sponsorshipService.updateDonationWithRecurringSalesforceID(recurring.sponsorships.toString(), result.salesforceId);
+                await this.sponsorshipService.updateDonationWithRecurringSalesforceID(recurring.sponsorships.toString(), result.salesforceId);
                 const GAUPayload = {
                     npsp__Recurring_Donation__c: result.salesforceId,
                     npsp__General_Accounting_Unit__c: this.EnumDonorType[recurring.nationality as keyof typeof this.EnumDonorType] || this.EnumDonorType['Other'],
