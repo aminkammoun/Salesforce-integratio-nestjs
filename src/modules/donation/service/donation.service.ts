@@ -45,6 +45,8 @@ export class DonationService {
             }));
             const donation = await this.DonationModel.create(createDonationDto, { ordered: false });
             for (const d of donation) {
+                                console.log('Emitting donation.created event for donation:', d);
+
                 this.eventEmitter.emit('donation.created', d);
             }
             return donation;
@@ -77,6 +79,7 @@ export class DonationService {
             }));
             const donation = await this.DonationModel.create(createDonationDto, { ordered: false });
             for (const d of donation) {
+                console.log('Emitting donation.created event for donation:', d);
                 this.eventEmitter.emit('donation.created', d);
             }
             return donation;
