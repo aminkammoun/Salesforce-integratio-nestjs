@@ -46,8 +46,14 @@ export class DonationService {
             const donation = await this.DonationModel.create(createDonationDto, { ordered: false });
             for (const d of donation) {
                                 console.log('Emitting donation.created event for donation:', d);
-
-                this.eventEmitter.emit('donation.created', d);
+                const payload= {
+                    _id : String(d._id),
+                    StageName : d.StageName,
+                    Donation_Source__c : d.Donation_Source__c,
+                    contact : d.contact,
+                    createdAt : d.createdDate,
+                }
+                this.eventEmitter.emit('donation.created', payload);
             }
             return donation;
         } catch (error) {
@@ -80,7 +86,14 @@ export class DonationService {
             const donation = await this.DonationModel.create(createDonationDto, { ordered: false });
             for (const d of donation) {
                 console.log('Emitting donation.created event for donation:', d);
-                this.eventEmitter.emit('donation.created', d);
+                const payload = {
+                    _id: String(d._id),
+                    StageName: d.StageName,
+                    Donation_Source__c: d.Donation_Source__c,
+                    contact: d.contact,
+                    createdAt: d.createdDate,
+                };
+                this.eventEmitter.emit('donation.created', payload);
             }
             return donation;
         } catch (error) {
