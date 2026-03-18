@@ -8,6 +8,7 @@ import { RecurringService } from '../recurring/service/recurring.service';
 import { ContactModule } from '../contact/contact.module';
 import { ChildModule } from '../child/child.module';
 import { SponsorshipModule } from '../sponsorship/sponsorship.module';
+import { DonationCreationListener } from './listener/donation.creation.listener';
 
 @Module({
     imports: [
@@ -18,7 +19,7 @@ import { SponsorshipModule } from '../sponsorship/sponsorship.module';
         forwardRef(() => SponsorshipModule)
     ],
     controllers: [DonationController],
-    providers: [DonationService],
+    providers: [DonationService, DonationCreationListener],
     // Export the MongooseModule so other modules (like TransactionModule) can inject the Donation model
     exports: [MongooseModule, DonationService],
 })
