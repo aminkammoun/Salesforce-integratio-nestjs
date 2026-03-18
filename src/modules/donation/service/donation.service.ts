@@ -13,6 +13,7 @@ import { ContactService } from 'src/modules/contact/service/contact.service';
 import { ChildService } from 'src/modules/child/service/child.service';
 import { SponsorshipChilds } from 'src/config/types';
 import { SponsorshipService } from 'src/modules/sponsorship/service/sponsorship.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 @Injectable()
 export class DonationService {
     constructor(
@@ -22,6 +23,7 @@ export class DonationService {
         @Inject(forwardRef(() => RecurringService)) private readonly recurringService: RecurringService,
         @Inject(forwardRef(() => ChildService)) private readonly ChildService: ChildService,
         @Inject(forwardRef(() => SponsorshipService)) private readonly SponsorshipService: SponsorshipService,
+        private readonly eventEmitter: EventEmitter2,
 
         //@Inject() private readonly recurringService: RecurringService,
         //@Inject() private readonly contactService: ContactService,
@@ -42,6 +44,9 @@ export class DonationService {
                 //syncedWithSalesforce: isContactSynced,
             }));
             const donation = await this.DonationModel.create(createDonationDto, { ordered: false });
+            for (const d of donation) {
+                this.eventEmitter.emit('donation.created', d);
+            }
             return donation;
         } catch (error) {
             throw new InternalServerErrorException(error);
@@ -71,6 +76,9 @@ export class DonationService {
                 //syncedWithSalesforce: isContactSynced,
             }));
             const donation = await this.DonationModel.create(createDonationDto, { ordered: false });
+            for (const d of donation) {
+                this.eventEmitter.emit('donation.created', d);
+            }
             return donation;
         } catch (error) {
             throw new InternalServerErrorException(error);
