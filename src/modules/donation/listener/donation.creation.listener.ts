@@ -11,6 +11,7 @@ export class DonationCreationListener {
     async handleDonationCreated(payload: any) {
         try {
             this.logger.log(`Wzaaaab ${payload._id.toString()}`);
+            this.logger.log(JSON.stringify(payload));
             const url = 'https://zrtext.dev.mwl.org/donation-created/';
             const headers = {
                 'Content-Type': 'application/json',
