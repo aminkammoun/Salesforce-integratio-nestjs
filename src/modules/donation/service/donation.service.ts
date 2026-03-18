@@ -854,7 +854,7 @@ export class DonationService {
                 StageName: 'Closed Won',
                 Donation_Source__c: donationsource,
                 frequency: { $ne: ["One-time", "one-time"] },
-                isRepaired: { $ne: [null, true] },
+                isRepaired: false,
                 npsp__Primary_Contact__c: { $ne: null },
             });
             //const donations = await this.DonationModel.find({ syncedWithSalesforce: false, StageName: 'Closed Won', frequency : "One-time", });
