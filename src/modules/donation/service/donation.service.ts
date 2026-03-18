@@ -853,7 +853,7 @@ export class DonationService {
                 syncedWithSalesforce: false,
                 StageName: 'Closed Won',
                 Donation_Source__c: donationsource,
-                frequency: { $ne: ["One-time", "one-time"] },
+                frequency: { $in: ["One-time", "one-time"] },
                 isRepaired: false,
                 npsp__Primary_Contact__c: { $ne: null },
             });
