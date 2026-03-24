@@ -13,6 +13,8 @@ import { RecurringService } from 'src/modules/recurring/service/recurring.servic
 import { CartItemDto } from 'src/modules/donation/dto/create-donation.dto';
 import { ChildService } from 'src/modules/child/service/child.service';
 import { metadata } from 'reflect-metadata/no-conflict';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+
 @Injectable()
 export class SalesforceService {
     private stripe: Stripe;
@@ -26,6 +28,8 @@ export class SalesforceService {
         @Inject() private readonly donationService: DonationService,
         @Inject() private readonly sponsorshipService: SponsorshipService,
         @Inject() private readonly recurringService: RecurringService,
+        private readonly eventEmitter: EventEmitter2,
+
         @Inject('STRIPE_API_KEY') private readonly apiKey: string) {
         this.stripe = new Stripe(this.apiKey, {
             apiVersion: "2025-10-29.clover", // Use whatever API latest version
@@ -219,6 +223,15 @@ export class SalesforceService {
                     salesforceDonation: donation.salesforceID,
                 };
                 await donation.save();
+
+                const payload = {
+                    _id: String(donation._id),
+                    StageName: donation.StageName,
+                    Donation_Source__c: donation.Donation_Source__c,
+                    contact: donation.contact,
+                    createdAt: donation.createdDate,
+                };
+                this.eventEmitter.emit('donation.created', payload);
                 await this.transactionService.create(transactionData);
             }
         }
@@ -707,7 +720,7 @@ export class SalesforceService {
                 await donation.save();*/
                 await rec.save();
                 this.logger.log(`Successfully processed recurring donation ${rec._id}`);
-                return { sub : rec.subscriptionStripe, customer: rec.customerStripe };
+                return { sub: rec.subscriptionStripe, customer: rec.customerStripe };
 
             } catch (error) {
                 this.logger.error(`Error processing recurring ${rec._id}:`, error.message);
