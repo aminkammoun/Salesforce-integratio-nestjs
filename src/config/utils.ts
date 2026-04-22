@@ -15,6 +15,7 @@ export async function authenticateSalesforce() {
     }
 
     const data = await res.json();
+    console.log('Salesforce authentication response:', data);
     return data.access_token
 }
 export async function handleInsertQuery(query: string,
