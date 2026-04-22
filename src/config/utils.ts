@@ -1,5 +1,5 @@
 export async function authenticateSalesforce() {
-    const url = `${process.env.ISTANCEURL}/services/oauth2/token?grant_type=refresh_token&client_id=${process.env.SALESFORCECLIENTID}&client_secret=${process.env.SALESFORCECLIENTSECRET}&refresh_token=${process.env.REFRESH_TOKEN}`;
+    const url = `${process.env.ISTANCEURL}/services/oauth2/token?grant_type=refresh_token&client_id=${process.env.SALESFORCECLIENTID}&client_secret=${process.env.SALESFORCECLIENTSECRET}&refresh_token=${process.env.CA_REFRESH_TOKEN}`;
 
     const res = await fetch(url, {
         method: 'POST',
@@ -22,7 +22,7 @@ export async function handleInsertQuery(query: string,
     body: any,
     token: string
 ) {
-  console.log('Body being sent to Salesforce:', body);
+    console.log('Body being sent to Salesforce:', body);
     const res = await fetch(process.env.ISTANCEURL + query + object, {
         method: "POST",
         headers: {
@@ -35,7 +35,7 @@ export async function handleInsertQuery(query: string,
 
     try {
         const json = await res.json();
-        console.log('Salesforce Insert Response:',body, json);
+        console.log('Salesforce Insert Response:', body, json);
         if (object.includes('Opportunity') && json.success) {
             return { message: 'Donation created successfully in Salesforce', salesforceId: json.id };
         }
@@ -71,7 +71,7 @@ export async function handleUpdateQuery(query: string,
     body: any,
     token: string
 ) {
-    
+
     const res = await fetch(process.env.ISTANCEURL + query + object + '/' + id, {
         method: "PATCH",
         headers: {
@@ -97,7 +97,7 @@ export async function handleUpdateQuery(query: string,
     return null;
 }
 export async function handleQuery(version: string, query: string, token: string) {
-    
+
     const res = await fetch(process.env.ISTANCEURL + version + query, {
         method: "GET",
         headers: {

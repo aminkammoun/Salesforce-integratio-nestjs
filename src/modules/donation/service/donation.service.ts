@@ -44,7 +44,7 @@ export class DonationService {
                 //syncedWithSalesforce: isContactSynced,
             }));
             const donation = await this.DonationModel.create(createDonationDto, { ordered: false });
-            for (const d of donation) {
+            /*for (const d of donation) {
                 console.log('Emitting donation.created event for donation:', d);
                 const payload = {
                     _id: String(d._id),
@@ -54,7 +54,7 @@ export class DonationService {
                     createdAt: d.createdDate,
                 }
                 this.eventEmitter.emit('donation.created', payload);
-            }
+            }*/
             return donation;
         } catch (error) {
             throw new InternalServerErrorException(error);
@@ -84,7 +84,7 @@ export class DonationService {
                 //syncedWithSalesforce: isContactSynced,
             }));
             const donation = await this.DonationModel.create(createDonationDto, { ordered: false });
-            for (const d of donation) {
+            /*for (const d of donation) {
                 console.log('Emitting donation.created event for donation:', d);
                 const payload = {
                     _id: String(d._id),
@@ -94,7 +94,7 @@ export class DonationService {
                     createdAt: d.createdDate,
                 };
                 this.eventEmitter.emit('donation.created', payload);
-            }
+            }*/
             return donation;
         } catch (error) {
             throw new InternalServerErrorException(error);
