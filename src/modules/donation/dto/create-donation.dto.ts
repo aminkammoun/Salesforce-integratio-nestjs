@@ -41,6 +41,11 @@ export enum DonationType {
     RECURRING = 'recurring',
     SPONSORSHIP = 'sponsorship',
 }
+export enum Territory {
+    US = 'United States',
+    UK = 'United Kingdom',
+    CA = 'Canada'
+}
 /**
  * DTO used to create a Donation record.
  * Mirrors the Donation entity fields and includes Swagger metadata + validation.
@@ -240,9 +245,12 @@ export class CreateDonationDto {
     Contact_details?: CreateContactDto;
     @ApiPropertyOptional({ description: 'Campaign ID associated with the donation', example: '7011t000000XyZ' })
     synchedAt?: Date
-@ApiPropertyOptional({ description: ' isRepaired', example: 'Ema isRepairedil' })
+    @ApiPropertyOptional({ description: ' isRepaired', example: 'Ema isRepairedil' })
     isRepaired?: boolean;
-    
+    @ApiPropertyOptional({ description: 'Territory associated with the donation', example: 'United States' })
+    @IsOptional()
+    @IsEnum(Territory)
+    territory?: Territory;
 }
 
 export default CreateDonationDto;

@@ -11,6 +11,7 @@ export interface SponsorshipChilds {
     donor__c: string,
     child?: string[];
     campaignId?: string;
+    Territory__c? : string
 }
 export interface childAttachment {
     Child__c: string;

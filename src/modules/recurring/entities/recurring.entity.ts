@@ -64,6 +64,8 @@ export class Recurring extends Document {
     recurringSource: string
     @Prop({ required: false })
     nationality: string
+    @Prop({ required: false })
+    Territory__c: string
 }
 
 export const RecurringSchema = SchemaFactory.createForClass(Recurring);

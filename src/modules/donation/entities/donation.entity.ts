@@ -85,5 +85,7 @@ export class Donation extends Document {
     synchedAt : Date;
     @Prop({ default : false,required : false })
     isRepaired : boolean;
+    @Prop({ required : false })
+    Territory__c : string
 }
 export const DonationSchema = SchemaFactory.createForClass(Donation);

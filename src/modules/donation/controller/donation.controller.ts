@@ -110,4 +110,9 @@ export class DonationController {
     async repaireOneDonations(@Body() body: { donationsource: string }, @Param('id') id: string) {
         return this.donationService.repaireOneDonations(body.donationsource, id);
     }
+    @Post('/getTotalCampaignValueWonDonation/:campaignId')
+    async getTotalCampaignValueWonDonation(@Param('campaignId') campaignId: string) {
+        return this.donationService.getTotalCampaignValueWonDonation(campaignId);
+    }
+
 }

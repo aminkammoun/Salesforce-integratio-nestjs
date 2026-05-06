@@ -253,6 +253,7 @@ export class ChildService {
                         frequency: childmap.frequency,
                         Amount: childmap.Amount,
                         Donor__c: childmap.donor__c,
+                        Territory__c: childmap.Territory__c as any
                     })
                     this.updateToSponsored(childmap.child);
 
@@ -284,6 +285,8 @@ export class ChildService {
                             frequency: childmap.frequency,
                             Amount: childmap.Amount,
                             Donor__c: childmap.donor__c,
+                            Territory__c: childmap.Territory__c as any,
+
                             metadata: 'No available children to be sponsored for nationality ' + nat + ', reservedCount: ' + count
                         })
                         finalResult.push(sp)
@@ -315,7 +318,9 @@ export class ChildService {
                         Status: 'Active',
                         frequency: childmap.frequency,
                         Amount: childmap.Amount,
-                        Donor__c: childmap.donor__c
+                        Donor__c: childmap.donor__c,
+                        Territory__c: childmap.Territory__c as any
+
                     })
                     await this.ChildModel.updateMany(
                         { SalesforceID: { $in: reservedIDs } },

@@ -4,9 +4,9 @@ import { Model, Types as MongooseTypes, set, Types } from 'mongoose';
 import { Donation } from '../entities/donation.entity';
 import { Recurring } from 'src/modules/recurring/entities/recurring.entity';
 import { InternalServerErrorException, NotFoundException } from '@nestjs/common';
-import { CreateDonationDto, Frequency, recordType } from '../dto/create-donation.dto';
+import { CreateDonationDto, Frequency, recordType, Territory } from '../dto/create-donation.dto';
 import { UpdateDonationDto } from '../dto/update-donation.dto';
-import { authenticateSalesforce, handleInsertQuery, handleQuery, handleUpdateQuery } from 'src/config/utils';
+import { authenticateSalesforce, authenticateSalesforceCA, authenticateSalesforceUK, handleInsertQuery, handleQuery, handleUpdateQuery } from 'src/config/utils';
 import { Sponsorship } from 'src/modules/sponsorship/entities/sponsorship.entity';
 import { RecurringService } from 'src/modules/recurring/service/recurring.service';
 import { ContactService } from 'src/modules/contact/service/contact.service';
@@ -468,10 +468,17 @@ export class DonationService {
                 return [];
             }
 
-            const token = await authenticateSalesforce();
-
+            let token: '';
             // 1. Loop through donations sequentially to respect API limits and Async
             for (const donation of donations) {
+                if (donation.Territory__c === Territory.US || donation.Territory__c === null) {
+
+                    token = await authenticateSalesforce();
+                } else if (donation.Territory__c === Territory.UK) {
+                    token = await authenticateSalesforceUK();
+                } else {
+                    token = await authenticateSalesforceCA();
+                }
                 let donationUpdated = false;
 
                 // --- SEPARATION OF CONCERNS ---
@@ -642,6 +649,7 @@ export class DonationService {
                             // Use the record type of the first item, or a default 'Donation' record type
                             RecordTypeId: oneTimeItems[0].recordType,
                             Child__c: oneTimeItems[0].Child__c,
+                            Territory__c: donation.Territory__c
                         };
 
                         // 2. Insert Parent Opportunity
@@ -697,6 +705,7 @@ export class DonationService {
                                 npsp__Honoree_Name__c: item.on_behalf_of || null,
                                 RecordTypeId: item.recordType,
                                 Child__c: item.Child__c,
+                                Territory__c: donation.Territory__c
                             };
 
                             const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Opportunity/', payload, token);
@@ -948,6 +957,7 @@ export class DonationService {
                         Amount: item.amount,
                         donor__c: don?.npsp__Primary_Contact__c || '',
                         campaignId: don.campaignId,
+                        Territory__c: don.Territory__c
                     }]
                     if (don.Donation_Source__c == 'Website' && item.Child__c) {
                         console.log('Adding existing child to payloadSp:', item.Child__c);
@@ -959,7 +969,7 @@ export class DonationService {
                     console.log('Payload for reserving children:', payloadSp);
                     const result = await this.ChildService.reserveChildren(payloadSp);
                     if (result) {
-                        await this.SponsorshipService.repaireSp(result[0]._id as string, don.campaignId || '', don.Donation_Source__c, item.nationality || "Syrian");
+                        await this.SponsorshipService.repaireSp(result[0]._id as string, don.campaignId || '', don.Donation_Source__c, item.nationality || "Syrian", don.Territory__c as any);
                     }
 
                     return {
@@ -1044,5 +1054,11 @@ export class DonationService {
         } catch (error) {
             throw new InternalServerErrorException(error);
         }
+    }
+    async getTotalCampaignValueWonDonation(campaignId: string) {
+        const donation = this.DonationModel.find({ campaignId: campaignId, StageName: "Closed Won" })
+        const donations = await this.DonationModel.find({ campaignId: campaignId, StageName: "Closed Won" });
+        const totalAmount = donations.reduce((sum, donation) => sum + (donation.Amount || 0), 0);
+        return { totalAmount, count: donations.length };
     }
 }

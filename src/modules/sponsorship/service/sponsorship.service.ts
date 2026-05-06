@@ -341,27 +341,27 @@ export class SponsorshipService {
             throw new InternalServerErrorException(error);
         }
     }
-    async checkFreeChildInSP(){
+    async checkFreeChildInSP() {
         console.log('Checking free children in sponsorships');
         const sponsorships = await this.SponsorshipModel.find({
-                syncedWithSalesforce : false,
-                Status: 'Active'
-            })
-            console.log('Checking free children in sponsorships:', sponsorships);
-            for(const sponsor of sponsorships){
-                const children = await this.ChildModel.findOne({
-                    SalesforceID: { $in: sponsor.child },
-                });
-                console.log('Checking sponsorship:', sponsor._id, 'with children:', sponsor.child, 'and their statuses:', children?.Status__c);
-                if(children?.Status__c == 'Sponsored'){
-                    const newChild = await this.ChildModel.findOne({
-                        Status__c: 'Available',
-                        NationalityList__c: children.NationalityList__c,
-                    })
-                    sponsor.child = [newChild?.SalesforceID || ''];
-                }
-                await sponsor.save()
+            syncedWithSalesforce: false,
+            Status: 'Active'
+        })
+        console.log('Checking free children in sponsorships:', sponsorships);
+        for (const sponsor of sponsorships) {
+            const children = await this.ChildModel.findOne({
+                SalesforceID: { $in: sponsor.child },
+            });
+            console.log('Checking sponsorship:', sponsor._id, 'with children:', sponsor.child, 'and their statuses:', children?.Status__c);
+            if (children?.Status__c == 'Sponsored') {
+                const newChild = await this.ChildModel.findOne({
+                    Status__c: 'Available',
+                    NationalityList__c: children.NationalityList__c,
+                })
+                sponsor.child = [newChild?.SalesforceID || ''];
             }
+            await sponsor.save()
+        }
     }
     async findSpFromSalesforceByWordpressId(wordpressid: string) {
         try {
@@ -386,7 +386,7 @@ export class SponsorshipService {
             throw new InternalServerErrorException(error);
         }
     }
-    async repaireSp(idsp: string, campaignId: string, source: string, nationality?: string) {
+    async repaireSp(idsp: string, campaignId: string, source: string, nationality?: string, territory?: string) {
         const sponsorships = await this.SponsorshipModel.find({
             Status: "Active",
             syncedWithSalesforce: false,
@@ -407,7 +407,8 @@ export class SponsorshipService {
                 npe03__Contact__c: sponsorship.Donor__c,
                 synchedWithSalesforce: false,
                 recurringSource: source || '',
-                nationality: nationality || ''
+                nationality: nationality || '',
+                Territory__c: territory
             });
             sponsorship.Recurring = recurring._id as string;
             await sponsorship.save();

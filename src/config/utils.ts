@@ -18,6 +18,46 @@ export async function authenticateSalesforce() {
     console.log('Salesforce authentication response:', data);
     return data.access_token
 }
+export async function authenticateSalesforceUK() {
+    const url = `${process.env.ISTANCEURL}/services/oauth2/token?grant_type=refresh_token&client_id=${process.env.SALESFORCECLIENTID}&client_secret=${process.env.SALESFORCECLIENTSECRET}&refresh_token=${process.env.UK_REFRESH_TOKEN}`;
+
+    const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        //body: params,
+        cache: "no-store",
+    });
+
+    if (!res.ok) {
+        throw new Error(`Salesforce authentication failed: ${res.status} ${res.statusText}`);
+    }
+
+    const data = await res.json();
+    console.log('Salesforce authentication response:', data);
+    return data.access_token
+}
+export async function authenticateSalesforceCA() {
+    const url = `${process.env.ISTANCEURL}/services/oauth2/token?grant_type=refresh_token&client_id=${process.env.SALESFORCECLIENTID}&client_secret=${process.env.SALESFORCECLIENTSECRET}&refresh_token=${process.env.CA_REFRESH_TOKEN}`;
+
+    const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        //body: params,
+        cache: "no-store",
+    });
+
+    if (!res.ok) {
+        throw new Error(`Salesforce authentication failed: ${res.status} ${res.statusText}`);
+    }
+
+    const data = await res.json();
+    console.log('Salesforce authentication response:', data);
+    return data.access_token
+}
 export async function handleInsertQuery(query: string,
     object: string,
     body: any,

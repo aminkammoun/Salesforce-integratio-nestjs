@@ -1,6 +1,10 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsString, IsNotEmpty, IsOptional, IsNumber, IsISO8601, IsEnum } from 'class-validator';
-
+export enum Territory {
+    US = 'United States',
+    UK = 'United Kingdom',
+    CA = 'Canada'
+}
 export class CreateSponsorshipDto {
     @ApiPropertyOptional({
         description: 'Unique sponsorship ID. If not provided, one will be generated.',
@@ -62,5 +66,9 @@ export class CreateSponsorshipDto {
     @ApiPropertyOptional({ description: 'metadata', example: '{}' })
     @IsOptional()
     metadata?: String;
+    @ApiPropertyOptional({ description: 'Territory associated with the donation', example: 'United States' })
+    @IsOptional()
+    @IsEnum(Territory)
+    Territory__c?: Territory;
 }
 
