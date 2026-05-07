@@ -1059,6 +1059,10 @@ export class DonationService {
         const donation = this.DonationModel.find({ campaignId: campaignId, StageName: "Closed Won" })
         const donations = await this.DonationModel.find({ campaignId: campaignId, StageName: "Closed Won" });
         const totalAmount = donations.reduce((sum, donation) => sum + (donation.Amount || 0), 0);
-        return { totalAmount, count: donations.length };
+        const yearlyCount = donations.filter(d => d.frequency?.toLowerCase() === 'yearly').length;
+        const monthlyCount = donations.filter(d => d.frequency?.toLowerCase() === 'monthly').length;
+        
+
+        return { totalAmount, numberOfDonations: donations.length, numberOfYearlySps: yearlyCount, numberOfMonthlySps: monthlyCount };
     }
 }
