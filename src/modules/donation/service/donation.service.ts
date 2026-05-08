@@ -1062,7 +1062,10 @@ export class DonationService {
         const monthlyCount = donations.filter(d => d.frequency?.toLowerCase() === 'monthly').length;
 
         const spsDonations = donations.filter(d => d.cartItems.some(item => item.type?.includes('sponsorship')));
-        const totalchildrenSponsored = spsDonations.reduce((sum, donation) => sum + (donation.cartItems[0]?.Requestedcount || 0), 0);
+        const totalchildrenSponsored = spsDonations.reduce((sum, donation) => {
+            const childrenCount = donation.cartItems.reduce((itemSum, item) => itemSum + (item.Requestedcount || 0), 0);
+            return sum + childrenCount;
+        }, 0);
         return { totalAmount, numberOfDonations: donations.length, numberOfYearlySps: yearlyCount, numberOfMonthlySps: monthlyCount, totalChildrenSponsored: totalchildrenSponsored };
     }
 }
