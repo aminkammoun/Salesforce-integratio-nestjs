@@ -1056,13 +1056,13 @@ export class DonationService {
         }
     }
     async getTotalCampaignValueWonDonation(campaignId: string) {
-        const donation = this.DonationModel.find({ campaignId: campaignId, StageName: "Closed Won" })
-        const donations = await this.DonationModel.find({ campaignId: campaignId, StageName: "Closed Won" });
+        const donations = await this.DonationModel.find({ campaignId: campaignId, StageName: "Closed Won", Donation_Source__c: 'Fundraising App' });
         const totalAmount = donations.reduce((sum, donation) => sum + (donation.Amount || 0), 0);
         const yearlyCount = donations.filter(d => d.frequency?.toLowerCase() === 'yearly').length;
         const monthlyCount = donations.filter(d => d.frequency?.toLowerCase() === 'monthly').length;
-        
 
-        return { totalAmount, numberOfDonations: donations.length, numberOfYearlySps: yearlyCount, numberOfMonthlySps: monthlyCount };
+        const spsDonations = donations.filter(d => d.cartItems.some(item => item.type?.includes('sponsorship')));
+        const totalchildrenSponsored = spsDonations.reduce((sum, donation) => sum + (donation.cartItems[0]?.Requestedcount || 0), 0);
+        return { totalAmount, numberOfDonations: donations.length, numberOfYearlySps: yearlyCount, numberOfMonthlySps: monthlyCount, totalChildrenSponsored: totalchildrenSponsored };
     }
 }
