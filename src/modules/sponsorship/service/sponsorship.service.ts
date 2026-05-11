@@ -239,6 +239,24 @@ export class SponsorshipService {
             console.log('sponsorshipDevidedChild: ', sponsorshipDevidedChild);
         }
     }
+    async uploadOneSponsorshipToSalesforce(id: string) {
+        const sponsorship = await this.SponsorshipModel.findById(id);
+        if (sponsorship && sponsorship.Status === 'Active' && sponsorship.child) {
+            // Implementation for uploading single sponsorship to Salesforce
+            const token = await authenticateSalesforce();
+            let payload: any
+            payload = {
+                Status__c: sponsorship.Status,
+                Donor__c: sponsorship.Donor__c,
+                Start_Date__c: sponsorship.Start_Date__c,
+                Current_Recurring_Donation__c: sponsorship.Current_Recurring_Donation__c,
+            };
+            const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Sponsorship__c/', payload, token);
+            sponsorship.salesforceID = result.salesforceId;
+            sponsorship.syncedWithSalesforce = true;
+            await sponsorship.save();
+        }
+    }
     async updateToExpired(childIds: string[]) {
         try {
             console.log('Updating sponsorships to Expired for child IDs:', typeof childIds);

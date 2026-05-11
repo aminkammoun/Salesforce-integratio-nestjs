@@ -107,4 +107,8 @@ export class SponsorshipController {
     async assignFreeChild() {
         return await this.sponsorshipService.checkFreeChildInSP();
     }
+    @Post('/uploadOneSp/:id')
+    async uploadOneSponsorshipToSalesforce(@Param('id') id: string) {
+        return await this.sponsorshipService.uploadOneSponsorshipToSalesforce(id);
+    }
 }
