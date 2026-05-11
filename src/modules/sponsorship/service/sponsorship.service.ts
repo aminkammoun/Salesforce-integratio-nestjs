@@ -246,7 +246,7 @@ export class SponsorshipService {
             const token = await authenticateSalesforce();
             let payload: any
             payload = {
-                Child__c: sponsorship.child,
+                Child__c: sponsorship.child[0],
                 Status__c: sponsorship.Status,
                 Donor__c: sponsorship.Donor__c,
                 Start_Date__c: sponsorship.Start_Date__c,
