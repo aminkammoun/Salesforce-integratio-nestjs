@@ -19,7 +19,7 @@ export class ChildController {
     @ApiResponse({ status: 200, description: 'Children synchronized successfully' })
     findAll(@Param('q') q: string) {
         console.log('Controller received query param:', q);
-        return this.childService.insertFromSalesforce(q);
+        return this.childService.findAll(q);
     }
 
     @Post('/create')
