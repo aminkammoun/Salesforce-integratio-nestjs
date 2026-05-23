@@ -729,14 +729,14 @@ export class SalesforceService {
         }
 
     }
-    async updateRecurringsWithStripeIds(subId: string, customerId: string, iatsCustomerCode: string) {
+   /* async updateRecurringsWithStripeIds(subId: string, customerId: string, iatsCustomerCode: string) {
         const recurringPayloadToUpdateOnSF = {
             Stripe_subscription_url__c: 'https://dashboard.stripe.com/acct_1S5xcLPK7Mt7pUeD/subscriptions/' + subId,
             Stripe_Customer__c: customerId || '',
         }
         const token = await authenticateSalesforce();
         await handleUpdateQuery('/services/data/v65.0/sobjects/', `npe03__Recurring_Donation__c`, rec.salesforceID.toString(), recurringPayloadToUpdateOnSF, token);
-    }
+    }*/
     /*async updateRecurringsWithContactSalesforceID() {
         const recurrings = await this.recurringService.findAll();
         for (const rec of recurrings) {
