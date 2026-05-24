@@ -476,8 +476,11 @@ export class DonationService {
                     token = await authenticateSalesforce();
                 } else if (donation.Territory__c === Territory.UK) {
                     token = await authenticateSalesforceUK();
-                } else {
+                } else if (donation.Territory__c === Territory.CA) {
                     token = await authenticateSalesforceCA();
+                } else {
+                    token = await authenticateSalesforce();
+
                 }
                 let donationUpdated = false;
 
@@ -580,7 +583,7 @@ export class DonationService {
                             await handleUpdateQuery('/services/data/v65.0/sobjects/Opportunity', '', donationOfRecurring.records[0].Id, updatePayload, token);
                             item.sfId = donationOfRecurring.records[0].Id;
                             item.npe03__Recurring_Donation__c = recResult.salesforceId;
-
+                            console.log('Updating recurring donation:', item);
                             if (item.sfId && item.npe03__Recurring_Donation__c) {
                                 if (item.programId) {
                                     await this.assignProgramCohortToDonation(item.sfId, item.programId, item.amount, token);
