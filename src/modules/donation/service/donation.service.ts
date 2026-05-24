@@ -563,9 +563,9 @@ export class DonationService {
                     const recResult = await handleInsertQuery('/services/data/v65.0/sobjects/', 'npe03__Recurring_Donation__c/', createRecPay, token);
 
                     if (recResult?.salesforceId) {
-                        const query = `SELECT Id, StageName FROM Opportunity WHERE npe03__Recurring_Donation__c='${recResult.salesforceId}' AND StageName = 'Scheduled'`;
+                        const query = `SELECT Id, StageName FROM Opportunity WHERE npe03__Recurring_Donation__c='${recResult.salesforceId}' AND StageName = 'Pledged'`;
                         const donationOfRecurring = await handleQuery('/services/data/v65.0/query/?q=', query, token);
-
+                        item.npe03__Recurring_Donation__c = recResult.salesforceId;
                         if (donationOfRecurring?.records?.length > 0) {
                             const updatePayload = {
                                 StageName: "Closed Won",
