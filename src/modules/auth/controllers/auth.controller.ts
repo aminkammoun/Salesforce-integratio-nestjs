@@ -15,7 +15,8 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'User logged in successfully, returns JWT token' })
   @ApiResponse({ status: 401, description: 'Invalid credentials' })
   async login(@Request() req: any) {
-    return this.authService.login(req.body);
+    // After LocalAuthGuard succeeds, Passport attaches the authenticated user to req.user
+    return this.authService.login(req.user);
   }
 
   @Post('/signup')
