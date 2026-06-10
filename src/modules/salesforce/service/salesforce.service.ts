@@ -770,6 +770,7 @@ export class SalesforceService {
                 FROM IATSPayment__IATS_Customer_Code__c
                 WHERE Name = '${id}' and IATS_recurring__Recurring_Donation__r.Stripe_subscription_url__c = null`;
             const token = await authenticateSalesforce();
+            console.log(token)
             const res = await handleQuery('/services/data/v65.0/query/?q=', query, token);
             if (res.records.length === 0) {
                 return true;
