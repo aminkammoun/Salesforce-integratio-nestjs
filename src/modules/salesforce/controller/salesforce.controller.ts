@@ -75,4 +75,8 @@ export class SalesforceController {
     async updateBycontactSfId() {
         return await this.salesforceService.updateRecurringsWithContactSalesforceID();
     }*/
+   @Post('/checkStripeSubscription/:id')
+    async checkStripeSubscription(@Param() id: any) {
+        return await this.salesforceService.checkRecurringIsCreatedOnstripe(id);
+    }
 }

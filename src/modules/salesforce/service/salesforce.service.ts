@@ -1,7 +1,7 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Stripe from 'stripe';
-import { authenticateSalesforce, handleInsertQuery, handleUpdateQuery } from 'src/config/utils';
+import { authenticateSalesforce, handleInsertQuery, handleQuery, handleUpdateQuery } from 'src/config/utils';
 import mongoose, { Model } from 'mongoose';
 import { Contact } from 'src/modules/contact/entities/contact.entity';
 import { InjectModel } from '@nestjs/mongoose';
@@ -729,14 +729,14 @@ export class SalesforceService {
         }
 
     }
-   /* async updateRecurringsWithStripeIds(subId: string, customerId: string, iatsCustomerCode: string) {
-        const recurringPayloadToUpdateOnSF = {
-            Stripe_subscription_url__c: 'https://dashboard.stripe.com/acct_1S5xcLPK7Mt7pUeD/subscriptions/' + subId,
-            Stripe_Customer__c: customerId || '',
-        }
-        const token = await authenticateSalesforce();
-        await handleUpdateQuery('/services/data/v65.0/sobjects/', `npe03__Recurring_Donation__c`, rec.salesforceID.toString(), recurringPayloadToUpdateOnSF, token);
-    }*/
+    /* async updateRecurringsWithStripeIds(subId: string, customerId: string, iatsCustomerCode: string) {
+         const recurringPayloadToUpdateOnSF = {
+             Stripe_subscription_url__c: 'https://dashboard.stripe.com/acct_1S5xcLPK7Mt7pUeD/subscriptions/' + subId,
+             Stripe_Customer__c: customerId || '',
+         }
+         const token = await authenticateSalesforce();
+         await handleUpdateQuery('/services/data/v65.0/sobjects/', `npe03__Recurring_Donation__c`, rec.salesforceID.toString(), recurringPayloadToUpdateOnSF, token);
+     }*/
     /*async updateRecurringsWithContactSalesforceID() {
         const recurrings = await this.recurringService.findAll();
         for (const rec of recurrings) {
@@ -763,4 +763,20 @@ export class SalesforceService {
     //    async createCampaignInSalesforce() {
     //     const 
     //    }
+
+    async checkRecurringIsCreatedOnstripe(id: string) {
+        try {
+            const query = `SELECT Name, IsDeleted, IATS_recurring__Recurring_Donation__c, IATS_recurring__Recurring_Donation__r.Stripe_Subscription__c, IATS_recurring__Recurring_Donation__r.Stripe_ID__c, IATS_recurring__Recurring_Donation__r.Stripe_subscription_url__c
+                FROM IATSPayment__IATS_Customer_Code__c
+                WHERE Name = '${id}' and IATS_recurring__Recurring_Donation__r.Stripe_subscription_url__c = null`;
+            const token = await authenticateSalesforce();
+            const res = await handleQuery('/services/data/v65.0/query/?q=', query, token);
+            if (res.records.length === 0) {
+                return true;
+            }
+            return false;
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
+    }
 }
