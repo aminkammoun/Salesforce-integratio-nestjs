@@ -766,6 +766,7 @@ export class SalesforceService {
 
     async checkRecurringIsCreatedOnstripe(id: string) {
         try {
+            console.log(id)
             const query = `SELECT Name, IsDeleted, IATS_recurring__Recurring_Donation__c, IATS_recurring__Recurring_Donation__r.Stripe_Subscription__c, IATS_recurring__Recurring_Donation__r.Stripe_ID__c, IATS_recurring__Recurring_Donation__r.Stripe_subscription_url__c
                 FROM IATSPayment__IATS_Customer_Code__c
                 WHERE Name = '${id}' and IATS_recurring__Recurring_Donation__r.Stripe_subscription_url__c = null`;
