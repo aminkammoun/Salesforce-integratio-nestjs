@@ -774,9 +774,13 @@ export class SalesforceService {
             console.log(token)
             const res = await handleQuery('/services/data/v65.0/query/?q=', query, token);
             if (res.records.length === 0) {
-                return true;
+                return {
+                    isCreated: false
+                } ;
             }
-            return false;
+            return {
+                isCreated: true
+            };
         } catch (error) {
             throw new InternalServerErrorException(error);
         }
