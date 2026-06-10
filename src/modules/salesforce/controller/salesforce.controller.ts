@@ -77,6 +77,7 @@ export class SalesforceController {
     }*/
    @Post('/checkStripeSubscription/:id')
     async checkStripeSubscription(@Param() id: any) {
+        console.log('con ' + id )
         return await this.salesforceService.checkRecurringIsCreatedOnstripe(id);
     }
 }
