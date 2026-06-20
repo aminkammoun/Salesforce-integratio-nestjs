@@ -9,7 +9,7 @@ The cron job follows a **3-Phase Pipeline Pattern** to ensure data consistency a
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│                    DONATION WORKFLOW (Every 1 min)                  │
+│                    DONATION WORKFLOW (Every 1 hour)                  │
 └─────────────────────────────────────────────────────────────────────┘
                                     │
                     ┌───────────────┴────────────────┐
@@ -197,11 +197,6 @@ this.isProcessing = true;
 // At end (finally block)
 this.isProcessing = false;
 ```
-
-**Limitations**: Only works within single instance. For multi-instance deployments, consider:
-- Database-level locking (recommended)
-- Distributed locking service (Redis)
-- Message queue with exclusive consumers
 
 ## Error Handling Strategy
 
