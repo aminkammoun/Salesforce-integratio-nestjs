@@ -7,9 +7,9 @@ export class Lead extends Document {
   first_name: string;
   @Prop({ required: true })
   last_name: string;
-  @Prop({ required: true, unique: true })
+  @Prop({ required: true, unique: false })
   phone: string;
-  @Prop({ required: true, unique: true })
+  @Prop({ required: true, unique: false })
   address: string;
   @Prop({ default: Date.now })
   createdAt: Date;
