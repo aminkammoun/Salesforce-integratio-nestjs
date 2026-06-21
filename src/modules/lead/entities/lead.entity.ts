@@ -9,7 +9,7 @@ export class Lead extends Document {
   last_name: string;
   @Prop({ required: true, unique: false })
   phone: string;
-  @Prop({ required: true, unique: false })
+  @Prop({ required: false, unique: false })
   address: string;
   @Prop({ required: true})
   event_id : string

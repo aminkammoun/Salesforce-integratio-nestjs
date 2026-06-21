@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Lead } from '../entities/lead.entity';
 import { Model, Types as MongooseTypes, set } from 'mongoose';
@@ -10,9 +10,15 @@ export class LeadService {
         @InjectModel(Lead.name) private readonly LeadModel: Model<Lead>,
     ) { }
     async createLead(leadData: leadCreateLeadDto) {
-        const lead = new this.LeadModel(leadData);
-        const response = await lead.save();
-        return response;
+        try {
+            const lead = new this.LeadModel(leadData);
+            const response = await lead.save();
+            
+            return response;
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
+
     }
 
 }
