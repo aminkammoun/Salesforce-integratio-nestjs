@@ -11,6 +11,8 @@ export class Lead extends Document {
   phone: string;
   @Prop({ required: true, unique: false })
   address: string;
+  @Prop({ required: true})
+  event_id : string
   @Prop({ default: Date.now })
   createdAt: Date;
 }

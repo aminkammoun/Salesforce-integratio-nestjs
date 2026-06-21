@@ -3,4 +3,5 @@ export class leadCreateLeadDto {
   last_name: string;
   phone: string;
   Address: string;
+  event_id: string;
 }
