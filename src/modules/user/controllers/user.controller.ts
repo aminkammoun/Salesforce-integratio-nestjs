@@ -18,7 +18,7 @@ import { ApiOperation, ApiResponse, ApiParam, ApiBody, ApiTags, ApiBearerAuth } 
 @ApiBearerAuth()
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService) { }
 
   @SetMetadata('roles', ['ADMIN'])
   @UseGuards(JwtAuthGuard, RoleGuard)

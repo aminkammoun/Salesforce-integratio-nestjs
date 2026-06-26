@@ -27,4 +27,12 @@ export class AuthController {
   async signUp(@Request() req: any) {
     await this.authService.signUp(req.body);
   }
+  @Post('/validateUser')
+  @ApiOperation({ summary: 'User validateUser', description: 'Creates a new user account' })
+  @ApiBody({ schema: { properties: { email: { type: 'string', example: 'newuser@example.com' }, password: { type: 'string', example: 'password123' }, name: { type: 'string', example: 'John Doe' } } } })
+  @ApiResponse({ status: 201, description: 'User registered successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid input or user already exists' })
+  async validateUser(@Request() req: any) {
+    await this.authService.validateUser(req.body.email, req.body.password);
+  }
 }
