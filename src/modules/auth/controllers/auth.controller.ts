@@ -33,6 +33,6 @@ export class AuthController {
   @ApiResponse({ status: 201, description: 'User registered successfully' })
   @ApiResponse({ status: 400, description: 'Invalid input or user already exists' })
   async validateUser(@Request() req: any) {
-    await this.authService.validateUser(req.body.email, req.body.password);
+    return await this.authService.validateUser(req.body.email, req.body.password);
   }
 }

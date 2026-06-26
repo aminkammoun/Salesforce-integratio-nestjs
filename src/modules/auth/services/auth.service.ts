@@ -16,11 +16,13 @@ export class AuthService {
     if (user) {
       const passwordIsValid = await bcrypt.compare(pass, user.password);
       if (passwordIsValid) {
-        const { password, ...result } = user;
-        return result;
+        
+        //const { password, ...result } = user;
+  
+        return {result :  passwordIsValid , message: 'User validated successfully'};
       }
     }
-    return null;
+    return {result: false, message: 'Invalid credentials'};
   }
 
   async login(user: any) {
