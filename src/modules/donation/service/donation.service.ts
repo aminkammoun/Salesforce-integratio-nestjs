@@ -1073,7 +1073,7 @@ export class DonationService {
     }
     async enterCash(campaignId: string, amount: number) {
         const token = await authenticateSalesforce();
-        const updatePayload = { Amount: amount };
+        const updatePayload = { Cash_Collected__c: amount };
         const result = await handleUpdateQuery('/services/data/v65.0/sobjects/Campaign', '', campaignId, updatePayload, token);
         return result;
     }
