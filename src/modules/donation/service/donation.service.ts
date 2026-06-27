@@ -1071,4 +1071,10 @@ export class DonationService {
         }, 0);
         return { totalAmount, numberOfDonations: donations.length, numberOfYearlySps: yearlyCount, numberOfMonthlySps: monthlyCount, totalChildrenSponsored: totalchildrenSponsored };
     }
+    async enterCash(campaignId: string, amount: number) {
+        const token = await authenticateSalesforce();
+        const updatePayload = { Amount: amount };
+        const result = await handleUpdateQuery('/services/data/v65.0/sobjects/Campaign', '', campaignId, updatePayload, token);
+        return result;
+    }
 }
