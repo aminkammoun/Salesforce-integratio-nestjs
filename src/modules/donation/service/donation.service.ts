@@ -1069,7 +1069,16 @@ export class DonationService {
             const childrenCount = donation.cartItems.reduce((itemSum, item) => itemSum + (item.Requestedcount || 0), 0);
             return sum + childrenCount;
         }, 0);
-        return { totalAmount, numberOfDonations: donations.length, numberOfYearlySps: yearlyCount, numberOfMonthlySps: monthlyCount, totalChildrenSponsored: totalchildrenSponsored };
+
+        const programTotals: { [key: string]: number } = {};
+        donations.forEach(donation => {
+            donation.cartItems.forEach(item => {
+                const programName = item.Name || 'Unknown';
+                programTotals[programName] = (programTotals[programName] || 0) + (item.amount || 0);
+            });
+        });
+        
+        return { totalAmount, numberOfDonations: donations.length, numberOfYearlySps: yearlyCount, numberOfMonthlySps: monthlyCount, totalChildrenSponsored: totalchildrenSponsored , programTotals };
     }
     async enterCash(campaignId: string, amount: number) {
         const token = await authenticateSalesforce();
