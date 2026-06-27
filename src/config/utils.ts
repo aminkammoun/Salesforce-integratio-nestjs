@@ -1,4 +1,5 @@
 export async function authenticateSalesforce() {
+    console.log(process.env.REFRESH_TOKEN)
     const url = `${process.env.ISTANCEURL}/services/oauth2/token?grant_type=refresh_token&client_id=${process.env.SALESFORCECLIENTID}&client_secret=${process.env.SALESFORCECLIENTSECRET}&refresh_token=${process.env.REFRESH_TOKEN}`;
 
     const res = await fetch(url, {
