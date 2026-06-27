@@ -1060,7 +1060,7 @@ export class DonationService {
     }
     async getTotalCampaignValueWonDonation(campaignId: string) {
         const donations = await this.DonationModel.find({ campaignId: campaignId, StageName: "Closed Won", Donation_Source__c: 'Fundraising App' });
-        const totalAmount = donations.reduce((sum, donation) => sum + (donation.Amount || 0), 0) +' $';
+        const totalAmount = donations.reduce((sum, donation) => sum + (donation.Amount || 0), 0) + ' $';
         const yearlyCount = donations.filter(d => d.frequency?.toLowerCase() === 'yearly').length;
         const monthlyCount = donations.filter(d => d.frequency?.toLowerCase() === 'monthly').length;
 
@@ -1071,14 +1071,17 @@ export class DonationService {
         }, 0);
 
         const programTotals: { [key: string]: string } = {};
+        
         donations.forEach(donation => {
             donation.cartItems.forEach(item => {
-                const programName = item.Name || 'Unknown';
-                programTotals[programName] = (programTotals[programName] || 0) +' $'+ (item.amount || 0) +' $';
+            const programName = item.Name || 'Unknown';
+            const amount = (item.amount || 0);
+            programTotals[programName] = ((parseFloat(programTotals[programName]) || 0) + amount).toFixed(2) + ' $';
             });
         });
         
-        return { totalAmount, numberOfDonations: donations.length, numberOfYearlySps: yearlyCount, numberOfMonthlySps: monthlyCount, totalChildrenSponsored: totalchildrenSponsored , programTotals };
+
+        return { totalAmount, numberOfDonations: donations.length, numberOfYearlySps: yearlyCount, numberOfMonthlySps: monthlyCount, totalChildrenSponsored: totalchildrenSponsored, programTotals };
     }
     async enterCash(campaignId: string, amount: number) {
         const token = await authenticateSalesforce();
