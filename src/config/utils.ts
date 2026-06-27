@@ -9,7 +9,7 @@ export async function authenticateSalesforce() {
         //body: params,
         cache: "no-store",
     });
-
+    console.log(res)
     if (!res.ok) {
         throw new Error(`Salesforce authentication failed: ${res.status} ${res.statusText}`);
     }
