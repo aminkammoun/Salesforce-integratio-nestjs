@@ -1060,7 +1060,7 @@ export class DonationService {
     }
     async getTotalCampaignValueWonDonation(campaignId: string) {
         const donations = await this.DonationModel.find({ campaignId: campaignId, StageName: "Closed Won", Donation_Source__c: 'Fundraising App' });
-        const totalAmount = donations.reduce((sum, donation) => sum + (donation.Amount || 0), 0);
+        const totalAmount = donations.reduce((sum, donation) => sum + (donation.Amount || 0), 0) +'$';
         const yearlyCount = donations.filter(d => d.frequency?.toLowerCase() === 'yearly').length;
         const monthlyCount = donations.filter(d => d.frequency?.toLowerCase() === 'monthly').length;
 
@@ -1074,7 +1074,7 @@ export class DonationService {
         donations.forEach(donation => {
             donation.cartItems.forEach(item => {
                 const programName = item.Name || 'Unknown';
-                programTotals[programName] = (programTotals[programName] || 0) + (item.amount || 0);
+                programTotals[programName] = (programTotals[programName] || 0) + (item.amount || 0) ;
             });
         });
         
