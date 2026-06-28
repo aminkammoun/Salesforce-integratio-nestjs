@@ -1075,13 +1075,13 @@ export class DonationService {
             return sum + childrenCount;
         }, 0);
 
-        const programTotals: { [key: string]: string } = {};
+        const programTotals: { [key: string]: number } = {};
 
         donations.forEach(donation => {
             donation.cartItems.forEach(item => {
                 const programName = item.Name || 'Unknown';
                 const amount = (item.amount || 0);
-                programTotals[programName] = ((parseFloat(programTotals[programName]) || 0) + amount).toFixed(2);
+                programTotals[programName] = ((programTotals[programName] || 0) + amount);
             });
         });
 
