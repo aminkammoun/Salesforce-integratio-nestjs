@@ -1087,14 +1087,17 @@ export class DonationService {
 
 
         return {
-            totalAmount, numberOfDonations: donations.length,
+            numberOfDonations: donations.length,
+            totalAmount,
+            onetimeAmount: totalAmount - yearlyTotal - monthlyTotal,
             YearlySps: {
                 count: yearlyCount,
                 Amount: yearlyTotal
             }, MonthlySps: {
                 count: monthlyCount,
                 Amount: monthlyTotal
-            }, totalChildrenSponsored: totalchildrenSponsored, programTotals
+            }, totalChildrenSponsored: totalchildrenSponsored, programTotals,
+
         };
     }
     async enterCash(campaignId: string, amount: number) {
