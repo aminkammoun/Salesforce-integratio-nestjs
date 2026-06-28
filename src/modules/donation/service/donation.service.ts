@@ -1081,7 +1081,7 @@ export class DonationService {
             donation.cartItems.forEach(item => {
                 const programName = item.Name || 'Unknown';
                 const amount = (item.amount || 0);
-                programTotals[programName] = ((parseFloat(programTotals[programName]) || 0) + amount).toFixed(2) + ' $';
+                programTotals[programName] = ((parseFloat(programTotals[programName]) || 0) + amount).toFixed(2);
             });
         });
 
