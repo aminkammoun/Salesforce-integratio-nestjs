@@ -7,7 +7,7 @@ export class LeadController {
   async createLead(@Body() leadData: any) {
     return this.leadService.createLead(leadData)
   }
-  @Get("/count")
+  @Get("/count/:event_id")
   async getNumberOfLeads(@Param('event_id') event_id: string) {
     return this.leadService.getNumberOfLeads(event_id)
   }
