@@ -13,7 +13,7 @@ export class LeadService {
         try {
             const lead = new this.LeadModel(leadData);
             const response = await lead.save();
-            
+
             return response;
         } catch (error) {
             throw new InternalServerErrorException(error);
@@ -23,7 +23,7 @@ export class LeadService {
     async getNumberOfLeads(event_id: string) {
         try {
             const count = await this.LeadModel.countDocuments({ event_id });
-            return count;
+            return { "leads_captured ": count };
         } catch (error) {
             throw new InternalServerErrorException(error);
         }
