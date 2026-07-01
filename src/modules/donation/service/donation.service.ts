@@ -1090,7 +1090,7 @@ export class DonationService {
             numberOfDonations: donations.length,
             totalAmount,
             onetimeAmount: totalAmount - yearlyTotal - monthlyTotal,
-            "Prpgrams": {
+            "Programs": {
                 YearlySps: {
                     count: yearlyCount,
                     Amount: yearlyTotal
