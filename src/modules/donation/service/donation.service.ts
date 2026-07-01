@@ -1077,7 +1077,7 @@ export class DonationService {
             return sum + childrenCount;
         }, 0);
 
-        const programTotals: { [key: string]: { monthly: { count: number; amount: number }; yearly: { count: number; amount: number }; oneTime: { count: number; amount: number } } } = {};
+        const programs: { [key: string]: { monthly: { count: number; amount: number }; yearly: { count: number; amount: number }; oneTime: { count: number; amount: number } } } = {};
 
         donations.forEach(donation => {
             donation.cartItems.forEach(item => {
@@ -1085,8 +1085,8 @@ export class DonationService {
                 const amount = item.amount || 0;
                 const frequency = item.interval?.toLowerCase() || donation.frequency?.toLowerCase() || 'one-time';
 
-                if (!programTotals[programName]) {
-                    programTotals[programName] = {
+                if (!programs[programName]) {
+                    programs[programName] = {
                         monthly: { count: 0, amount: 0 },
                         yearly: { count: 0, amount: 0 },
                         oneTime: { count: 0, amount: 0 }
@@ -1094,14 +1094,14 @@ export class DonationService {
                 }
 
                 if (frequency === 'monthly') {
-                    programTotals[programName].monthly.count++;
-                    programTotals[programName].monthly.amount += amount;
+                    programs[programName].monthly.count++;
+                    programs[programName].monthly.amount += amount;
                 } else if (frequency === 'yearly') {
-                    programTotals[programName].yearly.count++;
-                    programTotals[programName].yearly.amount += amount;
+                    programs[programName].yearly.count++;
+                    programs[programName].yearly.amount += amount;
                 } else {
-                    programTotals[programName].oneTime.count++;
-                    programTotals[programName].oneTime.amount += amount;
+                    programs[programName].oneTime.count++;
+                    programs[programName].oneTime.amount += amount;
                 }
             });
         });
@@ -1112,10 +1112,9 @@ export class DonationService {
             totalAmount,
             onetimeAmount: totalAmount - yearlyTotal - monthlyTotal,
             totalChildrenSponsored: totalchildrenSponsored,
-            "Programs": {
-                programTotals,
+            programs,
 
-            }
+
 
 
         };
