@@ -22,7 +22,7 @@ export class LeadService {
     }
     async getNumberOfLeads(event_id: string) {
         try {
-            const count = await this.LeadModel.find({ event_id: event_id }).select('phone first_name');
+            const count = await this.LeadModel.find({ event_id: event_id }).select('phone first_name last_name');
             return { "leads_captured ": count };
         } catch (error) {
             throw new InternalServerErrorException(error);
