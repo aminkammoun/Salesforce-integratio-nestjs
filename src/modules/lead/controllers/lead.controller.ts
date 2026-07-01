@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Param, Post, Get } from '@nestjs/common';
 import { LeadService } from '../services/lead.service';
 @Controller('lead')
 export class LeadController {
@@ -6,5 +6,9 @@ export class LeadController {
   @Post("/create")
   async createLead(@Body() leadData: any) {
     return this.leadService.createLead(leadData)
+  }
+  @Get("/count")
+  async getNumberOfLeads(@Param('event_id') event_id: string) {
+    return this.leadService.getNumberOfLeads(event_id)
   }
 }

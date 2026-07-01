@@ -1090,13 +1090,18 @@ export class DonationService {
             numberOfDonations: donations.length,
             totalAmount,
             onetimeAmount: totalAmount - yearlyTotal - monthlyTotal,
-            YearlySps: {
-                count: yearlyCount,
-                Amount: yearlyTotal
-            }, MonthlySps: {
-                count: monthlyCount,
-                Amount: monthlyTotal
-            }, totalChildrenSponsored: totalchildrenSponsored, programTotals,
+            "Prpgrams": {
+                YearlySps: {
+                    count: yearlyCount,
+                    Amount: yearlyTotal
+                },
+                MonthlySps: {
+                    count: monthlyCount,
+                    Amount: monthlyTotal
+                }, programTotals,
+                totalChildrenSponsored: totalchildrenSponsored
+            }
+
 
         };
     }

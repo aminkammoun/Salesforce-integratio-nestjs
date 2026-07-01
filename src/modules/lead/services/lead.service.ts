@@ -20,6 +20,12 @@ export class LeadService {
         }
 
     }
-
+    async getNumberOfLeads(event_id: string) {
+        try {
+            const count = await this.LeadModel.countDocuments({ event_id });
+            return count;
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
+    }
 }
-
