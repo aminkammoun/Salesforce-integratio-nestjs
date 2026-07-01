@@ -1061,6 +1061,7 @@ export class DonationService {
     async getTotalCampaignValueWonDonation(campaignId: string) {
         const donations = await this.DonationModel.find({ campaignId: campaignId, StageName: "Closed Won", Donation_Source__c: 'Fundraising App' });
         const totalAmount = donations.reduce((sum, donation) => sum + (donation.Amount || 0), 0);
+        
         const yearlyCount = donations.filter(d => d.frequency?.toLowerCase() === 'yearly').length;
         const yearlyTotal = donations
             .filter(d => d.frequency?.toLowerCase() === 'yearly')
@@ -1070,18 +1071,38 @@ export class DonationService {
             .filter(d => d.frequency?.toLowerCase() === 'monthly')
             .reduce((sum, donation) => sum + (donation.Amount || 0), 0);
         const spsDonations = donations.filter(d => d.cartItems.some(item => item.type?.includes('sponsorship')));
+
         const totalchildrenSponsored = spsDonations.reduce((sum, donation) => {
             const childrenCount = donation.cartItems.reduce((itemSum, item) => itemSum + (item.Requestedcount || 0), 0);
             return sum + childrenCount;
         }, 0);
 
-        const programTotals: { [key: string]: number } = {};
+        const programTotals: { [key: string]: { monthly: { count: number; amount: number }; yearly: { count: number; amount: number }; oneTime: { count: number; amount: number } } } = {};
 
         donations.forEach(donation => {
             donation.cartItems.forEach(item => {
                 const programName = item.Name || 'Unknown';
-                const amount = (item.amount || 0);
-                programTotals[programName] = ((programTotals[programName] || 0) + amount);
+                const amount = item.amount || 0;
+                const frequency = item.interval?.toLowerCase() || donation.frequency?.toLowerCase() || 'one-time';
+
+                if (!programTotals[programName]) {
+                    programTotals[programName] = {
+                        monthly: { count: 0, amount: 0 },
+                        yearly: { count: 0, amount: 0 },
+                        oneTime: { count: 0, amount: 0 }
+                    };
+                }
+
+                if (frequency === 'monthly') {
+                    programTotals[programName].monthly.count++;
+                    programTotals[programName].monthly.amount += amount;
+                } else if (frequency === 'yearly') {
+                    programTotals[programName].yearly.count++;
+                    programTotals[programName].yearly.amount += amount;
+                } else {
+                    programTotals[programName].oneTime.count++;
+                    programTotals[programName].oneTime.amount += amount;
+                }
             });
         });
 
