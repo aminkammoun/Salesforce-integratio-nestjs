@@ -1061,12 +1061,12 @@ export class DonationService {
     async getTotalCampaignValueWonDonation(campaignId: string) {
         const donations = await this.DonationModel.find({ campaignId: campaignId, StageName: "Closed Won", Donation_Source__c: 'Fundraising App' });
         const totalAmount = donations.reduce((sum, donation) => sum + (donation.Amount || 0), 0);
-        
-        const yearlyCount = donations.filter(d => d.frequency?.toLowerCase() === 'yearly').length;
+
+        //const yearlyCount = donations.filter(d => d.frequency?.toLowerCase() === 'yearly').length;
         const yearlyTotal = donations
             .filter(d => d.frequency?.toLowerCase() === 'yearly')
             .reduce((sum, donation) => sum + (donation.Amount || 0), 0);
-        const monthlyCount = donations.filter(d => d.frequency?.toLowerCase() === 'monthly').length;
+        //const monthlyCount = donations.filter(d => d.frequency?.toLowerCase() === 'monthly').length;
         const monthlyTotal = donations
             .filter(d => d.frequency?.toLowerCase() === 'monthly')
             .reduce((sum, donation) => sum + (donation.Amount || 0), 0);
@@ -1111,16 +1111,10 @@ export class DonationService {
             numberOfDonations: donations.length,
             totalAmount,
             onetimeAmount: totalAmount - yearlyTotal - monthlyTotal,
+            totalChildrenSponsored: totalchildrenSponsored,
             "Programs": {
-                YearlySps: {
-                    count: yearlyCount,
-                    Amount: yearlyTotal
-                },
-                MonthlySps: {
-                    count: monthlyCount,
-                    Amount: monthlyTotal
-                }, programTotals,
-                totalChildrenSponsored: totalchildrenSponsored
+                programTotals,
+
             }
 
 
