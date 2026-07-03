@@ -1119,10 +1119,10 @@ export class DonationService {
 
         };
     }
-    async enterCash(campaignId: string, amount: number) {
+    async enterCash(campaignId: string, amount: number, bankcheck : number) {
         const token = await authenticateSalesforce();
         console.log(token)
-        const updatePayload = { Cash_Collected__c: amount };
+        const updatePayload = { Cash_Collected__c: amount, Bank_Check_Collected__c: bankcheck };
         const result = await handleUpdateQuery('/services/data/v65.0/sobjects/Campaign', '', campaignId, updatePayload, token);
         return result;
     }

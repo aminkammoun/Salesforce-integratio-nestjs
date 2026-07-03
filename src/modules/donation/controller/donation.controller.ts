@@ -110,12 +110,13 @@ export class DonationController {
     async repaireOneDonations(@Body() body: { donationsource: string }, @Param('id') id: string) {
         return this.donationService.repaireOneDonations(body.donationsource, id);
     }
+    
     @Get('/getEventDetails/:campaignId')
     async getTotalCampaignValueWonDonation(@Param('campaignId') campaignId: string) {
         return this.donationService.getTotalCampaignValueWonDonation(campaignId);
     }
     @Post('/enterCash/:campaignId')
-    async enterCash(@Param('campaignId') campaignId: string, @Body() body: { amount: number }) {
-        return this.donationService.enterCash(campaignId, body.amount);
+    async enterCash(@Param('campaignId') campaignId: string, @Body() body: { amount: number, bankcheck: number }) {
+        return this.donationService.enterCash(campaignId, body.amount, body.bankcheck);
     }
 }
