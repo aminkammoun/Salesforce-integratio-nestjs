@@ -105,7 +105,18 @@ export class DonationService {
         try {
             const donations = await this.DonationModel.find();
             console.log('Retrieved donations:', donations);
-            return donations;
+            const importantFields = donations.map(d => ({
+                id: d._id,
+                name: d.Name,
+                amount: d.Amount,
+                stageName: d.StageName,
+                contact: d.npsp__Primary_Contact__c,
+                frequency: d.frequency,
+                syncedWithSalesforce: d.syncedWithSalesforce,
+                donationSource: d.Donation_Source__c,
+                createdDate: d.createdDate,
+            }));
+            return importantFields;
         } catch (error) {
             throw new InternalServerErrorException(error);
         }
@@ -1119,7 +1130,7 @@ export class DonationService {
 
         };
     }
-    async enterCash(campaignId: string, amount: number, bankcheck : number) {
+    async enterCash(campaignId: string, amount: number, bankcheck: number) {
         const token = await authenticateSalesforce();
         console.log(token)
         const updatePayload = { Cash_Collected__c: amount, Bank_Check_Collected__c: bankcheck };
