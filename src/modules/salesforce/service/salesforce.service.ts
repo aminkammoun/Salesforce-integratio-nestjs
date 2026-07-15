@@ -262,7 +262,7 @@ export class SalesforceService {
                 });
             const paymentIntent = await this.stripe.paymentIntents.create({
                 amount: req.amount,
-                currency: req.currency,
+                currency: process.env.ENV === 'TEST' ?  'EUR': req.currency,
                 payment_method_types: ['card_present'],
                 setup_future_usage: 'off_session',
                 capture_method: 'automatic',
