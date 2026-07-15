@@ -337,7 +337,7 @@ export class DonationService {
 
                             if (item.sfId && item.npe03__Recurring_Donation__c) {
                                 if (item.programId) {
-                                    await this.assignProgramCohortToDonation(item.sfId, item.programId, item.amount, token);
+                                    await this.assignProgramCohortToDonation(item.sfId, item.programId, item.amount, item.on_behalf_of || null, token);
                                     const queryGAU = await handleQuery('/services/data/v65.0/query/?q=', `SELECT General_Accounting_Unit__c FROM pmdm__ProgramCohort__c WHERE id='${item.programId}'`, token);
 
                                     if (queryGAU?.records?.length) {
@@ -387,7 +387,7 @@ export class DonationService {
                                 item.sfId = parentOppId;
 
                                 if (item.programId) {
-                                    await this.assignProgramCohortToDonation(parentOppId, item.programId, item.amount, token);
+                                    await this.assignProgramCohortToDonation(parentOppId, item.programId, item.amount, item.on_behalf_of || null, token);
                                     /*const queryGAU = await handleQuery('/services/data/v65.0/query/?q=', `SELECT General_Accounting_Unit__c FROM pmdm__ProgramCohort__c WHERE id='${item.programId}'`, token);
 
                                     if (queryGAU?.records?.length) {
@@ -430,7 +430,7 @@ export class DonationService {
                                 item.sfId = result.salesforceId;
 
                                 if (item.programId) {
-                                    await this.assignProgramCohortToDonation(result.salesforceId, item.programId, item.amount, token);
+                                    await this.assignProgramCohortToDonation(result.salesforceId, item.programId, item.amount, item.on_behalf_of || null, token);
                                 }
                             }
                         } catch (err) {
@@ -597,7 +597,7 @@ export class DonationService {
                             console.log('Updating recurring donation:', item);
                             if (item.sfId && item.npe03__Recurring_Donation__c) {
                                 if (item.programId) {
-                                    await this.assignProgramCohortToDonation(item.sfId, item.programId, item.amount, token);
+                                    await this.assignProgramCohortToDonation(item.sfId, item.programId, item.amount, item.on_behalf_of || null, token);
                                     const queryGAU = await handleQuery('/services/data/v65.0/query/?q=', `SELECT General_Accounting_Unit__c FROM pmdm__ProgramCohort__c WHERE id='${item.programId}'`, token);
 
                                     if (queryGAU?.records?.length) {
@@ -682,7 +682,7 @@ export class DonationService {
                                 item.sfId = parentOppId; // All items share the same Opportunity ID
 
                                 if (item.programId) {
-                                    await this.assignProgramCohortToDonation(parentOppId, item.programId, item.amount, token);
+                                    await this.assignProgramCohortToDonation(parentOppId, item.programId, item.amount, item.on_behalf_of || null, token);
                                     // B. Create GAU Allocation (NPSP Standard)
                                     /*const queryGAU = await handleQuery('/services/data/v65.0/query/?q=', `SELECT General_Accounting_Unit__c FROM pmdm__ProgramCohort__c WHERE id='${item.programId}'`, token);
                     
@@ -728,7 +728,7 @@ export class DonationService {
                                 item.sfId = result.salesforceId;
 
                                 if (item.programId) {
-                                    await this.assignProgramCohortToDonation(result.salesforceId, item.programId, item.amount, token);
+                                    await this.assignProgramCohortToDonation(result.salesforceId, item.programId, item.amount, item.on_behalf_of || null, token);
                                 }
                             }
                         } catch (err) {
@@ -763,12 +763,13 @@ export class DonationService {
             throw new InternalServerErrorException(error);
         }
     }
-    async assignProgramCohortToDonation(donationId: string, programCohortId: string, amount: number, token: string) {
+    async assignProgramCohortToDonation(donationId: string, programCohortId: string, amount: number, honor_of__c: string | null, token: string) {
         try {
             const allocationPayload = {
                 Opportunity__c: donationId,
                 Amount__c: amount,
                 Program_Cohort__c: programCohortId,
+                in_honor_of__c: honor_of__c
             };
             await handleInsertQuery('/services/data/v65.0/sobjects/', 'Program_Allocation_Unit__c/', allocationPayload, token);
 
