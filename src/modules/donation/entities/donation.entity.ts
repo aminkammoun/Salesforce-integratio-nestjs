@@ -40,7 +40,7 @@ export class Donation extends Document {
     salesforceID: string
     @Prop({ required: false, default: false })
     isRecurring: boolean
-    @Prop({ required: false, unique: true })
+    @Prop({ required: false, unique: false })
     donationID: string;
     @Prop({
         type: String,
