@@ -18,6 +18,6 @@ import { NeonDatabaseControleModule } from 'src/config/neon.controle';
   ],
   controllers: [ContactController],
   providers: [ContactService],
-  exports: [ContactService, MongooseModule, NeonDatabaseControleModule],
+  exports: [ContactService, MongooseModule/*, NeonDatabaseControleModule*/],
 })
 export class ContactModule { }
