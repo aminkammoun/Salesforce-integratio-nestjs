@@ -31,6 +31,8 @@ export class Contact extends Document {
   createdAt: Date;
   @Prop({ required: false, default: null })
   wordpressID: string;
+  @Prop({ required: false, default: null })
+  Email_Opt_In_Consent__c: boolean;
 }
 
 export const ContactSchema = SchemaFactory.createForClass(Contact);

@@ -37,4 +37,6 @@ export class CreateContactDto {
   role?: string;
   @ApiPropertyOptional({ description: 'WordPress ID of the contact (optional)', example: 12345 })
   wordpressID?: number;
+
+  Email_Opt_In_Consent__c: Boolean
 }

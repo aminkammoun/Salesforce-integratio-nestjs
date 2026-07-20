@@ -11,7 +11,9 @@ import { SponsorshipService } from 'src/modules/sponsorship/service/sponsorship.
 import { RecurringService } from 'src/modules/recurring/service/recurring.service';
 @Injectable()
 export class ContactService {
+
     constructor(
+        @Inject('POSTGRES_POOL') private readonly sql: any,
         @InjectModel(Contact.name) private readonly ContactModel: Model<Contact>,
         @Inject() private readonly donationService: DonationService,
         @Inject() private readonly sponsorshipService: SponsorshipService,
@@ -105,7 +107,8 @@ export class ContactService {
                         Phone: record.MobilePhone || record.Phone,
                         syncedWithSalesforce: true,
                         salesforceID: record.Id,
-                        wordpressID: record.Word_Press_Id__c || null
+                        wordpressID: record.Word_Press_Id__c || null,
+                        Email_Opt_In_Consent__c: record.Email_Opt_In_Consent__c || null
                     }
                 },
                 upsert: true
@@ -248,6 +251,8 @@ export class ContactService {
                     LastName: contact.last_name,
                     Email: contact.email,
                     Phone: contact.Phone?.replace(/[^0-9]/g, '') || contact.Phone,
+                    Email_Opt_In_Consent__c: contact.Email_Opt_In_Consent__c
+                    
                 };
 
                 const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Contact/', payload, token);
@@ -425,5 +430,12 @@ export class ContactService {
         } catch (error) {
             throw new InternalServerErrorException(error);
         }
+    }
+
+    //===========================================================
+    //Neon In the FIELD
+    //===========================================================
+    async getContact() {
+        return await this.sql`SELECT * FROM contacts`;
     }
 }
