@@ -7,7 +7,7 @@ import { ContactService } from './service/contact.service';
 import { DonationModule } from '../donation/donation.module';
 import { SponsorshipModule } from '../sponsorship/sponsorship.module';
 import { RecurringModule } from '../recurring/recurring.module';
-import { NeonDatabaseControleModule } from 'src/config/neon.controle';
+//import { NeonDatabaseControleModule } from 'src/config/neon.controle';
 @Module({
   imports: [
     DonationModule,
