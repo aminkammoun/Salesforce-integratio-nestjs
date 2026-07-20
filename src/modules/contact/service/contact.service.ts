@@ -13,7 +13,7 @@ import { RecurringService } from 'src/modules/recurring/service/recurring.servic
 export class ContactService {
 
     constructor(
-        @Inject('POSTGRES_POOL') private readonly sql: any,
+       // @Inject('POSTGRES_POOL') private readonly sql: any,
         @InjectModel(Contact.name) private readonly ContactModel: Model<Contact>,
         @Inject() private readonly donationService: DonationService,
         @Inject() private readonly sponsorshipService: SponsorshipService,
@@ -252,7 +252,7 @@ export class ContactService {
                     Email: contact.email,
                     Phone: contact.Phone?.replace(/[^0-9]/g, '') || contact.Phone,
                     Email_Opt_In_Consent__c: contact.Email_Opt_In_Consent__c
-                    
+
                 };
 
                 const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Contact/', payload, token);
@@ -435,7 +435,7 @@ export class ContactService {
     //===========================================================
     //Neon In the FIELD
     //===========================================================
-    async getContact() {
-        return await this.sql`SELECT * FROM contacts`;
-    }
+    // async getContact() {
+    //     return await this.sql`SELECT * FROM contacts`;
+    // }
 }
