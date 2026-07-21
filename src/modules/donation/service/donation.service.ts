@@ -487,6 +487,7 @@ export class DonationService {
                     token = await authenticateSalesforce();
                 } else if (donation.Territory__c === Territory.UK) {
                     token = await authenticateSalesforceUK();
+
                 } else if (donation.Territory__c === Territory.CA) {
                     token = await authenticateSalesforceCA();
                 } else {
@@ -644,9 +645,8 @@ export class DonationService {
                         // 1. Aggregate: Sum amounts for the Parent Opportunity
                         const totalAmount = oneTimeItems.reduce((sum, i) => sum + Number(i.amount), 0);
 
-                        const payload = {
+                        const payload: any = {
                             Name: donation.Name,
-                            Amount: totalAmount, // TOTAL of all one-time items
                             CloseDate: donation.CloseDate,
                             StageName: donation.StageName,
                             CampaignId: donation.campaignId,
@@ -665,7 +665,12 @@ export class DonationService {
                             Child__c: oneTimeItems[0].Child__c,
                             Territory__c: donation.Territory__c
                         };
-
+                        if (donation.Territory__c == null) {
+                            payload.Amount = totalAmount;
+                        } else if (donation.Territory__c == 'United Kingdom') {
+                            payload.AmountinLocalCurrency__c = totalAmount;
+                            payload.Currency_Type__c = 'GBP';
+                        }
                         // 2. Insert Parent Opportunity
                         const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Opportunity/', payload, token);
                         if (result) {
@@ -703,7 +708,7 @@ export class DonationService {
                         try {
                             const payload = {
                                 Name: item.Name,
-                                Amount: item.amount,
+                                Amount: donation.Territory__c == null ? item.amount : null,
                                 CloseDate: donation.createdDate,
                                 StageName: donation.StageName,
                                 CampaignId: donation.campaignId,
@@ -719,7 +724,8 @@ export class DonationService {
                                 npsp__Honoree_Name__c: item.on_behalf_of || null,
                                 RecordTypeId: item.recordType,
                                 Child__c: item.Child__c,
-                                Territory__c: donation.Territory__c
+                                Territory__c: donation.Territory__c,
+                                AmountinLocalCurrency__c: donation.Amount
                             };
 
                             const result = await handleInsertQuery('/services/data/v65.0/sobjects/', 'Opportunity/', payload, token);
