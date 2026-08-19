@@ -1,0 +1,32 @@
+services:
+  api-test:
+    build: .
+    container_name: nest-api-mwl
+    restart: unless-stopped
+    ports:
+      - '8083:8081'
+    environment:
+      - MONGO_URL=mongodb://mongo-mwl:27017
+      - MONGO_DATABASE_NAME=fundraisingDB-mwl
+      - NODE_ENV=mwl
+    env_file:
+      - .env.mwl
+    depends_on:
+      - mongo-mwl
+
+  mongo-mwl:
+    image: mongo:6
+    container_name: mongodb-mwl
+    restart: unless-stopped
+    ports:
+      - '27020:27017'
+    environment:
+      - MONGO_URI=${MONGO_URL}/${MONGO_DATABASE_NAME}
+      #MONGO_INITDB_ROOT_USERNAME: root
+      #MONGO_INITDB_ROOT_PASSWORD: rootpassword
+      #MONGO_INITDB_DATABASE: fundraisingDB
+    volumes:
+      - mongo_mwl_data:/data/db
+
+volumes:
+  mongo_mwl_data: 

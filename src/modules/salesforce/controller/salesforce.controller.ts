@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Request, Res } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Request, Res, Query } from '@nestjs/common';
 import { SalesforceService } from '../service/salesforce.service';
 @Controller('salesforce')
 export class SalesforceController {
@@ -75,9 +75,32 @@ export class SalesforceController {
     async updateBycontactSfId() {
         return await this.salesforceService.updateRecurringsWithContactSalesforceID();
     }*/
-   @Post('/checkStripeSubscription/:id')
+    @Post('/checkStripeSubscription/:id')
     async checkStripeSubscription(@Param('id') id: string) {
         console.log('con', id);
         return await this.salesforceService.checkRecurringIsCreatedOnstripe(id);
+    }
+    @Get('users/:userId/campaigns')
+    async getUserCampaigns(
+        @Param('userId') userId: string,
+        @Query('page') page?: number,
+        @Query('per_page') perPage?: number,
+    ) {
+        return await this.salesforceService.getUserCampaigns(userId, page, perPage);
+    }
+
+    @Get('sub-programs')
+    async getSubPrograms() {
+        return await this.salesforceService.getSubPrograms();
+    }
+
+    @Post('campaigns')
+    async createCampaign(@Body() body: any) {
+        return await this.salesforceService.createCampaign(body);
+    }
+
+    @Get('campaigns/:campaignId')
+    async getCampaignDetails(@Param('campaignId') campaignId: string) {
+        return await this.salesforceService.getCampaignDetails(campaignId);
     }
 }

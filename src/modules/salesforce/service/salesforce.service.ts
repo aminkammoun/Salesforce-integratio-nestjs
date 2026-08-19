@@ -262,7 +262,7 @@ export class SalesforceService {
                 });
             const paymentIntent = await this.stripe.paymentIntents.create({
                 amount: req.amount,
-                currency: process.env.ENV === 'TEST' ?  'EUR': req.currency,
+                currency: process.env.ENV === 'TEST' ? 'EUR' : req.currency,
                 payment_method_types: ['card_present'],
                 setup_future_usage: 'off_session',
                 capture_method: 'automatic',
@@ -776,7 +776,7 @@ export class SalesforceService {
             if (res.records.length === 0) {
                 return {
                     isCreated: true
-                } ;
+                };
             }
             return {
                 isCreated: false
@@ -784,5 +784,66 @@ export class SalesforceService {
         } catch (error) {
             throw new InternalServerErrorException(error);
         }
+    }
+
+    async getUserCampaigns(userId: string, page = 1, perPage = 10) {
+        const token = process.env.BEARERTOKEN;
+        const url = `${process.env.SALESFORCERESTAPI}/v1/p2p/users/${userId}/campaigns?page=${page}&per_page=${perPage}`;
+
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        return await response.json();
+    }
+
+    async getSubPrograms() {
+        const token = process.env.BEARERTOKEN;
+        const url = `${process.env.SALESFORCERESTAPI}/v1/p2p/sub-programs/`;
+
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        return await response.json();
+    }
+
+    async createCampaign(dto: any) {
+        const token = process.env.BEARERTOKEN;
+        const url = `${process.env.SALESFORCERESTAPI}/v1/p2p/campaigns/`;
+
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(dto),
+        });
+
+        return await response.json();
+    }
+
+    async getCampaignDetails(campaignId: string) {
+        const token = process.env.BEARERTOKEN;
+        const url = `${process.env.SALESFORCERESTAPI}/v1/p2p/campaigns/${campaignId}`;
+
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        return await response.json();
     }
 }
