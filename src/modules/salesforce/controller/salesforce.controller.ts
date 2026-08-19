@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Request, Res } from '@nestjs/common';
+import { Body, Controller, Get, Post, Param, Query, Request, Res } from '@nestjs/common';
 import { SalesforceService } from '../service/salesforce.service';
 @Controller('salesforce')
 export class SalesforceController {
@@ -50,5 +50,29 @@ export class SalesforceController {
     @Post('/getPaymentMethods')
     async getPaymentMethods(@Body() req: any) {
         return await this.salesforceService.collectPaymentMethod(req.readerId,req.paymentIntentId);
+    }
+
+    @Get('users/:userId/campaigns')
+    async getUserCampaigns(
+        @Param('userId') userId: string,
+        @Query('page') page?: number,
+        @Query('per_page') perPage?: number,
+    ) {
+        return await this.salesforceService.getUserCampaigns(userId, page, perPage);
+    }
+
+    @Get('sub-programs')
+    async getSubPrograms() {
+        return await this.salesforceService.getSubPrograms();
+    }
+
+    @Post('campaigns')
+    async createCampaign(@Body() body: any) {
+        return await this.salesforceService.createCampaign(body);
+    }
+
+    @Get('campaigns/:campaignId')
+    async getCampaignDetails(@Param('campaignId') campaignId: string) {
+        return await this.salesforceService.getCampaignDetails(campaignId);
     }
 }
