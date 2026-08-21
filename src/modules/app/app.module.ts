@@ -19,7 +19,27 @@ import { Orders } from '../orders/entities/orders.entity';
 import { OrdersModule } from '../orders/orders.module';
 import { ErrorsModule } from '../errors/errors.module';
 import { LeadModule } from '../lead/lead.module';
-
+import { TypeOrmModule } from '@nestjs/typeorm'; // Add this line
+import { NeonDatabaseModule } from '../../config/neon.config'
+import { NeondbModule } from '../neondb/neondb.module';
+import { NeonDatabaseControleModule } from 'src/config/neon.controle';
+/**
+ * Application root module that configures the NestJS application.
+ * 
+ * Sets up configuration management, event emitting, and scheduling modules.
+ * Integrates multiple feature modules for Salesforce, contacts, transactions, donations, and more.
+ * 
+ * Configures two databases:
+ * - MongoDB connection via Mongoose with URI from `database.uri` config
+ * - PostgreSQL connection via TypeORM with Neon database URL from `neon.url` config
+ * 
+ * The `neon.url` configuration value should be defined in:
+ * - Environment variables (e.g., `NEON_URL`)
+ * - Config files loaded by `ConfigModule.forRoot()` via the `config` array
+ * - Typically in `.env`, `.env.local`, or config JSON files in the project root
+ * 
+ * @module AppModule
+ */
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -27,7 +47,7 @@ import { LeadModule } from '../lead/lead.module';
       isGlobal: true,
     }),
     EventEmitterModule.forRoot(),
-    ScheduleModule.forRoot(), //this is required
+    NeonDatabaseModule,
     SalesforceModule,
     ContactModule,
     ChildModule,
@@ -40,6 +60,8 @@ import { LeadModule } from '../lead/lead.module';
     OrdersModule,
     ErrorsModule,
     LeadModule,
+    NeondbModule,
+    NeonDatabaseControleModule,
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (config: ConfigService) => ({
@@ -49,6 +71,7 @@ import { LeadModule } from '../lead/lead.module';
       }),
       inject: [ConfigService],
     }),
+
   ],
   controllers: [AppController],
   providers: [AppService],

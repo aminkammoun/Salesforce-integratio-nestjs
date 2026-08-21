@@ -20,6 +20,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^1.1.0",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
@@ -31,6 +32,7 @@
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/schedule": "^6.0.1",
     "@nestjs/swagger": "^11.2.1",
+    "@nestjs/typeorm": "^11.0.3",
     "@ntegral/nestjs-force": "^2.0.0",
     "@types/bcrypt": "^6.0.0",
     "bcrypt": "^6.0.0",
@@ -39,6 +41,7 @@
     "jsforce": "^3.10.8",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
+    "pg": "^8.22.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "stripe": "^19.2.0"
