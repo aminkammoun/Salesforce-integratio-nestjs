@@ -47,7 +47,7 @@ import { NeonDatabaseControleModule } from 'src/config/neon.controle';
       isGlobal: true,
     }),
     EventEmitterModule.forRoot(),
-    NeonDatabaseModule,
+    //NeonDatabaseModule,
     SalesforceModule,
     ContactModule,
     ChildModule,
@@ -60,8 +60,8 @@ import { NeonDatabaseControleModule } from 'src/config/neon.controle';
     OrdersModule,
     ErrorsModule,
     LeadModule,
-    NeondbModule,
-    NeonDatabaseControleModule,
+    //NeondbModule,
+    //NeonDatabaseControleModule,
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (config: ConfigService) => ({
