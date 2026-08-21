@@ -60,7 +60,7 @@ import { NeonDatabaseControleModule } from 'src/config/neon.controle';
     OrdersModule,
     ErrorsModule,
     LeadModule,
-    NeondbModule,
+    //NeondbModule,
     NeonDatabaseControleModule,
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
