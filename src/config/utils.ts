@@ -93,6 +93,9 @@ export async function handleInsertQuery(query: string,
         if (object.includes('Child_Attachment__c') && json.success) {
             return { message: 'Child Attachment created successfully in Salesforce', salesforceId: json.id };
         }
+        if (object.includes('Campaign') && json.success) {
+            return { message: 'Campaign created successfully in Salesforce', salesforceId: json.id };
+        }
         return json.data;
     } catch (err) {
         console.error(`Error inserting record into Salesforce object "${object}". Body:`, body);

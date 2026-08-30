@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Request, Res, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Request, Res, Query, NotFoundException } from '@nestjs/common';
 import { SalesforceService } from '../service/salesforce.service';
 @Controller('salesforce')
 export class SalesforceController {
@@ -80,27 +80,42 @@ export class SalesforceController {
         console.log('con', id);
         return await this.salesforceService.checkRecurringIsCreatedOnstripe(id);
     }
-    @Get('users/:userId/campaigns')
-    async getUserCampaigns(
-        @Param('userId') userId: string,
-        @Query('page') page?: number,
-        @Query('per_page') perPage?: number,
-    ) {
-        return await this.salesforceService.getUserCampaigns(userId, page, perPage);
-    }
-
+    
+    // 1. GET /p2p/sub-programs
     @Get('sub-programs')
     async getSubPrograms() {
         return await this.salesforceService.getSubPrograms();
     }
 
-    @Post('campaigns')
-    async createCampaign(@Body() body: any) {
-        return await this.salesforceService.createCampaign(body);
+    // 2. GET /p2p/users/:userId/campaigns?page=1&per_page=10
+    @Get('users/:userId/campaigns')
+    async getUserCampaigns(
+        @Param('userId') userId: string,
+        @Query('page') page?: string,
+        @Query('per_page') perPage?: string,
+    ) {
+        const pageNum = page ? parseInt(page, 10) : 1;
+        const perPageNum = perPage ? parseInt(perPage, 10) : 10;
+
+        return await this.salesforceService.getUserCampaigns(userId, pageNum, perPageNum);
     }
 
+    // 3. GET /p2p/campaigns/:campaignId
     @Get('campaigns/:campaignId')
     async getCampaignDetails(@Param('campaignId') campaignId: string) {
-        return await this.salesforceService.getCampaignDetails(campaignId);
+        const res = await this.salesforceService.getCampaignDetails(campaignId);
+        if (!res) {
+        throw new NotFoundException({
+            success: false,
+            message: 'Campaign not found.',
+        });
+        }
+        return res;
+    }
+
+    // 4. POST /p2p/campaigns
+    @Post('campaigns')
+    async createCampaign(@Body() dto: any) {
+        return await this.salesforceService.createCampaign(dto);
     }
 }
