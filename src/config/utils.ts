@@ -93,7 +93,10 @@ export async function handleInsertQuery(query: string,
         if (object.includes('Child_Attachment__c') && json.success) {
             return { message: 'Child Attachment created successfully in Salesforce', salesforceId: json.id };
         }
-        return json.data;
+        if (object.includes('Campaign') && json.success) {
+            return { message: 'Campaign created successfully in Salesforce', salesforceId: json.id };
+        }
+        return json;
     } catch (err) {
         console.error(`Error inserting record into Salesforce object "${object}". Body:`, body);
         try {
@@ -150,7 +153,10 @@ export async function handleQuery(version: string, query: string, token: string)
     }
     );
     if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
+        const errorData = await res.json().catch(() => null);
+        const error = new Error(`HTTP error! status: ${res.status}`);
+        (error as any).data = errorData; // Attach Salesforce error payload
+        throw error;
     }
     return await res.json();
 
