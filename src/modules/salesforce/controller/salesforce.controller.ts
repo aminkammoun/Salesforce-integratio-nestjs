@@ -105,10 +105,11 @@ export class SalesforceController {
     async getCampaignDetails(@Param('campaignId') campaignId: string) {
         const res = await this.salesforceService.getCampaignDetails(campaignId);
         if (!res) {
-        throw new NotFoundException({
-            success: false,
-            message: 'Campaign not found.',
-        });
+            throw new NotFoundException({
+                success: false,
+                message: 'Campaign not found.',
+                errors: [],
+            });
         }
         return res;
     }
